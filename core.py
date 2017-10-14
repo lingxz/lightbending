@@ -30,7 +30,7 @@ def solve(max_t, initial, p):
     phi = sol[:,2]
     x = r * np.cos(phi)
     y = r * np.sin(phi)
-    plt.plot(x, y, color='b')
+    # plt.plot(x, y, color='b')
 
     # get angle to horizontal
     num_entries = len(t)
@@ -48,12 +48,15 @@ def solve(max_t, initial, p):
 
 def main():
     M = 1.
-    initial_x = -50
-    max_t = 10000.
-    # bs = np.arange(4., 10., 1.)
-    bs = np.array([4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40])
+    # initial_x = -150
+    max_t = 1000.
+    bs = np.arange(20., 100., 1.)
+    initial_xs = -bs
+    # bs = np.array([150.])
+    # bs = np.array([4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40])
     deflections = []
     for b in bs:
+        initial_x = -b
         initial_r = np.sqrt(b**2 + initial_x**2)
         initial_phi = np.arccos(initial_x / initial_r)
         initial_rdot = np.cos(initial_phi)
@@ -63,25 +66,27 @@ def main():
         deflections.append(d)
 
     axes = plt.gca()
-    lim = -initial_x
+    lim = max(-initial_xs)
     axes.set_xlim([-lim,lim])
     axes.set_ylim([-lim,lim])
     # plot the blackhole
     circle = plt.Circle((0., 0.), 2*M, color='black', fill=True, zorder=10)
-    plt.legend(bs)
+    # plt.legend(bs)
     axes.add_artist(circle)
     axes.set_aspect('equal', adjustable='box')
 
     # plot deflection angles
     expected = expected_schw_light_bending(bs, M)
-    plt.figure()
+    plt.figure(dpi=300)
 
-    plt.plot(bs, expected, 'ro')
+    plt.plot(bs, expected, 'r+')
     plt.plot(bs, deflections, 'b+')
+    plt.errorbar(bs, deflections, yerr=np.array(deflections)*0.05, fmt="none", ecolor='b', elinewidth='1.')
     plt.ylabel('Deflection angle')
     plt.xlabel('Distance of closest approach')
     plt.legend([r'Theoretical deflection ($\frac{4M}{R}$)', 'Numerical result'])
-    percentage_errors = np.absolute(expected - deflections) / expected
+    plt.savefig('images/deflections2.png')
+    percentage_errors = np.absolute(expected - deflections) / deflections
     print(percentage_errors)
     # plt.gca().set_aspect('equal', adjustable='box')
 
