@@ -89,7 +89,7 @@ def kottler(eta, w, p):
         phidot,
     ]
 
-
+INTEGRATOR = 'vode'
 def solve():
 
     k = 0
@@ -97,7 +97,7 @@ def solve():
     # H_0 = 7.33e-27
     # H_0 = 1e-10
     H_0 = 1e-3
-    Omega_Lambda = 0.1
+    Omega_Lambda = 0
     Omega_m = 1 - Omega_Lambda
 
     a0 = 1
@@ -107,11 +107,12 @@ def solve():
     initial_phi = 0.
     initial_t = 0.
 
-    # initial_rdot = -1e17
-    initial_rdot = -20.
-    initial_phidot = 0.03
+    angle_to_horizontal = 0.15
+    initial_rdot = -initial_r/10
+    initial_phidot = -np.tan(angle_to_horizontal) * initial_rdot / initial_r
+    print("initial velocities:", initial_rdot, initial_phidot, initial_tdot)
     initial_R = initial_a*initial_r
-    initial_tdot = np.sqrt(initial_a**2/(1-k*initial_r**2)*initial_rdot**2 + initial_R**2*initial_phidot**2)
+    initial_tdot = -np.sqrt(initial_a**2/(1-k*initial_r**2)*initial_rdot**2 + initial_R**2*initial_phidot**2)
 
 
     rho = Omega_m*3*H_0**2/(8*np.pi)
@@ -121,13 +122,13 @@ def solve():
     Lambda = 3*Omega_Lambda*H_0**2
     L_frw = (initial_a*initial_r)**2*initial_phidot
 
-    solver_frw = spi.ode(frw)
+    solver_frw = spi.ode(frw).set_integrator(INTEGRATOR)
 
     p_frw = [L_frw, k, Omega_Lambda, Omega_m, H_0]
     initial = [initial_a, initial_r, initial_rdot, initial_t, initial_tdot, initial_phi]
 
     eta = np.arange(0, 100, 0.1)
-    sol_frw_only = spi.odeint(frw2, initial, eta, args=(p_frw,), printmessg=1, mxstep=500000)
+    # sol_frw_only = spi.odeint(frw2, initial, eta, args=(p_frw,), printmessg=1, mxstep=500000)
 
     solver_frw.set_initial_value(initial, 0).set_f_params(p_frw)
     sol = []
@@ -139,7 +140,7 @@ def solve():
             last = solver_frw.y
             break
     
-    solver_kottler = spi.ode(kottler)
+    solver_kottler = spi.ode(kottler).set_integrator(INTEGRATOR)
     r_out = last[0] * last[1]
     initial_t = 0
     initial_r = r_out
@@ -162,8 +163,9 @@ def solve():
     solver_kottler.set_initial_value(initial_kottler, 0).set_f_params(p_kottler)
     sol_kottler = []
     while solver_kottler.successful():
-        dt = 0.001
-        solver_kottler.integrate(solver_kottler.t + dt)
+        # dt = 0.001
+        dt = 100
+        solver_kottler.integrate(solver_kottler.t + dt, step=True)
         sol_kottler.append(list(solver_kottler.y))
         # print("step: ", solver_kottler.y)
         if solver_kottler.y[2] > solver_kottler.y[0]:
@@ -174,6 +176,7 @@ def solve():
     initial_phi = last[4]
     initial_r = r_h
     initial_a = last[0] / r_h
+    print("scale factor on exit:", initial_a)
     initial_phidot = L_kottler / last[2]**2
     f = 1-2*M/last[2]-Lambda/3*last[2]**2
     last_tdot = E/f
@@ -182,16 +185,24 @@ def solve():
     initial_tdot = initial_etadot * initial_a
 
     # print(p_frw)
-    # p_frw[0] = initial_a**2 * initial_r**2*initial_phidot # change the L_frw
+    p_frw[0] = initial_a**2 * initial_r**2*initial_phidot # change the L_frw
     # print(p_frw)
     # p_frw = [L_frw, k, Omega_Lambda, Omega_m, H_0]
     # r_h, t, r, rdot, phi = w
 
-    print("last", last)
-    initial_t = 2/(3*H_0*np.sqrt(Omega_Lambda))*np.arcsin(np.sqrt(Omega_Lambda/(1-Omega_Lambda))*(initial_r/a0/r_h)**(3/2))
+    if Omega_Lambda:
+        initial_t = 2/(3*H_0*np.sqrt(Omega_Lambda))*np.arcsin(np.sqrt(Omega_Lambda/(1-Omega_Lambda))*(initial_r/a0/r_h)**(3/2))
+    else:
+        initial_t = 2/(3*H_0)*(initial_r/a0/r_h)**(3/2)
     # a, t, r, rdot, phi 
+
+    # check if its going to cross the axis
+    initial_ydot = initial_rdot*np.sin(initial_phi) + initial_r*np.cos(initial_phi)*initial_phidot
+    if initial_ydot > 0:
+        print("light ray is not going to cross the axis, shoot it closer to the black hole")
+
     initial_frw2 = [initial_a, initial_r, initial_rdot, initial_t, initial_tdot, initial_phi]
-    solver_frw2 = spi.ode(frw)
+    solver_frw2 = spi.ode(frw).set_integrator(INTEGRATOR)
     solver_frw2.set_initial_value(initial_frw2, 0).set_f_params(p_frw)
 
     t_end = 100
@@ -200,6 +211,8 @@ def solve():
         dt = 0.1
         solver_frw2.integrate(solver_frw2.t + dt)
         sol.append(list(solver_frw2.y))
+        if solver_frw2.y[1] * np.sin(solver_frw2.y[5]) < 0:  # stop when it crosses the axis
+            break
 
 
     sol = np.array(sol)
@@ -208,11 +221,12 @@ def solve():
 
     x = r * np.cos(phi)
     y = r * np.sin(phi)
-    plt.plot(x, y, 'b-')
+    plt.plot(x, y, 'bo')
 
-    r_frw = sol_frw_only[:,1]
-    phi_frw = sol_frw_only[:,5]
-    plt.plot(r_frw*np.cos(phi_frw), r_frw*np.sin(phi_frw), 'r-')
+    # the frw only line
+    # r_frw = sol_frw_only[:,1]
+    # phi_frw = sol_frw_only[:,5]
+    # plt.plot(r_frw*np.cos(phi_frw), r_frw*np.sin(phi_frw), 'r-')
 
     swiss_cheese_hole = plt.Circle((0., 0.), r_h, color='grey', fill=False, zorder=10)
     axes = plt.gca()
