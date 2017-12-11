@@ -1,10 +1,14 @@
+'''
+origin at lens
+'''
+
 import numpy as np
 import scipy.integrate as spi
 import matplotlib.pyplot as plt
 import time
 
 
-giga_parsec = 3.086e22
+length_scale = 3.086e23 # mega parsec
 INTEGRATOR = 'vode'
 INTEGRATOR_PARAMS = {
     'atol': 1e-100, 
@@ -12,10 +16,11 @@ INTEGRATOR_PARAMS = {
     # 'method': 'bdf',
 }
 # H_0 = 7.33e-27
-H_0 = 7.56e-27 * giga_parsec
+H_0 = 7.56e-27 * length_scale
 Omega_Lambda = 0
 Omega_m = 1 - Omega_Lambda
-M = 0.5e15 / giga_parsec
+M = 0.5e15 / length_scale
+print("M: ", M)
 
 def frw(eta, w, p):
     L, k, Omega_Lambda, Omega_m, H_0 = p
@@ -116,9 +121,9 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True):
     # plt.show()
 
     if plot:
-        angle = get_angle(last[1], last[4], last[2], L_frw/(last[0]*last[1])**2)
+        frw_angle_before_entering = get_angle(last[1], last[4], last[2], L_frw/(last[0]*last[1])**2)
         print("Angle in FRW::")
-        print(angle)
+        print(frw_angle_before_entering)
         print(last)
         print("\n")
     solver_kottler = spi.ode(kottler).set_integrator(INTEGRATOR, **INTEGRATOR_PARAMS)
@@ -170,6 +175,8 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True):
     angle_after_exiting = get_angle(last[2], last[4], last[3], L_kottler/last[2]**2)
     if plot:
         print("light ray angle after exiting kottler hole: ", angle_after_exiting)
+        print("bending angle in kottler: ", angle_before_entering - angle_after_exiting)
+        print("\n")
 
     # r_h, t, r, rdot, phi = w
     initial_phi = last[4]
@@ -195,6 +202,12 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True):
         initial_t = 2/(3*H_0)*(initial_r/a0/r_h)**(3/2)
     # a, t, r, rdot, phi 
 
+    frw_angle_after_exiting = get_angle(initial_r, initial_phi, initial_rdot, initial_phidot)
+    if plot:
+        print("Angle after exiting FRW:", frw_angle_after_exiting)
+        print("bending angle in FRW: ", frw_angle_before_entering - frw_angle_after_exiting)
+        print("\n")
+
     # check if its going to cross the axis
     initial_ydot = initial_rdot*np.sin(initial_phi) + initial_r*np.cos(initial_phi)*initial_phidot
     if initial_ydot > 0:
@@ -213,7 +226,7 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True):
 
     while solver_frw2.successful():
         # dt = 1e-6
-        solver_frw2.integrate(solver_frw2.t + dt, step=True)
+        solver_frw2.integrate(solver_frw2.t + dt)
         sol.append(list(solver_frw2.y))
         if solver_frw2.y[1] * np.sin(solver_frw2.y[4]) < 0:  # stop when it crosses the axis
             break
@@ -223,14 +236,25 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True):
     phi = sol[:,4]
     a = sol[:,0]
 
+    # s = spi.ode(frw)
+    # p_s = [0, k, Omega_Lambda, Omega_m, H_0]
+    # initial_s = [1, 1e-8, comoving_lens, 0, 0]
+    # # initial = [initial_a, initial_r, initial_rdot, initial_t, initial_phi]
+    # s.set_f_params(p_s).set_initial_value(initial_s).set_integrator(INTEGRATOR, **INTEGRATOR_PARAMS)
+    # while s.successful():
+    #     s.integrate(s.t + dt, step=True)
+    #     if s.y[1] > (r[-1] + comoving_lens):
+    #         last_a = s.y[0]
+    #         last_r =s.y[1]
+    #         print(last_a, a[-1])
+    #         break
+
     if plot:
         x = r * np.cos(phi)
         y = r * np.sin(phi)
         plt.plot(x, y, 'bo')
         
         print("axis crossing points", r[-1], phi[-1])
-
-    if plot:
         swiss_cheese_hole = plt.Circle((0., 0.), r_h, color='grey', fill=False, zorder=10)
         axes = plt.gca()
         axes.add_artist(swiss_cheese_hole)
@@ -256,7 +280,10 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True):
         lim = 200
         axes.set_xlim([-lim, lim])
         axes.set_ylim([-lim, lim])
-    return r[-1]*a[-1]
+    # return a[-1]*r[-1]
+    # return (r[-1] + comoving_lens)*a[-1]
+    return r[-1] * a[-1] * 1.01
+    # return last_r * last_a
 
 def theoretical_schw(theta, D_L):
     return theta**2*D_L**2/(4*M-D_L*theta**2)
@@ -271,9 +298,9 @@ def get_distances(z):
 
 def main():
     start = time.time()
-    # thetas = np.linspace(3, 15, 10)*10**(-6)
-    thetas = np.array([15e-6])
-    z_source = 0.05
+    thetas = np.linspace(6, 30, 10)*10**(-6)
+    # thetas = np.array([15e-6])
+    z_source = 0.01
     comoving_lens, dang_lens = get_distances(z_source)
     print("lens distances: ", comoving_lens, dang_lens)
     ds = []
@@ -284,7 +311,7 @@ def main():
     th = theoretical_schw(thetas, dang_lens)
     print(ds)
     print(th)
-    percentage_errors = np.abs(th - ds)/th
+    percentage_errors = np.abs(th - ds)/ds
     print(percentage_errors*100)
     print("Time taken: {}".format(time.time() - start))
 
