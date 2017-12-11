@@ -68,13 +68,20 @@ def solve(max_t, initial, p):
 
     return deflection
 
+# r, rdot, phi
+initial = [0.00096342312817610052, -0.043884038009890776, 3.1396295238764198]
+p = [3.240440699935191e-11, -6.5801956132742141e-08]
+solve(initial, p)
+
 def main():
-    M = 1.
+    # M = 1
+    M = 1e15/3.086e25
     plt.figure(dpi=300)
     # initial_x = -150
     max_t = 1000.
     # bs = np.arange(20., 100., 1.)
-    bs = np.array([4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40])
+    # bs = np.array([4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40])
+    bs = np.array([1.5e-6])
     # bs = np.array([1000.])
     # E = -1.
     initial_xs = bs*0 - 10
@@ -98,6 +105,7 @@ def main():
         d = solve(max_t, [initial_r, initial_rdot, initial_phi], [M, L])
         deflections.append(d)
 
+    deflections = np.array(deflections)
     axes = plt.gca()
     lim = max(-initial_xs)
     # lim = 50
@@ -124,6 +132,8 @@ def main():
 
     # plt.savefig('images/deflections_trans.png')
     percentage_errors = np.absolute(expected - deflections) / deflections
+    print(expected)
+    print(deflections)
     print(percentage_errors)
     # plt.gca().set_aspect('equal', adjustable='box')
 

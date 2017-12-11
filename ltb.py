@@ -6,40 +6,29 @@ def ltb(w, eta, p):
     L, k, Omega_Lambda, Omega_m, H_0 = p
 
     # differential equations
-    r, rdot, t, tdot, phi, E, R = w
-
-    # spacetime quantities
-    a = R / r
+    r, rdot, t, tdot, phi, a = w
+    
     a_t = a * H_0 * np.sqrt(Omega_m/a**3 + Omega_Lambda)
-    R_t = r*a_t
-    R_r = a
-    R_rt = a_t
-    R_rr = 0
-    E_r = 2*k*r
     
     # coordinates
-    phidot = L / R**2
-    Edot = E_r * rdot
-    tddot = -R*R_t*phidot**2 - rdot**2/(1+E)*R_rt*R_r
-    rddot = -2*R_rt/R_r*tdot*rdot + (E_r/(1+E)-R_rr/R_r)*rdot**2 + (1+E)*R/R_r*phidot**2
-    Rdot = R_t*tdot + R_r*rdot
+    phidot = L / (r*a)**2
+    tddot = -a*r**2*a_t*phidot**2 - rdot**2*a*a_t
+    rddot = -2*a_t/a*tdot*rdot + r*phidot**2
 
-    print(r, rdot, rddot)
+    # print(r, rdot, rddot)
     return [
         rdot,
         rddot,
         tdot,
         tddot,
         phidot,
-        Edot,
-        Rdot,
+        a_t*tdot,
     ]
 
 
 def solve():
-    eta = np.arange(1, 100, 0.1)
-
     k = 0
+    eta = np.arange(1, 100, 0.1)
 
     initial_a = 1
     initial_r = 150
@@ -47,11 +36,10 @@ def solve():
     initial_rdot = -20.
     initial_phidot = 0.05
     initial_tdot = np.sqrt(initial_a**2*initial_rdot**2 + initial_a**2*initial_r**2*initial_phidot**2)
-    initial_R = initial_r*initial_a
-    initial_E = k*initial_r**2
+
 
     # r, rdot, t, tdot, phi, E, R
-    initial = [initial_r, initial_rdot, 0, initial_tdot, initial_phi, initial_E, initial_R]
+    initial = [initial_r, initial_rdot, 0, initial_tdot, initial_phi, initial_a]
     print(initial)
 
     L = initial_r**2*initial_phidot
@@ -62,9 +50,13 @@ def solve():
     r = sol[:,0]
     phi = sol[:,4]
 
-    print(r)
-    print(phi)
+    a = sol[:,5]
+    rdot = sol[:,1]
+    phidot = L/(a*r)**2
+    angles = np.arctan((rdot*np.sin(phi) + r*np.cos(phi)*phidot)/(rdot*np.cos(phi) - r*np.sin(phi)*phidot))
 
+    print("angles:")
+    print(angles)
 
     x = r * np.cos(phi)
     y = r * np.sin(phi)
