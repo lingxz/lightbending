@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import time
 
 
-length_scale = 3.086e22 # mega parsec
+length_scale = 3.086e23 # mega parsec
 INTEGRATOR = 'vode'
 INTEGRATOR_PARAMS = {
     'atol': 1e-100, 
@@ -16,10 +16,10 @@ INTEGRATOR_PARAMS = {
     # 'method': 'bdf',
 }
 # H_0 = 7.33e-27
-H_0 = 7.33e-27 * length_scale
+H_0 = 7.56e-27 * length_scale
 Omega_Lambda = 0
 Omega_m = 1 - Omega_Lambda
-M = 1e16 / length_scale
+M = 0.5e15 / length_scale
 print("M: ", M)
 
 def frw(eta, w, p):
@@ -32,7 +32,7 @@ def frw(eta, w, p):
     phidot = L / (a*r)**2
     # tddot = -a*r**2*phidot**2*a_t - a*rdot**2*a_t/ (1 - k*r**2)
     tdot = -np.sqrt(a**2*rdot**2+a**2*r**2*phidot**2)
-    rddot = r*phidot**2 - 2*a_t/a*rdot*tdot
+    rddot = r*phidot**2 - k*rdot**2 - 2*a_t/a*rdot*tdot
 
     return [
         a_t*tdot,
@@ -65,13 +65,15 @@ def kottler(eta, w, p):
         phidot,
     ]
 
-def solve(angle_to_horizontal, comoving_lens=1e25, plot=True):
+def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0):
     k = 0
     a0 = 1
     initial_a = a0
+    # initial_r = 10e17
     initial_r = comoving_lens
     initial_phi = np.pi
-    initial_t = 0
+    initial_t = 0.
+    Omega_m = 1 - Omega_Lambda
 
     # initial_tdot = -1.
     # initial_rdot = -np.sqrt(initial_tdot**2/initial_a**2/(1+(np.tan(angle_to_horizontal))**2))
@@ -114,7 +116,7 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True):
     sol = sol
     last = sol[-1]
     # print("FRW coordinates, before entering kottler:")
-    # sol1 = np.array(sol)
+    sol1 = np.array(sol)
     # angle = get_angle(sol1[:,1], sol1[:,4], sol1[:,2], L_frw/(sol1[:,0]*sol1[:,1])**2)
     # plt.plot(sol1[:,1]*np.cos(sol1[:,4]), angle)
     # plt.show()
@@ -123,11 +125,12 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True):
         frw_angle_before_entering = get_angle(last[1], last[4], last[2], L_frw/(last[0]*last[1])**2)
         print("Angle in FRW::")
         print(frw_angle_before_entering)
+        print(last)
         print("\n")
     solver_kottler = spi.ode(kottler).set_integrator(INTEGRATOR, **INTEGRATOR_PARAMS)
     # a, r, rdot, t, phi = w
     r_out = last[0] * last[1]
-    tdot_out = -np.sqrt(last[0]**2*last[2]**2+last[0]**2*last[1]**2*(L_frw/(last[0]*last[1])**2)**2)
+    tdot_out = -np.sqrt(last[0]**2*last[2]**2+last[0]**2*last[1]**2*L_frw/(last[0]*last[1])**2)
     initial_t = 0
     initial_r = r_out
     initial_phi = last[4]
@@ -139,7 +142,7 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True):
     initial_rdot = last[0] * (np.sqrt(1 - f)*etadot + last[2])
     initial_tdot = last[0]/f*(etadot + np.sqrt(1-f)*last[2])
     initial_phidot = L_frw / (last[0]*last[1])**2
-    L_kottler = initial_phidot * initial_r**2
+    L_kottler = initial_phidot *initial_r**2
 
     initial_kottler = [initial_rh, initial_t, initial_r, initial_rdot, initial_phi]
     E = f*initial_tdot
@@ -151,7 +154,6 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True):
         print("kottler initial:")
         print("initial_rh, initial_t, initial_r, initial_rdot, initial_phi")
         print(initial_kottler)
-        print(initial_r*np.sin(initial_phi))
 
     angle_before_entering = get_angle(initial_r, initial_phi, initial_rdot, initial_phidot)
     if plot:
@@ -199,7 +201,7 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True):
         initial_t = 2/(3*H_0*np.sqrt(Omega_Lambda))*np.arcsin(np.sqrt(Omega_Lambda/(1-Omega_Lambda))*(initial_r/a0/r_h)**(3/2))
     else:
         initial_t = 2/(3*H_0)*(initial_r/a0/r_h)**(3/2)
-    # a, r, rdot, t, phi 
+    # a, t, r, rdot, phi 
 
     frw_angle_after_exiting = get_angle(initial_r, initial_phi, initial_rdot, initial_phidot)
     if plot:
@@ -228,10 +230,6 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True):
         solver_frw2.integrate(solver_frw2.t + dt)
         sol.append(list(solver_frw2.y))
         if solver_frw2.y[1] * np.sin(solver_frw2.y[4]) < 0:  # stop when it crosses the axis
-            if plot:
-                angle = get_angle(solver_frw2.y[1], solver_frw2.y[4], solver_frw2.y[2], p_frw[0]/(solver_frw2.y[0]*solver_frw2.y[1])**2)
-                print("FRW angle at end: ", angle)
-                print(solver_frw2.y[3], solver_frw2.y[0])
             break
 
     sol = np.array(sol)
@@ -283,9 +281,9 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True):
         lim = 200
         axes.set_xlim([-lim, lim])
         axes.set_ylim([-lim, lim])
+    # return a[-1]*r[-1]
     # return (r[-1] + comoving_lens)*a[-1]
-    # return r[-1] * a[-1] * 1.5
-    return r[-1] / 1.5
+    return r[-1] * a[-1] * 1.01
     # return last_r * last_a
 
 def theoretical_schw(theta, D_L):
@@ -301,9 +299,9 @@ def get_distances(z):
 
 def main():
     start = time.time()
-    thetas = np.linspace(15, 30, 10)*10**(-6)
-    # thetas = np.array([10e-6])
-    z_source = 0.5
+    thetas = np.linspace(6, 30, 10)*10**(-6)
+    # thetas = np.array([15e-6])
+    z_source = 0.01
     comoving_lens, dang_lens = get_distances(z_source)
     print("lens distances: ", comoving_lens, dang_lens)
     ds = []
@@ -311,12 +309,7 @@ def main():
         result = solve(theta, plot=False, comoving_lens=comoving_lens)
         ds.append(result)
     ds = np.array(ds)
-    # zs = (1/(1-ds*H_0/2))**2 - 1
-    # print("zs", zs)
-    # ds = 1/(1+zs) * ds - dang_lens
     th = theoretical_schw(thetas, dang_lens)
-    # th = thetas * comoving_lens / (4*M/(dang_lens*thetas) - thetas)
-    # print(4*M/(dang_lens*thetas))
     print(ds)
     print(th)
     percentage_errors = np.abs(th - ds)/ds
