@@ -1,4 +1,5 @@
 '''
+sw_lambda, but generalized for curved universe
 origin at lens
 '''
 
@@ -27,16 +28,21 @@ M = 1474e12 / length_scale
 print("M: ", M)
 
 def frw(eta, w, p):
-    L, k, Omega_Lambda, Omega_m, H_0 = p
+    L, Omega_k, Omega_Lambda, Omega_m, H_0 = p
 
     a, r, rdot, t, phi = w
 
-    a_t = a * H_0 * np.sqrt(Omega_m/a**3 + Omega_Lambda)
+    # Omega_k = 1 - Omega_Lambda - Omega_m
+    k = omk2k(Omega_k, H_0)
+    a_t = a * H_0 * np.sqrt(Omega_m/a**3 + Omega_Lambda + Omega_k/a**2)
 
     phidot = L / (a*r)**2
     # tddot = -a*r**2*phidot**2*a_t - a*rdot**2*a_t/ (1 - k*r**2)
-    tdot = -np.sqrt(a**2*rdot**2+a**2*r**2*phidot**2)
-    rddot = r*phidot**2 - k*rdot**2 - 2*a_t/a*rdot*tdot
+    # tdot = -np.sqrt(a**2*rdot**2+a**2*r**2*phidot**2)
+    tdot = -np.sqrt(a**2*rdot**2/(1-k*r**2)+a**2*r**2*phidot**2)
+
+    # rddot = r*phidot**2 - k*rdot**2 - 2*a_t/a*rdot*tdot
+    rddot = (1-k*r**2)*r*phidot**2 - k*rdot**2/(1-k*r**2) - 2*a_t/a*rdot*tdot
 
     return [
         a_t*tdot,
@@ -49,6 +55,25 @@ def frw(eta, w, p):
 def get_angle(r, phi, rdot, phidot):
     res = np.arctan((rdot*np.sin(phi)+r*np.cos(phi)*phidot)/(rdot*np.cos(phi)-r*np.sin(phi)*phidot))
     return res
+
+def r2chi(k, r):
+    if k == 0:
+        return r
+    if k > 0:
+        return np.arcsin(np.sqrt(k)*r)/np.sqrt(k)
+    if k < 0:
+        return np.arcsinh(np.sqrt(-k)*r)/np.sqrt(-k)
+
+def chi2r(k, chi):
+    if k == 0:
+        return chi
+    if k > 0:
+        return np.sin(np.sqrt(k)*chi)/np.sqrt(k)
+    if k < 0:
+        return np.sinh(np.sqrt(-k)*chi)/np.sqrt(-k)
+
+def omk2k(om_k, H0):
+    return H0**2*om_k
 
 def kottler(eta, w, p):
     E, L, M, Omega_Lambda, Omega_m, H_0 = p
@@ -69,15 +94,15 @@ def kottler(eta, w, p):
         phidot,
     ]
 
-def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0):
-    k = 0
+def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, Omega_m=1.):
     a0 = 1
     initial_a = a0
     # initial_r = 10e17
     initial_r = comoving_lens
     initial_phi = np.pi
     initial_t = 0.
-    Omega_m = 1 - Omega_Lambda
+    Omega_k = 1 - Omega_m - Omega_Lambda
+    k = omk2k(Omega_k, H_0)
 
     # initial_tdot = -1.
     # initial_rdot = -np.sqrt(initial_tdot**2/initial_a**2/(1+(np.tan(angle_to_horizontal))**2))
@@ -95,13 +120,14 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0):
     r_h = 1/initial_a*(3*M/(4*np.pi*rho))**(1./3)
     if plot:
         print('r_h:', r_h, "\n")
+    chi_h = r2chi(k, r_h)
 
     Lambda = 3*Omega_Lambda*H_0**2
     L_frw = (initial_a*initial_r)**2*initial_phidot
 
     solver_frw = spi.ode(frw).set_integrator(INTEGRATOR, **INTEGRATOR_PARAMS)
 
-    p_frw = [L_frw, k, Omega_Lambda, Omega_m, H_0]
+    p_frw = [L_frw, Omega_k, Omega_Lambda, Omega_m, H_0]
     initial = [initial_a, initial_r, initial_rdot, initial_t, initial_phi]
     
     # save for later frw straight line propagation
@@ -116,7 +142,7 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0):
     while solver_frw.successful():
         solver_frw.integrate(solver_frw.t + dt, step=False)
         sol.append(list(solver_frw.y))
-        if solver_frw.y[1] <= r_h:
+        if r2chi(k, solver_frw.y[1])<= chi_h:
             last = solver_frw.y
             break
 
@@ -146,8 +172,8 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0):
     etadot = tdot_out / last[0] # conformal time
 
     # a, r, rdot, t, phi
-    initial_rdot = last[0] * (np.sqrt(1 - f)*etadot + last[2])
-    initial_tdot = last[0]/f*(etadot + np.sqrt(1-f)*last[2])
+    initial_rdot = last[0] * (np.sqrt(1 - f)*etadot + last[2]/np.sqrt(1-k*initial_r**2))
+    initial_tdot = last[0]/f*(etadot + np.sqrt(1-f)*last[2]/np.sqrt(1-k*initial_r**2))
     initial_phidot = L_frw / (last[0]*last[1])**2
     L_kottler = initial_phidot *initial_r**2
 
@@ -203,13 +229,13 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0):
     initial_phidot = L_kottler / last[2]**2
     f = 1-2*M/last[2]-Lambda/3*last[2]**2
     last_tdot = E/f
-    initial_rdot = 1/initial_a*(1/f*last[3] - np.sqrt(1-f)*last_tdot)
+    initial_rdot = 1/initial_a*(1/f*last[3] - np.sqrt(1-f)*last_tdot) * np.sqrt(1-k*initial_r**2)
     initial_etadot = 1/initial_a*(last_tdot - np.sqrt(1-f)/f*last[3])
     initial_tdot = initial_etadot * initial_a
 
 
     p_frw[0] = initial_a**2 * initial_r**2*initial_phidot # change the L_frw
-    # p_frw = [L_frw, k, Omega_Lambda, Omega_m, H_0]
+    # p_frw = [L_frw, Omega_k, Omega_Lambda, Omega_m, H_0]
     # r_h, t, r, rdot, phi = w
 
     if Omega_Lambda:
@@ -217,7 +243,7 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0):
         # initial_t = 2/(3*H_0*np.sqrt(Omega_Lambda))*np.arcsin(np.sqrt(Omega_Lambda/(1-Omega_Lambda))*(last[2]/a0/r_h)**(3/2))
     else:
         initial_t = 2/(3*H_0)*(last[2]/a0/r_h)**(3/2)
-    initial_t = 0
+    # initial_t = 0
     # a, t, r, rdot, phi 
 
     frw_angle_after_exiting = get_angle(initial_r, initial_phi, initial_rdot, initial_phidot)
@@ -257,19 +283,6 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0):
     phi = sol[:,4]
     a = sol[:,0]
 
-    # s = spi.ode(frw)
-    # p_s = [0, k, Omega_Lambda, Omega_m, H_0]
-    # source_a = None
-    # # initial0[1] = 1e-100
-    # initial_s = [1, 1e-8, comoving_lens, 0, 0]
-    # # initial = [initial_a, initial_r, initial_rdot, initial_t, initial_phi]
-    # s.set_f_params(p_s).set_initial_value(initial_s).set_integrator(INTEGRATOR, **INTEGRATOR_PARAMS)
-    # while s.successful():
-    #     s.integrate(s.t + dt)
-    #     if s.y[1] > (r[-1] + comoving_lens):
-    #         source_a = s.y[0]
-    #         break
-
     if plot:
         x = r * np.cos(phi)
         y = r * np.sin(phi)
@@ -302,19 +315,19 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0):
         axes.set_xlim([-lim, lim])
         axes.set_ylim([-lim, lim])
 
-    # print("diff between as", source_a, a[-1])
     return r[-1], a[-1]
-    # return r[-1], source_a
 
 # [ 0.18075975  0.05122652  0.23824122  0.31020329  0.20010044  0.39768539
 #   0.43731914  0.46608477  0.37572935  0.39980157]
 
-def get_distances(z, Omega_Lambda=0):
-    Omega_m = 1 - Omega_Lambda
+def get_distances(z, Omega_Lambda=0, Omega_m=1.):
+    Omega_k = 1 - Omega_Lambda - Omega_m
+    k = omk2k(Omega_k, H_0)
     def integrand(z):
-        return 1/np.sqrt(Omega_m*(1+z)**3 + Omega_Lambda)
+        return 1/np.sqrt(Omega_m*(1+z)**3 + Omega_Lambda + Omega_k*(1+z)**2)
     integral, error = spi.quad(integrand, 0, z)
-    comoving = integral/H_0
+    chi = integral/H_0
+    comoving = chi2r(k, chi)
     dang = comoving/(1+z)
     return comoving, dang
 
@@ -328,7 +341,7 @@ def main():
     theta = 5e-6
     # print("thetas", thetas)
     # thetas = np.array([15e-6])
-    om_lambdas = np.linspace(0, 0.9, 20)
+    om_lambdas = np.linspace(0, 0.9, 10)
     # om = 0
     z_lens = 0.1
     a_lens = 1/(z_lens+1)
@@ -338,12 +351,15 @@ def main():
     dl = []
     # for theta in tqdm(thetas):
     for om in tqdm(om_lambdas):
-        # print("omega_lambda:", om)
-        comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om)
+        om_k = 0.1
+        k = omk2k(om_k, H_0)
+        comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om, Omega_m=1-om-om_k)
+        print("density parameters", om, om_k, 1-om-om_k)
         dl.append(dang_lens)
-        # print("lens distances: ", comoving_lens, dang_lens)
-        r, a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om)
-        d_s = a*(r + comoving_lens)
+        print("lens distances: ", comoving_lens, dang_lens)
+        r, a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, Omega_m=1-om)
+        chi_s = r2chi(k, r) + r2chi(k, comoving_lens)
+        d_s = a*chi2r(k, chi_s)
         d_ls = a/a_lens * r
         ds.append(d_s)
         dls.append(d_ls)
@@ -365,8 +381,5 @@ def main():
     # percentage_errors = np.abs(th - ds)/ds
     print(percentage_errors)
     print("Time taken: {}".format(time.time() - start))
-    plt.plot(om_lambdas, percentage_errors, 'ro')
 
 main()
-plt.show()
-# plt.savefig('images/lambda.png')
