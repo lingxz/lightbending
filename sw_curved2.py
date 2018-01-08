@@ -108,16 +108,13 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, Om
     global R0
     if k != 0:
         R0 = 1/H_0 * (-Omega_k/k)**(-0.5)
+        print("R0", R0)
     a0 = R0
     initial_a = a0
     # initial_r = 10e17
     initial_r = comoving_lens
     initial_phi = np.pi
     initial_t = 0.
-
-    # initial_tdot = -1.
-    # initial_rdot = -np.sqrt(initial_tdot**2/initial_a**2/(1+(np.tan(angle_to_horizontal))**2))
-    # initial_phidot = initial_rdot * np.tan(angle_to_horizontal) / initial_r
 
     initial_rdot = -initial_r
     initial_phidot = np.tan(angle_to_horizontal) * initial_rdot / initial_r
@@ -153,8 +150,9 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, Om
     while solver_frw.successful():
         solver_frw.integrate(solver_frw.t + dt, step=False)
         sol.append(list(solver_frw.y))
-        if r2chi(k, solver_frw.y[1])<= chi_h:
-            last = solver_frw.y
+        if solver_frw.y[1] <= r_h:
+        # if r2chi(k, solver_frw.y[1])<= chi_h:
+        #     last = solver_frw.y
             break
 
     sol = sol
@@ -180,7 +178,7 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, Om
     initial_phi = last[4]
     initial_rh = initial_r
     f = 1 - 2*M/r_out - Lambda/3*r_out**2
-    etadot = tdot_out / last[0] # conformal time
+    etadot = tdot_out / (last[0]) # conformal time
 
     # a, r, rdot, t, phi
     initial_rdot = last[0] * (np.sqrt(1 - f)*etadot + last[2]/np.sqrt(1-k*initial_r**2))
@@ -345,6 +343,7 @@ def get_distances(z, Omega_Lambda=0, Omega_m=1.):
 def calc_theta(k, rs, rl, a_s, z_l):
     DS = chi2r(k, r2chi(k, rs) + r2chi(k, rl)) * a_s
     DLS = rs * a_s
+    print("R0", R0, H_0, 1/H_0*(-0.3/k)**(-0.5))
     DL = R0*rl/(1+z_l)
     return np.sqrt(4*M*DLS/DL/DS)
 
@@ -362,12 +361,12 @@ def main():
     numerical_thetas = []
     # for theta in tqdm(thetas):
     for om in tqdm(om_lambdas):
-        om_k = 0.
+        om_k = 0.1
         k = omk2k(om_k, H_0)
         comoving_lens = get_distances(z_lens, Omega_Lambda=om, Omega_m=1-om-om_k)
         print("density parameters", om, om_k, 1-om-om_k)
         print("lens distances: ", comoving_lens)
-        r, a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, Omega_m=1-om)
+        r, a = solve(theta, plot=True, comoving_lens=comoving_lens, Omega_Lambda=om, Omega_m=1-om-om_k)
         res = calc_theta(k, r, comoving_lens, a, z_lens)
         numerical_thetas.append(res)
     numerical_thetas = np.array(numerical_thetas)

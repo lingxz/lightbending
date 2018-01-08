@@ -1,5 +1,6 @@
 '''
 sw_lambda, but generalized for curved universe
+dimensions are in k
 origin at lens
 '''
 
@@ -138,7 +139,7 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, Om
 
     solver_frw.set_initial_value(initial, 0).set_f_params(p_frw)
     sol = []
-    dt = 5e-7
+    dt = 1e-7
     while solver_frw.successful():
         solver_frw.integrate(solver_frw.t + dt, step=False)
         sol.append(list(solver_frw.y))
@@ -332,7 +333,8 @@ def get_distances(z, Omega_Lambda=0, Omega_m=1.):
     return comoving, dang
 
 def calc_theta(D_LS, D_L, D_S):
-    return np.sqrt(4*M*D_LS/D_L/D_S/1.1)
+    return np.sqrt(4*M*D_LS/D_L/D_S)
+
 
 from tqdm import tqdm
 def main():
@@ -341,7 +343,7 @@ def main():
     theta = 5e-6
     # print("thetas", thetas)
     # thetas = np.array([15e-6])
-    om_lambdas = np.linspace(0, 0.9, 10)
+    om_lambdas = np.linspace(0, 0.3, 10)
     # om = 0
     z_lens = 0.1
     a_lens = 1/(z_lens+1)
@@ -351,16 +353,16 @@ def main():
     dl = []
     # for theta in tqdm(thetas):
     for om in tqdm(om_lambdas):
-        om_k = 0.1
+        om_k = 0.3
         k = omk2k(om_k, H_0)
         comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om, Omega_m=1-om-om_k)
-        print("density parameters", om, om_k, 1-om-om_k)
+        # print("density parameters", om, om_k, 1-om-om_k)
         dl.append(dang_lens)
-        print("lens distances: ", comoving_lens, dang_lens)
-        r, a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, Omega_m=1-om)
+        # print("lens distances: ", comoving_lens, dang_lens)
+        r, a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, Omega_m=1-om-om_k)
         chi_s = r2chi(k, r) + r2chi(k, comoving_lens)
         d_s = a*chi2r(k, chi_s)
-        d_ls = a/a_lens * r
+        d_ls = a * r
         ds.append(d_s)
         dls.append(d_ls)
         # rs.append(r)
