@@ -25,6 +25,7 @@ H_0 = 7.56e-27 * length_scale
 # Omega_Lambda = 0
 # Omega_m = 1 - Omega_Lambda
 # M = 0.5e15 / length_scale
+MSun12 = 1474e12 / length_scale
 M = 1474e12 / length_scale
 print("M: ", M)
 
@@ -331,22 +332,24 @@ def main():
     start = time.time()
     # thetas = np.linspace(25, 35, 10)*10**(-6)
     theta = 10e-6
+    z_lens = 0.1
     # print("thetas", thetas)
     # thetas = np.array([15e-6])
     # om_lambdas = np.linspace(0, 0.5, 10)
     om = 0.
     # for theta in tqdm(thetas):
-    z_lens_all = np.linspace(0.05, 0.2, 100)
+    masses = np.linspace(0.5, 1.5, 100)
     # for om in tqdm(om_lambdas):
-    steps = np.linspace(5e-7, 1e-6, 50)
-    print(steps) 
+    steps = np.linspace(1e-6, 5e-6, 5)
     first = False
     for st in tqdm(steps):
         numerical_thetas = []
         ds = []
         dls = []
         dl = []
-        for z_lens in z_lens_all:
+        for m in masses:
+            global M
+            M = m*MSun12
             a_lens = 1/(z_lens+1)
             # print("omega_lambda:", om)
             comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om)
@@ -359,8 +362,8 @@ def main():
             numerical_thetas.append(res)
         numerical_thetas = np.array(numerical_thetas)
         percentage_errors = (numerical_thetas - theta)/theta*100
-        df = pd.DataFrame({'lens_z': z_lens_all,'step': [st]*len(z_lens_all), 'percentage_err': percentage_errors})
-        filename = 'data/lens_z_omlambda_{}.csv'.format(om)
+        df = pd.DataFrame({'mass': masses,'step': [st]*len(masses), 'percentage_err': percentage_errors})
+        filename = 'data/mass_omlambda_{}.csv'.format(om)
         if first:
             df.to_csv(filename, index=False)
             first = False

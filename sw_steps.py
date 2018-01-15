@@ -329,50 +329,41 @@ def main():
     theta = 5e-6
     # print("thetas", thetas)
     # thetas = np.array([15e-6])
-    om_lambdas = np.linspace(0, 0.9, 20)
-    om = 0
+    om_lambdas = np.linspace(0, 0.5, 10)
+    # om = 0
     z_lens = 0.1
     a_lens = 1/(z_lens+1)
-    ds = []
-    dls = []
-    rs = []
-    dl = []
     # for theta in tqdm(thetas):
-    steps = np.linspace(1e-7, 1e-5, 200)
-    for st in tqdm(steps):
-        # print("omega_lambda:", om)
-        comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om)
-        dl.append(dang_lens)
-        # print("lens distances: ", comoving_lens, dang_lens)
-        r, a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, dt=st)
-        d_s = a*(r + comoving_lens)
-        d_ls = a * r
-        ds.append(d_s)
-        dls.append(d_ls)
-        # rs.append(r)
-    ds = np.array(ds)
-    dls = np.array(dls)
-    dl = np.array(dl)
-    numerical_thetas = calc_theta(dls, dl, ds)
-    # alpha = 4*M/dang_lens/thetas
-    # theoretical_rs = thetas/alpha*comoving_lens/(1-thetas/alpha/(1+z_lens))
+    steps = np.linspace(1e-7, 1e-5, 400)
+    for om in tqdm(om_lambdas):
+        ds = []
+        dls = []
+        dl = []
+        for st in steps:
+            # print("omega_lambda:", om)
+            comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om)
+            dl.append(dang_lens)
+            # print("lens distances: ", comoving_lens, dang_lens)
+            r, a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, dt=st)
+            d_s = a*(r + comoving_lens)
+            d_ls = a * r
+            ds.append(d_s)
+            dls.append(d_ls)
+            # rs.append(r)
+        ds = np.array(ds)
+        dls = np.array(dls)
+        dl = np.array(dl)
+        numerical_thetas = calc_theta(dls, dl, ds)
 
-    # print("=====")
-    # rs = np.array(rs) / 1.01
-    # print(rs)
-    # print(theoretical_rs)
-    # print((rs - theoretical_rs)/theoretical_rs * 100)
-    
-    # print(numerical_thetas)
-    percentage_errors = np.abs(numerical_thetas - theta)/theta*100
+        percentage_errors = (numerical_thetas - theta)/theta*100
+        df = pd.DataFrame({'step': steps, 'percentage_err': percentage_errors})
+        df.to_csv('data/steps_omlambda_{0:.5f}.csv'.format(om), index=False)
     # percentage_errors = np.abs(th - ds)/ds
     
     # print(percentage_errors)
     print("Time taken: {}".format(time.time() - start))
-    plt.plot(steps, percentage_errors, 'r+')
+    # plt.plot(steps, percentage_errors, 'r+')
 
-    df = pd.DataFrame({'step': steps, 'percentage_err': percentage_errors})
-    df.to_csv('data/steps.csv')
     # np.savetxt("data/steps.csv", np.hstack((steps, percentage_errors)), delimiter=',', header="step,percentage_err", comments="")
 
 
