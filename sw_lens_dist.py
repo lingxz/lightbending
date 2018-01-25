@@ -11,7 +11,7 @@ import pandas as pd
 
 
 length_scale = 3.086e22 # mega parsec
-INTEGRATOR = 'vode'
+INTEGRATOR = 'lsoda'
 INTEGRATOR_PARAMS = {
     'atol': 1e-110, 
     # 'atol': 0,
@@ -330,17 +330,20 @@ from tqdm import tqdm
 def main():
     start = time.time()
     # thetas = np.linspace(25, 35, 10)*10**(-6)
-    theta = 10e-6
+    theta = 1e-5
     # print("thetas", thetas)
     # thetas = np.array([15e-6])
     # om_lambdas = np.linspace(0, 0.5, 10)
     om = 0.
     # for theta in tqdm(thetas):
-    z_lens_all = np.linspace(0.05, 0.2, 100)
+    z_lens_all = np.linspace(0.05, 0.2, 2)
     # for om in tqdm(om_lambdas):
-    steps = np.linspace(5e-7, 1e-6, 50)
-    print(steps) 
-    first = False
+    # steps = np.linspace(3e-7, 1e-5, 50)
+    # steps = [6.45454545455e-07]
+    steps = np.linspace(1e-7, 1e-6, 50)
+    # steps = [1e-5]
+    # print(steps)
+    first = True
     for st in tqdm(steps):
         numerical_thetas = []
         ds = []
@@ -360,7 +363,8 @@ def main():
         numerical_thetas = np.array(numerical_thetas)
         percentage_errors = (numerical_thetas - theta)/theta*100
         df = pd.DataFrame({'lens_z': z_lens_all,'step': [st]*len(z_lens_all), 'percentage_err': percentage_errors})
-        filename = 'data/lens_z_omlambda_{}.csv'.format(om)
+        filename = 'data/lsoda_lens_z_omlambda_{}.csv'.format(om)
+
         if first:
             df.to_csv(filename, index=False)
             first = False
