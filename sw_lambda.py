@@ -98,6 +98,9 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, dt
 
     rho = Omega_m*3*H_0**2/(8*np.pi)
     r_h = 1/initial_a*(3*M/(4*np.pi*rho))**(1./3)
+    if r_h > initial_r:
+        print("Starting point is inside the hole! Make the hole smaller or bring the lens further away.")
+        return
     if plot:
         print('r_h:', r_h, "\n")
 
@@ -344,7 +347,7 @@ from tqdm import tqdm
 def main():
     start = time.time()
     om_lambdas = np.linspace(0, 0.99, 50)
-    z_lens_all = np.linspace(0.05, 0.2, 2)
+    z_lens_all = np.linspace(0.05, 0.2, 10)
     # z_lens_all = np.linspace(0.05, 0.2, 1)
     # z_lens = 0.1
     # a_lens = 1/(z_lens+1)
@@ -355,7 +358,8 @@ def main():
     source_zs = rs2redshift_flat(source_rs)
     print("source_zs: ", source_zs)
     # step_size = 6.12244897959e-07
-    step_size = 9.63265306122e-07
+    # step_size = 9.63265306122e-07
+    step_size = 4.306122e-07
     # step_size = 6.45454545455e-07
     first = True
     for source_z, z_lens in tqdm(list(zip(source_zs, z_lens_all))):
@@ -389,7 +393,7 @@ def main():
         dls = np.array(dls)
         dl = np.array(dl)
         df = pd.DataFrame({'rs': rs, 'DL': dl, 'DLS': dls, 'DS': ds,'theta': thetas, 'rs_initial': source_rs_array, 'om_lambdas': om_lambdas, 'numerical_thetas': numerical_thetas, 'step': [step_size]*len(thetas)})
-        filename = 'data/dopri5_diff_lambdas.csv'
+        filename = 'data/dopri5_diff_lambdas2.csv'
         if first:
             df.to_csv(filename, index=False)
             first = False
@@ -404,8 +408,9 @@ def main2():
     # print("thetas", thetas)
     # thetas = np.array([15e-6])
     om_lambdas = np.linspace(0, 0.9, 20)
+    om_lambdas = np.array([0.99])
     # om = 0
-    z_lens = 0.1
+    z_lens = 0.05
     a_lens = 1/(z_lens+1)
     ds = []
     dls = []
@@ -415,9 +420,10 @@ def main2():
     for om in tqdm(om_lambdas):
         # print("omega_lambda:", om)
         comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om)
+        print("lens r", comoving_lens)
         dl.append(dang_lens)
         # print("lens distances: ", comoving_lens, dang_lens)
-        r, a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om)
+        r, a = solve(theta, plot=True, comoving_lens=comoving_lens, Omega_Lambda=om)
         d_s = a*(r + comoving_lens)
         d_ls = a * r
         ds.append(d_s)
@@ -434,5 +440,6 @@ def main2():
     plt.plot(om_lambdas, percentage_errors, 'ro')
 
 main()
+# main2()
 # plt.show()
 # plt.savefig('images/lambda.png')
