@@ -8,6 +8,7 @@ import numpy as np
 import scipy.integrate as spi
 import matplotlib.pyplot as plt
 import time
+import pandas as pd
 
 
 length_scale = 3.086e22 # mega parsec
@@ -95,7 +96,7 @@ def kottler(eta, w, p):
         phidot,
     ]
 
-def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, Omega_m=1.):
+def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, Omega_m=1., dt=5e-7):
     a0 = 1
     initial_a = a0
     # initial_r = 10e17
@@ -139,7 +140,6 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, Om
 
     solver_frw.set_initial_value(initial, 0).set_f_params(p_frw)
     sol = []
-    dt = 1e-7
     while solver_frw.successful():
         solver_frw.integrate(solver_frw.t + dt, step=False)
         sol.append(list(solver_frw.y))
@@ -335,53 +335,66 @@ def get_distances(z, Omega_Lambda=0, Omega_m=1.):
 def calc_theta(D_LS, D_L, D_S):
     return np.sqrt(4*M*D_LS/D_L/D_S)
 
+def theta2rls_flat(theta, z_lens):
+    rl, dl = get_distances(z_lens, Omega_Lambda=0)
+    return 4*M*rl/(4*M-dl*theta**2)
+
+def rs2redshift_flat(rs):
+    return 1/(1-H_0*rs/2)**2 -1
 
 from tqdm import tqdm
 def main():
     start = time.time()
-    # thetas = np.linspace(25, 35, 10)*10**(-6)
-    theta = 5e-6
-    # print("thetas", thetas)
-    # thetas = np.array([15e-6])
-    om_lambdas = np.linspace(0, 0.3, 10)
-    # om = 0
-    z_lens = 0.1
-    a_lens = 1/(z_lens+1)
-    ds = []
-    dls = []
-    rs = []
-    dl = []
-    # for theta in tqdm(thetas):
-    for om in tqdm(om_lambdas):
-        om_k = 0.3
-        k = omk2k(om_k, H_0)
-        comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om, Omega_m=1-om-om_k)
-        # print("density parameters", om, om_k, 1-om-om_k)
-        dl.append(dang_lens)
-        # print("lens distances: ", comoving_lens, dang_lens)
-        r, a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, Omega_m=1-om-om_k)
-        chi_s = r2chi(k, r) + r2chi(k, comoving_lens)
-        d_s = a*chi2r(k, chi_s)
-        d_ls = a * r
-        ds.append(d_s)
-        dls.append(d_ls)
-        # rs.append(r)
-    ds = np.array(ds)
-    dls = np.array(dls)
-    dl = np.array(dl)
-    numerical_thetas = calc_theta(dls, dl, ds)
-    # alpha = 4*M/dang_lens/thetas
-    # theoretical_rs = thetas/alpha*comoving_lens/(1-thetas/alpha/(1+z_lens))
+    om_lambdas = np.linspace(0, 0.89, 50)
+    z_lens_all = np.linspace(0.05, 0.2, 10)
+    om_k = 0.
+    k = omk2k(om_k, H_0)
 
-    # print("=====")
-    # rs = np.array(rs) / 1.01
-    # print(rs)
-    # print(theoretical_rs)
-    # print((rs - theoretical_rs)/theoretical_rs * 100)
-    print(numerical_thetas)
-    percentage_errors = np.abs(numerical_thetas - theta)/theta*100
-    # percentage_errors = np.abs(th - ds)/ds
-    print(percentage_errors)
+    start_thetas = np.array([1e-5]*50)
+    source_rs = np.array([theta2rls_flat(th1, z1) for th1, z1 in zip(start_thetas, z_lens_all)])
+    source_zs = rs2redshift_flat(source_rs)
+    print("source_zs: ", source_zs)
+
+    step_size = 4.52631578947e-07
+    first = True
+    for source_z, z_lens in tqdm(list(zip(source_zs, z_lens_all))):
+        rs = []
+        thetas = []
+        source_rs_array = []
+        numerical_thetas = []
+        dl = []
+        dls = []
+        ds = []
+        for om in om_lambdas:
+            comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om, Omega_m=1-om-om_k)
+            source_r, dang_r = get_distances(source_z, Omega_Lambda=om)
+            theta = calc_theta(1/(source_z+1)*chi2r(k, r2chi(k, source_r) - r2chi(k, comoving_lens)), dang_lens, dang_r)
+            thetas.append(theta)
+            dl.append(dang_lens)
+            r, a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, Omega_m=1-om-om_k, dt=step_size)
+            chi_s = r2chi(k, r) + r2chi(k, comoving_lens)
+            d_s = a*chi2r(k, chi_s)
+            d_ls = a * r
+            ds.append(d_s)
+            dls.append(d_ls)
+
+        thetas = np.array(thetas)
+        ds = np.array(ds)
+        dls = np.array(dls)
+        dl = np.array(dl)
+        numerical_thetas = calc_theta(dls, dl, ds)
+
+        print("lengths", len(dl), len(dls), len(dl), len(thetas), len(om_lambdas), len(numerical_thetas))
+
+        df = pd.DataFrame({'DL': dl, 'DLS': dls, 'DS': ds,'theta': thetas, 'om_lambdas': om_lambdas, 'numerical_thetas': numerical_thetas, 'step': [step_size]*len(thetas), 'om_k': [om_k]*len(thetas)})
+        filename = 'data/curved_diff_lambdas.csv'
+
+        if first:
+            df.to_csv(filename, index=False)
+            first = False
+        else:
+            df.to_csv(filename, index=False, header=False, mode='a')
+
     print("Time taken: {}".format(time.time() - start))
 
 main()
