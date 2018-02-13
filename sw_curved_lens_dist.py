@@ -346,7 +346,7 @@ def main():
     z_lens_all = np.linspace(0.05, 0.2, 20)
     # z_lens = 0.1
     # a_lens = 1/(z_lens+1)
-    steps = np.linspace(2e-7, 6e-7, 20)
+    steps = np.linspace(3.2e-8, 5e-8, 5)
     first = False
     om_k = 0.1
     k = omk2k(om_k, H_0)

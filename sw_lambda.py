@@ -5,6 +5,9 @@ origin at lens
 # diff_lambdas_small2: latest, diff z_lens, 100 per Omega_Lambda, but wrong DL
 # diff_lambdas_small: same z_lens, diff z_source, 100 per Omega_Lambda
 # diff_lambdas_small3: same as diff_lambdas_small2, but with correct DL
+# diff_lambdas_small4: same as previous, but the step size in kottler solver is changed to agree with dt. Previously was fixed at 5e-7, oops!!!
+# diff_lambdas_bigger_redshifts: bigger redshifts, 0.2 to 1 instead of 0.05 to 0.2.
+# diff_lambdas_bigger_redshifts2： same as above, just more points
 
 import numpy as np
 import scipy.integrate as spi
@@ -14,7 +17,7 @@ import pandas as pd
 
 
 length_scale = 3.086e22 # mega parsec
-INTEGRATOR = 'dopri5'
+INTEGRATOR = 'vode'
 INTEGRATOR_PARAMS = {
     'atol': 1e-110, 
     # 'atol': 0,
@@ -123,6 +126,8 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, dt
     while solver_frw.successful():
         solver_frw.integrate(solver_frw.t + dt, step=False)
         # sol.append(list(solver_frw.y))
+        if solver_frw.y[4] < np.pi/2:
+            print("Light ray is not going to enter the hole, reduce theta!")
         if solver_frw.y[1] <= r_h:
             last = solver_frw.y
             break
@@ -181,7 +186,7 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, dt
     prev_r = np.inf
     while solver_kottler.successful():
         # dt = 1e-6
-        solver_kottler.integrate(solver_kottler.t + 5e-7, step=False)
+        solver_kottler.integrate(solver_kottler.t + dt, step=False)
         # sol_kottler.append(list(solver_kottler.y))
 
         # if solver_kottler.y[2] > prev_r and first_time:
@@ -210,6 +215,7 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, dt
     initial_a = last[2] / r_h
     if plot:
         print("scale factor on exit:", initial_a)
+        print("exit r in FRW:", initial_r)
     initial_phidot = L_kottler / last[2]**2
     f = 1-2*M/last[2]-Lambda/3*last[2]**2
     last_tdot = E/f
@@ -346,21 +352,21 @@ from tqdm import tqdm
 
 def main():
     start = time.time()
-    om_lambdas = np.linspace(0, 0.99, 1)
+    om_lambdas = np.linspace(0, 0.99, 50)
     # z_lens_all = np.linspace(0.05, 0.2, 10)
-    z_lens_all = np.linspace(0.05, 0.2, 1)
+    z_lens_all = np.linspace(0.2, 1, 50)
     # z_lens = 0.1
     # a_lens = 1/(z_lens+1)
     # start_thetas = np.linspace(0.7e-5, 2e-5, 100)
-    start_thetas = np.array([1e-5]*1)
+    start_thetas = np.array([1e-5]*50)
     source_rs = np.array([theta2rls_flat(th1, z1) for th1, z1 in zip(start_thetas, z_lens_all)])
     # source_rs = theta2rls_flat(start_thetas, z_lens)
     source_zs = rs2redshift_flat(source_rs)
     print("source_zs: ", source_zs)
     # step_size = 6.12244897959e-07
     # step_size = 9.63265306122e-07
-    step_size = 4.306122e-07
-    step_size = 5e-7
+    step_size = 5e-07
+    # step_size = 5e-7
     # step_size = 6.45454545455e-07
     first = True
     for source_z, z_lens in tqdm(list(zip(source_zs, z_lens_all))):
@@ -376,7 +382,6 @@ def main():
             source_r, dang_r = get_distances(source_z, Omega_Lambda=om)
             theta = rs2theta(source_r, comoving_lens, dang_lens)
             # dls, dl, ds
-            print("calculated theta", source_r, dang_r)
             r, a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, dt=step_size)
             thetas.append(theta)
             rs.append(r+comoving_lens)
@@ -395,12 +400,12 @@ def main():
         dls = np.array(dls)
         dl = np.array(dl)
         df = pd.DataFrame({'rs': rs, 'DL': dl, 'DLS': dls, 'DS': ds,'theta': thetas, 'rs_initial': source_rs_array, 'om_lambdas': om_lambdas, 'numerical_thetas': numerical_thetas, 'step': [step_size]*len(thetas)})
-        filename = 'data/dopri5_diff_lambdas2.csv'
-        # if first:
-        #     df.to_csv(filename, index=False)
-        #     first = False
-        # else:
-        #     df.to_csv(filename, index=False, header=False, mode='a')
+        filename = 'data/diff_lambdas_bigger_redshifts2.csv'
+        if first:
+            df.to_csv(filename, index=False)
+            first = False
+        else:
+            df.to_csv(filename, index=False, header=False, mode='a')
     print("Time taken: {}".format(time.time() - start))
 
 def main2():
@@ -409,7 +414,7 @@ def main2():
     theta = 5e-6
     # print("thetas", thetas)
     # thetas = np.array([15e-6])
-    om_lambdas = np.linspace(0, 0.9, 20)
+    om_lambdas = np.linspace(0, 0.9, 1)
     om_lambdas = np.array([0.99])
     # om = 0
     z_lens = 0.05
@@ -425,7 +430,7 @@ def main2():
         print("lens r", comoving_lens)
         dl.append(dang_lens)
         # print("lens distances: ", comoving_lens, dang_lens)
-        r, a = solve(theta, plot=True, comoving_lens=comoving_lens, Omega_Lambda=om)
+        r, a = solve(theta, plot=True, comoving_lens=comoving_lens, Omega_Lambda=om, dt=1e-6)
         d_s = a*(r + comoving_lens)
         d_ls = a * r
         ds.append(d_s)

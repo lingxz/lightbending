@@ -198,8 +198,7 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, Om
     first_time = True
     prev_r = np.inf
     while solver_kottler.successful():
-        # dt = 1e-6
-        solver_kottler.integrate(solver_kottler.t + 5e-7, step=False)
+        solver_kottler.integrate(solver_kottler.t + dt, step=False)
         sol_kottler.append(list(solver_kottler.y))
         # if solver_kottler.y[2] > prev_r and first_time:
         #     if plot:
@@ -273,7 +272,6 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, Om
     solver_frw2.set_initial_value(initial_frw2, 0).set_f_params(p_frw)
 
     while solver_frw2.successful():
-        # dt = 1e-6
         solver_frw2.integrate(solver_frw2.t + dt, step=False)
         sol.append(list(solver_frw2.y))
         if solver_frw2.y[1] * np.sin(solver_frw2.y[4]) < 0:  # stop when it crosses the axis
@@ -347,7 +345,7 @@ def main():
     start = time.time()
     om_lambdas = np.linspace(0, 0.89, 50)
     z_lens_all = np.linspace(0.05, 0.2, 10)
-    om_k = 0.
+    om_k = 0.1
     k = omk2k(om_k, H_0)
 
     start_thetas = np.array([1e-5]*50)
@@ -355,7 +353,8 @@ def main():
     source_zs = rs2redshift_flat(source_rs)
     print("source_zs: ", source_zs)
 
-    step_size = 4.52631578947e-07
+    # step_size = 4.52631578947e-07
+    step_size = 1e-07
     first = True
     for source_z, z_lens in tqdm(list(zip(source_zs, z_lens_all))):
         rs = []
@@ -367,7 +366,7 @@ def main():
         ds = []
         for om in om_lambdas:
             comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om, Omega_m=1-om-om_k)
-            source_r, dang_r = get_distances(source_z, Omega_Lambda=om)
+            source_r, dang_r = get_distances(source_z, Omega_Lambda=om, Omega_m=1-om-om_k)
             theta = calc_theta(1/(source_z+1)*chi2r(k, r2chi(k, source_r) - r2chi(k, comoving_lens)), dang_lens, dang_r)
             thetas.append(theta)
             dl.append(dang_lens)

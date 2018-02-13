@@ -49,17 +49,22 @@ def plot_diff_lambdas(filename, recalculate_distances=False, scale=1e-5, plot_ri
     theta_rindler = []
     for index, row in df.iterrows():
         Lambda = 3*row.om_lambdas*H_0**2
-        coeff = [row.DLS*Lambda*row.DL**3/6/M, row.DS, -4*M*row.DLS/row.DL, 8*M**3*row.DLS/row.DL**3]
-        roots = np.roots(coeff)
-        roots = roots[roots>0]
-        th = np.sqrt(roots)
-        rindler = th[np.argmin(row.theta - th)]
         
-        coeff2 = [row.DS, -4*M*row.DLS/row.DL, 8*M**3*row.DLS/row.DL**3]
+        rho = (1-row.om_lambdas)*3*H_0**2/(8*np.pi)
+        r_h = (3*M/(4*np.pi*rho))**(1./3)
+        
+        coeff = [row.DS + Lambda*row.DL*row.DLS*r_h/3, 0, -4*M*row.DLS/row.DL, -15*np.pi*M**2/4*row.DLS/row.DL**2, -305/12*M**3*row.DLS/row.DL**3]
+        roots = np.roots(coeff)
+        roots = roots[roots>0 & np.isreal(roots)]
+        th = np.real(roots)
+        rindler = th[np.argmin(np.abs(row.theta - th))]
+
+        # coeff2 = [row.DS, -4*M*row.DLS/row.DL, 8*M**3*row.DLS/row.DL**3]
+        coeff2 = [row.DS, 0, -4*M*row.DLS/row.DL, -15*np.pi*M**2/4*row.DLS/row.DL**2, -401/12*M**3*row.DLS/row.DL**3]
         roots2 = np.roots(coeff2)
-        roots2 = roots2[roots2>0]
-        th2 = np.sqrt(roots2)
-        second_order = th2[np.argmin(row.theta - th2)]
+        roots2 = roots2[roots2>0 & np.isreal(roots2)]
+        th2 = np.real(roots2)
+        second_order = th2[np.argmin(np.abs(row.theta - th2))]
         theta_rindler.append(rindler)
         theta_second_order.append(second_order)
 
@@ -82,8 +87,8 @@ def plot_diff_lambdas(filename, recalculate_distances=False, scale=1e-5, plot_ri
 
     plt.plot(stats.index, stats['percentage_diff mean']/scale, '.')
     if plot_rindler:
-        plt.plot(stats.index, stats['rindler_preds mean']/scale)
-        plt.errorbar(stats.index, stats['rindler_preds mean']/scale, yerr=stats['rindler_preds mean std']/scale, linestyle='none')
+        plt.plot(stats.index, stats['rindler_preds mean']/scale, 'g-')
+        # plt.errorbar(stats.index, stats['rindler_preds mean']/scale, yerr=stats['rindler_preds mean std']/scale, linestyle='none')
     plt.errorbar(stats.index, stats['percentage_diff mean']/scale, yerr=stats['percentage_diff mean std']/scale, linestyle='none')
     plt.xlabel('Omega_Lambda')
     plt.ylabel('Mean deviation/10^-5')

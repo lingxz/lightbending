@@ -3,6 +3,11 @@ effect of step size on error
 origin at lens
 '''
 
+# data/lens_z_omlambda_0.0.csv: normal
+# data/lens_z_omlambda0_2.csv: same as above, but step size in kottler solver is changed to agree with dt
+# lens_z_omlambda0_2_bigger_redshift.csv: same as above, but redshifts are 0.2 to 1. instead of 0.05 to 0.2
+### previously was fixed at 5e-7
+
 import numpy as np
 import scipy.integrate as spi
 import matplotlib.pyplot as plt
@@ -11,7 +16,7 @@ import pandas as pd
 
 
 length_scale = 3.086e22 # mega parsec
-INTEGRATOR = 'lsoda'
+INTEGRATOR = 'vode'
 INTEGRATOR_PARAMS = {
     'atol': 1e-110, 
     # 'atol': 0,
@@ -71,7 +76,7 @@ def kottler(eta, w, p):
         phidot,
     ]
 
-def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, dt=5e-7):
+def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, dt=None):
     k = 0
     a0 = 1
     initial_a = a0
@@ -175,7 +180,7 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, dt
     prev_r = np.inf
     while solver_kottler.successful():
         # dt = 1e-6
-        solver_kottler.integrate(solver_kottler.t + 5e-7, step=False)
+        solver_kottler.integrate(solver_kottler.t + dt, step=False)
         # sol_kottler.append(list(solver_kottler.y))
 
         # if solver_kottler.y[2] > prev_r and first_time:
@@ -251,7 +256,6 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, dt
 
     sol = []
     while solver_frw2.successful():
-        # dt = 1e-6
         solver_frw2.integrate(solver_frw2.t + dt, step=False)
         sol.append(list(solver_frw2.y))
         if solver_frw2.y[1] * np.sin(solver_frw2.y[4]) < 0:  # stop when it crosses the axis
@@ -336,19 +340,19 @@ def main():
     # om_lambdas = np.linspace(0, 0.5, 10)
     om = 0.
     # for theta in tqdm(thetas):
-    z_lens_all = np.linspace(0.05, 0.2, 2)
+    z_lens_all = np.linspace(0.05, 0.2, 10)
     # for om in tqdm(om_lambdas):
     # steps = np.linspace(3e-7, 1e-5, 50)
     # steps = [6.45454545455e-07]
-    steps = np.linspace(1e-7, 1e-6, 50)
+    steps = np.linspace(5e-9, 10e-9, 10)
     # steps = [1e-5]
     # print(steps)
-    first = True
+    first = False
     for st in tqdm(steps):
         numerical_thetas = []
         # ds = []
         # dls = []
-        # dl = []
+        dl = []
         for z_lens in z_lens_all:
             a_lens = 1/(z_lens+1)
             # print("omega_lambda:", om)
@@ -363,7 +367,8 @@ def main():
         numerical_thetas = np.array(numerical_thetas)
         percentage_errors = (numerical_thetas - theta)/theta*100
         df = pd.DataFrame({'lens_z': z_lens_all,'step': [st]*len(z_lens_all), 'percentage_err': percentage_errors})
-        filename = 'data/lsoda_lens_z_omlambda_{}.csv'.format(om)
+        # filename = 'data/lens_z_omlambda0_2_bigger_redshift.csv'
+        filename = 'data/lens_z_omlambda0_2.csv'
 
         if first:
             df.to_csv(filename, index=False)
