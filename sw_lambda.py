@@ -205,6 +205,7 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, dt
 
     angle_after_exiting = get_angle(last[2], last[4], last[3], L_kottler/last[2]**2)
     if plot:
+        print("last kottler", last)
         print("light ray angle after exiting kottler hole: ", angle_after_exiting)
         print("bending angle in kottler: ", angle_before_entering - angle_after_exiting)
         print("\n")
@@ -287,37 +288,39 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, dt
     #         source_a = s.y[0]
     #         break
 
-    if plot:
-        x = r * np.cos(phi)
-        y = r * np.sin(phi)
-        plt.plot(x, y, 'bo')
+
+
+    # if plot:
+    #     x = r * np.cos(phi)
+    #     y = r * np.sin(phi)
+    #     plt.plot(x, y, 'bo')
         
-        print("axis crossing points", r[-1], phi[-1])
-        swiss_cheese_hole = plt.Circle((0., 0.), r_h, color='grey', fill=False, zorder=10)
-        axes = plt.gca()
-        axes.add_artist(swiss_cheese_hole)
-        axes.set_aspect('equal', adjustable='box')
-        # plot the center
-        plt.plot(0, 0, 'ro')
+    #     print("axis crossing points", r[-1], phi[-1])
+    #     swiss_cheese_hole = plt.Circle((0., 0.), r_h, color='grey', fill=False, zorder=10)
+    #     axes = plt.gca()
+    #     axes.add_artist(swiss_cheese_hole)
+    #     axes.set_aspect('equal', adjustable='box')
+    #     # plot the center
+    #     plt.plot(0, 0, 'ro')
 
-        lim = 0.5
-        axes.set_xlim([-lim, lim])
-        axes.set_ylim([-lim, lim])
+    #     lim = 0.5
+    #     axes.set_xlim([-lim, lim])
+    #     axes.set_ylim([-lim, lim])
 
-        plt.figure()
-        sol_kottler = np.array(sol_kottler)
-        r_kottler = sol_kottler[:,2]
-        phi_kottler = sol_kottler[:,4]
-        x_kottler = r_kottler * np.cos(phi_kottler)
-        y_kottler = r_kottler * np.sin(phi_kottler)
-        axes = plt.gca()
-        swiss_cheese_hole = plt.Circle((0., 0.), r_h, color='grey', fill=False, zorder=10)
-        axes.add_artist(swiss_cheese_hole)
-        axes.set_aspect('equal', adjustable='box')
-        plt.plot(x_kottler, y_kottler, 'g-')
-        lim = 200
-        axes.set_xlim([-lim, lim])
-        axes.set_ylim([-lim, lim])
+    #     plt.figure()
+    #     sol_kottler = np.array(sol_kottler)
+    #     r_kottler = sol_kottler[:,2]
+    #     phi_kottler = sol_kottler[:,4]
+    #     x_kottler = r_kottler * np.cos(phi_kottler)
+    #     y_kottler = r_kottler * np.sin(phi_kottler)
+    #     axes = plt.gca()
+    #     swiss_cheese_hole = plt.Circle((0., 0.), r_h, color='grey', fill=False, zorder=10)
+    #     axes.add_artist(swiss_cheese_hole)
+    #     axes.set_aspect('equal', adjustable='box')
+    #     plt.plot(x_kottler, y_kottler, 'g-')
+    #     lim = 200
+    #     axes.set_xlim([-lim, lim])
+    #     axes.set_ylim([-lim, lim])
 
     # print("diff between as", source_a, a[-1])
     return r[-1], a[-1]
@@ -415,7 +418,7 @@ def main2():
     # print("thetas", thetas)
     # thetas = np.array([15e-6])
     om_lambdas = np.linspace(0, 0.9, 1)
-    om_lambdas = np.array([0.99])
+    om_lambdas = np.array([0])
     # om = 0
     z_lens = 0.05
     a_lens = 1/(z_lens+1)
@@ -446,7 +449,7 @@ def main2():
     print("Time taken: {}".format(time.time() - start))
     plt.plot(om_lambdas, percentage_errors, 'ro')
 
-main()
-# main2()
+# main()
+main2()
 # plt.show()
 # plt.savefig('images/lambda.png')

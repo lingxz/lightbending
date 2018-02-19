@@ -29,3 +29,11 @@ becomes an intractable analytical problem.
 The Lemaˆıtre-Tolman-Bondi (LTB) spacetime is the most general spherically
 symmetric dust solution of Einstein’s field equations, having the FLRW models
 as special sub-cases
+
+# Resources for boundary matching
+
+- https://tel.archives-ouvertes.fr/tel-01235603/document
+formula 1.27 on p22
+
+- https://core.ac.uk/download/pdf/25282922.pdf
+formula 15 on p4 for extrinsic curvature
