@@ -59,31 +59,52 @@ def get_angle(r, phi, rdot, phidot):
     res = np.arctan((rdot*np.sin(phi)+r*np.cos(phi)*phidot)/(rdot*np.cos(phi)-r*np.sin(phi)*phidot))
     return res
 
+# def mass(r):
+#     initial_rh = (3*M/(4*np.pi*rho_frw_initial))**(1./3)
+#     rlimit = initial_rh/1200
+#     rho_peak = 3*M/(np.pi*rlimit**3)
+#     # integrand = lambda r: rho(r)*
+#     # integral, error = spi.quad(lambda r1:rho(r1)*r1**2, 0, r)
+#     if r > rlimit:
+#         return M
+#     else:
+#         return 4*np.pi*(-(rho_peak/rlimit)*r**4/4 + rho_peak*r**3/3)
+#     # if r > rlimit:
+#     #     print(r/rlimit, M, integral)
+#     # return 4*np.pi*integral
+
 def mass(r):
     initial_rh = (3*M/(4*np.pi*rho_frw_initial))**(1./3)
-    rlimit = initial_rh/1200
-    rho_peak = 3*M/(np.pi*rlimit**3)
-    # integrand = lambda r: rho(r)*
-    # integral, error = spi.quad(lambda r1:rho(r1)*r1**2, 0, r)
+    rlimit = initial_rh*0.9
     if r > rlimit:
         return M
     else:
-        return 4*np.pi*(-(rho_peak/rlimit)*r**4/4 + rho_peak*r**3/3)
-    # if r > rlimit:
-    #     print(r/rlimit, M, integral)
-    # return 4*np.pi*integral
+        integral, error = spi.quad(lambda r1: rho(r1)*r1**2, 0, r)
+        return 4*np.pi*integral
 
 def rho(r):
     initial_rh = (3*M/(4*np.pi*rho_frw_initial))**(1./3)
-    rlimit = initial_rh/1200
-    # c = 10
-    # Rs = rlimit / c
-    # return rho0/(r/Rs)/(1+r/Rs)**2
-    rho_peak = 3*M/(np.pi*rlimit**3)
+    rlimit = initial_rh*0.9
     if r > rlimit:
         return 0
     else:
-        return rho_peak - (rho_peak/rlimit)*r
+        c = 10
+        Rvir = rlimit/100
+        Rs = Rvir/c
+        rho0 = M/(4*np.pi*Rs**3*(np.log((Rs + rlimit)/Rs) - rlimit/(Rs + rlimit)))
+        return rho0/(r/Rs)/(1 + r/Rs)**2
+
+# def rho(r):
+#     initial_rh = (3*M/(4*np.pi*rho_frw_initial))**(1./3)
+#     rlimit = initial_rh/1200
+#     # c = 10
+#     # Rs = rlimit / c
+#     # return rho0/(r/Rs)/(1+r/Rs)**2
+#     rho_peak = 3*M/(np.pi*rlimit**3)
+#     if r > rlimit:
+#         return 0
+#     else:
+#         return rho_peak - (rho_peak/rlimit)*r
 
 def ltb(eta, w, p):
     h, L, M, Omega_Lambda, Omega_m, H_0 = p
@@ -141,10 +162,11 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, dt
     r_h = 1/initial_a*(3*M/(4*np.pi*rho_frw))**(1./3)
     global rho_frw_initial
     rho_frw_initial = rho_frw
-    if r_h > initial_r:
+    if r_h >= initial_r:
         print("Starting point is inside the hole! Make the hole smaller or bring the lens further away.")
         return
     if plot:
+        print("rho_frw_initial", rho_frw_initial)
         print('r_h:', r_h, "\n")
 
     Lambda = 3*Omega_Lambda*H_0**2
@@ -405,14 +427,14 @@ def main():
     # z_lens = 0.1
     # a_lens = 1/(z_lens+1)
     # start_thetas = np.linspace(0.7e-5, 2e-5, 100)
-    start_thetas = np.array([1e-5]*50)
+    start_thetas = np.array([5e-6]*50)
     source_rs = np.array([theta2rls_flat(th1, z1) for th1, z1 in zip(start_thetas, z_lens_all)])
     # source_rs = theta2rls_flat(start_thetas, z_lens)
     source_zs = rs2redshift_flat(source_rs)
     print("source_zs: ", source_zs)
     # step_size = 6.12244897959e-07
     # step_size = 9.63265306122e-07
-    step_size = 5e-07
+    step_size = 1e-07
     # step_size = 5e-7
     # step_size = 6.45454545455e-07
     first = True
@@ -443,17 +465,16 @@ def main():
         thetas = np.array(thetas)
         source_rs_array = np.array(source_rs_array)
         numerical_thetas = np.array(numerical_thetas)
-        print((numerical_thetas - thetas)/thetas)
         ds = np.array(ds)
         dls = np.array(dls)
         dl = np.array(dl)
         df = pd.DataFrame({'rs': rs, 'DL': dl, 'DLS': dls, 'DS': ds,'theta': thetas, 'rs_initial': source_rs_array, 'om_lambdas': om_lambdas, 'numerical_thetas': numerical_thetas, 'step': [step_size]*len(thetas)})
-        # filename = 'data/diff_lambdas_bigger_redshifts2.csv'
-        # if first:
-        #     df.to_csv(filename, index=False)
-        #     first = False
-        # else:
-        #     df.to_csv(filename, index=False, header=False, mode='a')
+        filename = 'data/diff_lambdas_ltb_cheese.csv'
+        if first:
+            df.to_csv(filename, index=False)
+            first = False
+        else:
+            df.to_csv(filename, index=False, header=False, mode='a')
     print("Time taken: {}".format(time.time() - start))
 
 def main2():
@@ -503,4 +524,4 @@ def main2():
         dl = np.array(dl)
     print("Time taken: {}".format(time.time() - start))
 
-main2()
+main()

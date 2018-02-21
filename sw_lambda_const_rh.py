@@ -31,7 +31,7 @@ H_0 = 7.56e-27 * length_scale
 # Omega_Lambda = 0
 # Omega_m = 1 - Omega_Lambda
 # M = 0.5e15 / length_scale
-M_initial = 1474e13 / length_scale
+M_initial = 1474e12 / length_scale
 rho_initial = H_0**2/(8*np.pi)
 r_h = (3*M_initial/(4*np.pi*rho_initial))**(1./3)
 M = None
@@ -362,11 +362,11 @@ def main():
     start = time.time()
     om_lambdas = np.linspace(0, 0.99, 50)
     # z_lens_all = np.linspace(0.05, 0.2, 10)
-    z_lens_all = np.linspace(0.2, 1, 50)
+    z_lens_all = np.linspace(0.05, 0.2, 50)
     # z_lens = 0.1
     # a_lens = 1/(z_lens+1)
     # start_thetas = np.linspace(0.7e-5, 2e-5, 100)
-    start_thetas = np.array([2e-5]*50)
+    start_thetas = np.array([1e-5]*50)
     source_rs = np.array([theta2rls_flat(th1, z1) for th1, z1 in zip(start_thetas, z_lens_all)])
     # source_rs = theta2rls_flat(start_thetas, z_lens)
     source_zs = rs2redshift_flat(source_rs)
@@ -414,7 +414,7 @@ def main():
         dl = np.array(dl)
         ms = np.array(ms)
         df = pd.DataFrame({'M': ms, 'rs': rs, 'DL': dl, 'DLS': dls, 'DS': ds,'theta': thetas, 'rs_initial': source_rs_array, 'om_lambdas': om_lambdas, 'numerical_thetas': numerical_thetas, 'step': [step_size]*len(thetas)})
-        filename = 'data/diff_lambdas_const_rh2.csv'
+        filename = 'data/diff_lambdas_const_rh_smaller_redshifts.csv'
         if first:
             df.to_csv(filename, index=False)
             first = False

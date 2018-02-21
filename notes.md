@@ -37,3 +37,10 @@ formula 1.27 on p22
 
 - https://core.ac.uk/download/pdf/25282922.pdf
 formula 15 on p4 for extrinsic curvature
+
+# Gravitational lensing for distributed mass
+
+- thin screen approximation
+
+
+When Lambda changes, many things change. What should we keep constant?

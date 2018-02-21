@@ -85,10 +85,49 @@ def plot_diff_lambdas(filename, recalculate_distances=False, scale=1e-5, plot_ri
     stats['rindler_preds mean std'] = stats['rindler_preds std']/np.sqrt(stats['rindler_preds count'])
 
 
-    plt.plot(stats.index, stats['percentage_diff mean']/scale, '.')
+    plt.plot(stats.index, stats['percentage_diff mean']/scale, '.', label='Numerical results')
     if plot_rindler:
-        plt.plot(stats.index, stats['rindler_preds mean']/scale, 'g-')
+        plt.plot(stats.index, stats['rindler_preds mean']/scale, 'g-', label='Results predicted by Rindler and Ishak')
         # plt.errorbar(stats.index, stats['rindler_preds mean']/scale, yerr=stats['rindler_preds mean std']/scale, linestyle='none')
-    plt.errorbar(stats.index, stats['percentage_diff mean']/scale, yerr=stats['percentage_diff mean std']/scale, linestyle='none')
+    plt.errorbar(stats.index, stats['percentage_diff mean']/scale, yerr=stats['percentage_diff mean std']/scale, linestyle='none', label='_nolegend_')
     plt.xlabel('Omega_Lambda')
     plt.ylabel('Mean deviation/10^-5')
+
+
+class LTB:
+    M = 4.776409591704472e-08
+    rho_frw_initial = 6.49705928222e-09
+    rlimit_ratio = 1/0.9
+
+    def rs(self):
+        initial_rh = (3*self.M/(4*np.pi*self.rho_frw_initial))**(1./3)
+        return np.linspace(0., initial_rh, 1000)
+
+    def mass(self, r):
+        initial_rh = (3*self.M/(4*np.pi*self.rho_frw_initial))**(1./3)
+        rlimit = initial_rh/self.rlimit_ratio
+        if r > rlimit:
+            return self.M
+        else:
+            integral, error = spi.quad(lambda r1: self.rho(r1)*r1**2, 0, r)
+            return 4*np.pi*integral
+
+    def rho(self, r):
+        initial_rh = (3*self.M/(4*np.pi*self.rho_frw_initial))**(1./3)
+        rlimit = initial_rh/self.rlimit_ratio
+        if r > rlimit:
+            return 0
+        else:
+            c = 10
+            Rvir = rlimit/100
+            Rs = Rvir/c
+            rho0 = self.M/(4*np.pi*Rs**3*(np.log((Rs + rlimit)/Rs) - rlimit/(Rs + rlimit)))
+            return rho0/(r/Rs)/(1 + r/Rs)**2
+
+ltb = LTB()
+rs = ltb.rs()[1:]
+rhos = [ltb.rho(r) for r in rs]
+# print(rhos)
+plt.semilogy(rs, rhos)
+plt.show()
+
