@@ -372,7 +372,7 @@ def main():
     # step_size = 5e-7
     # step_size = 6.45454545455e-07
     first = True
-    for source_z, z_lens in tqdm(list(zip(source_zs, z_lens_all))):
+    for source_z, z_lens, start_th in tqdm(list(zip(source_zs, z_lens_all, start_thetas))):
         rs = []
         thetas = []
         source_rs_array = []
@@ -382,15 +382,15 @@ def main():
         ds = []
         for om in om_lambdas:
             comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om)
-            source_r, dang_r = get_distances(source_z, Omega_Lambda=om)
-            theta = rs2theta(source_r, comoving_lens, dang_lens)
+            # source_r, dang_r = get_distances(source_z, Omega_Lambda=om)
+            # theta = rs2theta(source_r, comoving_lens, dang_lens)
+            theta = start_th
             # dls, dl, ds
             r, a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, dt=step_size)
             thetas.append(theta)
             rs.append(r+comoving_lens)
             source_rs_array.append(source_r)
             num_theta = rs2theta(r+comoving_lens, comoving_lens, dang_lens)
-            # num_theta2 = calc_theta(a*r, dang_lens, a*(r+comoving_lens))
             numerical_thetas.append(num_theta)
             ds.append((r+comoving_lens)*a)
             dls.append(r*a)

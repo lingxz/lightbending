@@ -4,7 +4,9 @@
 
 Describe the problem
 
-Overview of the literature, starting with Rindler and Ishak's paper. Point out other work done on the Swiss Cheese (Kantowski, analytical) and also other numerical work that used a different metric (Aghili, Effect of Accelerated Global Expansion on Bending of Light, used a McVittie metric). 
+Overview of the literature, starting with Rindler and Ishak's paper. Outline the main points of disagreement (comoving observers as opposed to static, observable quantities, whether the effect is already accounted for). 
+
+Point out other work done on the Swiss Cheese (Kantowski, analytical) and also other numerical work that used a different metric (Aghili, Effect of Accelerated Global Expansion on Bending of Light, used a McVittie metric). 
 
 Talk about the metric, Einstein field equations, and how light path follows the null geodesic. 
 
@@ -28,7 +30,7 @@ Make a note that angular diameter distances already depend on Lambda, the questi
 
 Describe the Swiss Cheese model. Note that the mass has limited influence, i.e. the bending stops after exiting the hole, back into the cheese. 
 
-Reasons for using this model: is an exact solution of Einstein equations, influence of the central mass confined to the size of the hole
+Reasons for using this model: is an exact solution of Einstein equations, influence of the central mass confined to the size of the hole, tackles the problem of comoving observers. 
 
 ## Spacetime patches
 
@@ -44,16 +46,25 @@ Conversion of velocity between FRW and Kottler spacetime
 
 ## Light propagation
 
+### In FRW geometry
+
 Friedmann equations, null condition, geodesic equations
+
+### in Kottler
+
+null condition, geodesic equations
+
+Note that the geodesic equations in Kottler are exactly the same as in Schwarzschild (this was why Islam first wrote that Lambda has no effect), but the conversion of velocities at the boundary and the rate of expansion of the boundary of the hole, which moves with the FRW universe, depend on Lambda. 
 
 ## Calculation of Einstein angle
 
-How the Einstein angle is calculated from the numerical angular diameter distances
+How to obtain angular diameter distance from numerical comoving distances (including for curved space), and then Einstein angle is calculated
 
 ## Hole with a generalised mass distribution
 
-Introduce LTB metric
-similar junction conditions at the boundary due to birchoff's theorem
+Introduce LTB metric. A more realistic model as lenses are not point masses but extended objects. 
+
+Similar matching conditions at the cheese-hole boundary due to birchoff's theorem
 
 ### Density profile
 
@@ -66,6 +77,8 @@ NFW mass profile and lensing mass calculated from thin lens approximation
 Back propagation. 
 
 To check that it's working, it is compared with the Schwarzschild case. 
+
+Explored different step sizes and different solvers.
 
 selection of step size by varying step size for known Schwarzschild case and see how well it agrees with expected result
 
@@ -82,4 +95,4 @@ Results are checked against the Schwarzschild / Kottler case when the mass becom
 # Conclusion
 
 Summarize what's above
-Further work
+Further work: 

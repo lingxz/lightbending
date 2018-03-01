@@ -1,3 +1,12 @@
+# LTB hole
+
+- Is LTB in comoving or static coordinates?
+- How do you tell? Is it determined at the start or do they fall out of the EFEs and then you identify them as static/comoving
+- how to determine E and E_r?
+- consequently, how to determine R_r?
+
+---
+
 Selection of the step size is one of the most important concepts in numerical integration of differential equation systems. It is not practical to use constant step size in numerical integration. If the selected step size is large in numerical integration, the computed solution can diverge from the exact solution. And if the chosen step size is small, the calculation time, number of arithmetic operations, and the calculation errors start to increase. So, if the solution is changing rapidly, the step size should be chosen small. Inversely, if the solution is changing slowly, we should choose bigger step size.
 
 Without loss of generality, we consider null geodesics on the plane with $\theta = \pi/2$. 
@@ -42,5 +51,15 @@ formula 15 on p4 for extrinsic curvature
 
 - thin screen approximation
 
+The extent of the mass distribution is very small compared to the distances between source, lens, and observer. Therefore, the mass distribution of the lenns can be treated as if it were an infinitely thin mass sheet perpendicular to the line-of-sight. 
+
+The surface mass is simply obtained by projection. 
+
+The plane of the mass sheet is called the lens plane. 
+
+For an extended mass, it is the PROJECTED mass that counts, not the mass enclosed in that radius. 
+
+Calculating projected mass for NFW: https://arxiv.org/pdf/astro-ph/0002395.pdf
+(eq 43, page 7)
 
 When Lambda changes, many things change. What should we keep constant?
