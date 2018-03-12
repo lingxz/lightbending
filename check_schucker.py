@@ -28,12 +28,12 @@ INTEGRATOR_PARAMS = {
     # 'method': 'bdf',
 }
 # H_0 = 7.33e-27
-H_0 = 7.56e-27 * length_scale
+H_0 = 7.56e-27 * length_scale  # 70km/s/Mpc
 # Omega_Lambda = 0
 # Omega_m = 1 - Omega_Lambda
 # M = 0.5e15 / length_scale
 # M = 1474e12 / length_scale
-M = 1474e13*3 / length_scale
+M = 1474e13*2.77 / length_scale
 print("M: ", M)
 
 def frw(eta, w, p):
@@ -89,6 +89,7 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, dt
     initial_t = 0.
     Omega_m = 1 - Omega_Lambda
 
+    print("comoving_lens: ", comoving_lens)
     s = spi.ode(frw)
     p_s = [0, k, Omega_Lambda, Omega_m, H_0]
     source_a = None
@@ -101,6 +102,7 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, dt
         s.integrate(s.t + dt)
         if s.y[0] < 1/(1.734+1):
             correct_r = s.y[1]
+            print("correct r: ", correct_r)
             # source_a = s.y[0]
             break
 
@@ -120,6 +122,8 @@ def solve(angle_to_horizontal, comoving_lens=1e25, plot=True, Omega_Lambda=0, dt
 
     rho = Omega_m*3*H_0**2/(8*np.pi)
     r_h = 1/initial_a*(3*M/(4*np.pi*rho))**(1./3)
+    print("r_h: ", r_h)
+
     if r_h > initial_r:
         print("Starting point is inside the hole! Make the hole smaller or bring the lens further away.")
         return
@@ -400,4 +404,35 @@ def main():
     r, a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, dt=step_size)
     print("Time taken: {}".format(time.time() - start))
 
-main()
+# main()
+
+alpha = 10/3600*np.pi/180
+alpha_prime = 5/3600*np.pi/180
+om = 0.77
+com_lens, dl = get_distances(0.68, Omega_Lambda=om)
+com_source, ds = get_distances(1.734, Omega_Lambda=om)
+# com_source = com_source*np.cos(alpha)
+ds = ds*np.cos(alpha/2)
+dls = (com_source - com_lens)*1/(1.734+1)
+# dls = ds - dl
+print(dl, ds, dls)
+# m = ds/4/dls*(alpha + alpha_prime)/(1/dl/alpha + 1/dl/alpha)
+
+# Lambda = 3*om*H_0**2
+# rho = (1-om)*3*H_0**2/(8*np.pi)
+# coeff = np.zeros(7)
+# coeff[0] = -ds*(alpha+alpha_prime)
+# coeff[1] = -dls*Lambda/3*(dl*alpha + dl*alpha_prime)*(3/(4*np.pi*rho))**(1/3)
+# coeff[3] = dls*4*(1/dl/alpha + 1/dl/alpha_prime)
+# coeff[6] = dls*15*np.pi/4*(1/(dl*alpha)**2+1/(dl*alpha_prime)**2)
+
+# m = np.roots(coeff[::-1])**3
+m = ds*(alpha + alpha_prime)/(1/dl/alpha_prime + 1/dl/alpha)/(4*dls)
+print(m*length_scale/1474e13)
+
+
+# ===========================================
+
+# results = np.array([1.848, 1.826, 1.828, 2.209, 2.212, 1.808, 1.810, 1.818, 1.810, 1.479, 1.481])
+# # results = np.array([2.77, 2.739, 2.742, 3.314, 3.319, 2.5417, 2.551, 2.912, 2.916, 2.218, 2.2216])
+# print(results.min() - 1.848, results.max()-1.848)

@@ -31,7 +31,7 @@ H_0 = 7.56e-27 * length_scale
 # Omega_Lambda = 0
 # Omega_m = 1 - Omega_Lambda
 # M = 0.5e15 / length_scale
-M_initial = 1474e13 / length_scale
+M_initial = 1474e11 / length_scale
 rho_initial = H_0**2/(8*np.pi)
 r_h = (3*M_initial/(4*np.pi*rho_initial))**(1./3)
 M = None
@@ -360,32 +360,36 @@ from tqdm import tqdm
 
 def main():
     start = time.time()
-    om_lambdas = np.linspace(0, 0.99, 50)
+    om_lambdas = np.linspace(0, 0.99, 100)
+    # om_lambdas = np.linspace(0, 0.99, 99)[list(range(1, 99, 2))]
     # z_lens_all = np.linspace(0.05, 0.2, 10)
-    z_lens_all = np.linspace(0.1, 0.5, 20)
+    z_lens_all = np.linspace(0.2, 1, 50)
     # z_lens = 0.1
     # a_lens = 1/(z_lens+1)
     # start_thetas = np.linspace(0.7e-5, 2e-5, 100)
-    start_thetas = np.array([5e-5]*50)
+    start_thetas = np.array([5e-6]*50)
     source_rs = np.array([theta2rls_flat(th1, z1) for th1, z1 in zip(start_thetas, z_lens_all)])
     # source_rs = theta2rls_flat(start_thetas, z_lens)
     source_zs = rs2redshift_flat(source_rs)
     print("source_zs: ", source_zs)
     # step_size = 6.12244897959e-07
     # step_size = 9.63265306122e-07
-    step_size = 1e-07
+    step_size = 4.67346938776e-07
     # step_size = 5e-7
     # step_size = 6.45454545455e-07
     first = True
+    filename = 'data/diff_lambdas_const_rh7.csv'
+    print(filename)
     for source_z, z_lens in tqdm(list(zip(source_zs, z_lens_all))):
         rs = []
         thetas = []
         source_rs_array = []
-        numerical_thetas = []
         dl = []
         dls = []
         ds = []
         ms = []
+        raw_rs = []
+        com_lens = []
         for om in tqdm(om_lambdas):
             global M
             rho = (1-om)*3*H_0**2/(8*np.pi)
@@ -394,27 +398,43 @@ def main():
             comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om)
             source_r, dang_r = get_distances(source_z, Omega_Lambda=om)
             theta = rs2theta(source_r, comoving_lens, dang_lens)
+            com_lens.append(comoving_lens)
             # dls, dl, ds
             r, a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, dt=step_size)
             thetas.append(theta)
+            raw_rs.append(r)
             rs.append(r+comoving_lens)
             source_rs_array.append(source_r)
-            num_theta = rs2theta(r+comoving_lens, comoving_lens, dang_lens)
-            # num_theta2 = calc_theta(a*r, dang_lens, a*(r+comoving_lens))
-            numerical_thetas.append(num_theta)
             ds.append((r+comoving_lens)*a)
             dls.append(r*a)
             dl.append(dang_lens)
         rs = np.array(rs)
         thetas = np.array(thetas)
         source_rs_array = np.array(source_rs_array)
-        numerical_thetas = np.array(numerical_thetas)
         ds = np.array(ds)
         dls = np.array(dls)
         dl = np.array(dl)
         ms = np.array(ms)
-        df = pd.DataFrame({'M': ms, 'rs': rs, 'DL': dl, 'DLS': dls, 'DS': ds,'theta': thetas, 'rs_initial': source_rs_array, 'om_lambdas': om_lambdas, 'numerical_thetas': numerical_thetas, 'step': [step_size]*len(thetas)})
-        filename = 'data/diff_lambdas_const_rh3.csv'
+        raw_rs = np.array(raw_rs)
+        com_lens = np.array(com_lens)
+
+        # DL,DLS,DS,M,numerical_thetas,om_lambdas,rs,rs_initial,step,theta,z_lens,comoving_lens,raw_rs
+        df = pd.DataFrame({
+            'DL': dl, 
+            'DLS': dls, 
+            'DS': ds, 
+            'M': ms, 
+            'numerical_thetas': thetas,
+            'om_lambdas': om_lambdas, 
+            'rs': rs, 
+            'rs_initial': source_rs_array, 
+            'step': [step_size]*len(thetas),
+            'theta': thetas, 
+            'z_lens': [z_lens]*len(thetas),
+            'comoving_lens': com_lens,
+            'raw_rs': raw_rs,
+        })
+        df = df[['DL','DLS','DS','M','numerical_thetas','om_lambdas','rs','rs_initial','step','theta','z_lens','comoving_lens','raw_rs']]
         if first:
             df.to_csv(filename, index=False)
             first = False

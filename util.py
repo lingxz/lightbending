@@ -5,6 +5,57 @@ import seaborn as sns
 import scipy.integrate as spi
 # plt.style.use('seaborn-white')
 
+def plot_diff_lambdas_distances(filename, plot_ishak=True):
+    df = pd.read_csv(filename)
+    length_scale = 3.086e22
+    H_0 = 7.56e-27 * length_scale
+
+    preds_frw = []
+    preds_ishak = []
+    for index, row in df.iterrows():
+        M = row.M
+        Lambda = 3*row.om_lambdas*H_0**2
+        rho = (1-row.om_lambdas)*3*H_0**2/(8*np.pi)
+        rh = (3*M/(4*np.pi*rho))**(1./3)
+        A_frw = 4*M/(row.DL*row.theta) + 15*np.pi*M**2/4/(row.DL*row.theta)**2 + 401/12*M**3/(row.DL*row.theta)**3
+        frw = row.comoving_lens/(A_frw/row.theta -1)
+        
+        A_ishak = 4*M/(row.DL*row.theta) + 15*np.pi*M**2/4/(row.DL*row.theta)**2 + 305/12*M**3/(row.DL*row.theta)**3 - Lambda*row.DL*row.theta*row.exit_rhs/3
+        ishak = row.comoving_lens/(A_ishak/row.theta -1)
+        
+        preds_frw.append(frw)
+        preds_ishak.append(ishak)
+
+    df['preds_frw'] = preds_frw
+    df['preds_ishak'] = preds_ishak
+
+    df['numerical'] = df.raw_rs/df.preds_frw
+    df['ishak'] = df.preds_ishak/df.preds_frw
+
+    stats = df[['om_lambdas', 'numerical', 'ishak']].groupby('om_lambdas').agg(['mean', 'std', 'count'])
+    stats.columns = [' '.join(col).strip() for col in stats.columns.values]
+    stats['numerical mean std'] = stats['numerical std']/np.sqrt(stats['numerical count'])
+    stats['ishak mean std'] = stats['ishak std']/np.sqrt(stats['ishak count'])
+    stats.head()
+
+    scale = 1
+    plt.plot(stats.index, stats['numerical mean']/scale, '.')
+    plt.errorbar(stats.index, stats['numerical mean']/scale, yerr=stats['numerical mean std']/scale, linestyle='none')
+    plt.xlabel('Omega_Lambda')
+    # plt.ylabel('Mean fractional deviation/10^-5')
+    if plot_ishak:
+        plt.plot(stats.index, stats['ishak mean']/scale, 'g-')
+    plt.plot(stats.index, [1/scale]*len(stats.index), 'r-')
+
+    # chisquared_frw = (stats['numerical mean'] - 1)**2/(stats['numerical mean std'])**2
+    # chisquared_ishak = (stats['numerical mean'] - stats['ishak mean'])**2/(stats['numerical mean std'])**2
+    # p_frw = np.exp(-chisquared_frw.values.sum()/2)
+    # p_ishak = np.exp(-chisquared_ishak.values.sum()/2)
+    # print("p_frw/p_ishak: ", p_frw/p_ishak)
+    # print("p_ishak/p_frw: ", p_ishak/p_frw)
+    # # print(chisquared_frw)
+    # # print(chisquared_ishak)
+
 def plot_diff_lambdas(filename, recalculate_distances=False, scale=1e-5, plot_rindler=False):
     df = pd.read_csv(filename)
 
@@ -109,8 +160,14 @@ class LTB:
     def mass(self, r):
         initial_rh = (3*self.M/(4*np.pi*self.rho_frw_initial))**(1./3)
         rlimit = initial_rh/self.rlimit_ratio
-        # if r > rlimit:
-        #     return self.M
+        if r > rlimit:
+            return self.M
+        else:
+            c = 10
+            Rvir = rlimit/100
+            Rs = Rvir/c
+            rho0 = self.M/(4*np.pi*Rs**3*(np.log((Rs + rlimit)/Rs) - rlimit/(Rs + rlimit)))
+            return 4*np.pi*rho0*Rs**3*(np.log((Rs+r)/Rs) - r/(Rs+r))
         # else:
         #     integral, error = spi.quad(lambda r1: self.rho(r1)*r1**2, 0, r)
         #     return 4*np.pi*integral
@@ -131,13 +188,19 @@ class LTB:
 
 if __name__ == "__main__":
     ltb = LTB()
-    def f(P, r):
-        current_rho = ltb.rho(r)
-        current_m = ltb.mass(r)
-        Lambda = 0
-        E = -2*current_m/r - Lambda*r**2/3
-        return (current_rho + P)/2/(1+E)/r*(Lambda*r**2 - 8*np.pi*P*r**2 + E)
-    from scipy.integrate import odeint
-    pressure_rs = np.linspace(0.1, ltb.initial_rh(), 1000)[1:][::-1]
-    pressure = odeint(f, 0, pressure_rs)
+    rs = ltb.rs()[1:]
+    rhos = [ltb.rho(r) for r in rs]
+    masses = [ltb.mass(r) for r in rs]
+    plt.semilogx(rs, masses)
 
+    # def f(P, r):
+    #     current_rho = ltb.rho(r)
+    #     current_m = ltb.mass(r)
+    #     Lambda = 0
+    #     E = -2*current_m/r - Lambda*r**2/3
+    #     return (current_rho + P)/2/(1+E)/r*(Lambda*r**2 - 8*np.pi*P*r**2 + E)
+    # from scipy.integrate import odeint
+    # pressure_rs = np.linspace(0.1, ltb.initial_rh(), 1000)[1:][::-1]
+    # pressure = odeint(f, 0, pressure_rs)
+
+    plt.show()

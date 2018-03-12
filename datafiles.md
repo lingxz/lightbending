@@ -22,3 +22,20 @@ lens_z_omlambda0_2_bigger_redshift.csv: same as above, but redshifts are 0.2 to 
 
 diff_lambdas_redshifts: from sw_lambda3.py. different redshifts, different lambda, same mass, fixed start theta. 
 diff_lambdas_masses: from sw_lambda4.py. different masses, same redshift, different lambda, fixed start theta.
+diff_lambdas_masses2: same as above, using dopri instead of vode, step size 5e-7 instead of 1e-7
+diff_lambdas_redshifts2: from sw_lambda3.py main2. same as diff_lambdas_redshifts, but not fixed theta, calculate theta based on fixed distance, like in sw_lambda.py. also 100 points for om_lambdas
+diff_lambdas_const_rh5: same as diff_lambdas_const_rh, just different step size (4.67346938776e-07 instead of 5e-7) and more lambda points (100 instead of 50)
+diff_lambdas_const_rh6: same as diff_lambdas_const_rh5 (step size 4.67346938776e-07, 100 lambda points), just different mass 10^13 solar masses instead of 10^12, also 50 redshift points
+diff_lambdas_redshifts3: same as diff_lambdas_redshifts2, just different step size (4.67346938776e-07 instead of 1e-7)
+
+half_analytical: from half_analytical.py. 10^12 solar masses, step size 1e-9, fixed rh
+half_analytical2: same as half_analytical, 10^13 solar masses, start thetas bigger (2e-6 instead of 8e-7)
+half_analytical3: same as half_analytical, with bdf instead of adams
+half_analytical_const_m: fixed m instead of fixed rh, redshifts 0.5-1, 50 redshift points, 50 lambda points, theta 8e-7
+half_analytical_const_m2: 10^11 solar masses, 0.2-1., 20 redshift points, 50 lambda points, theta 5e-7
+half_analytical_const_m3: 10^12 solar masses, 0.4-1, 50 redshits points, 50 lambda points, theta 8e-7, method bdf, lambdas up to 0.999
+half_analytical_const_m4: same as half_analytical_const_m3, but not bdf
+half_analytical_const_m5: same as half_analytical_const_m3, bdf, but 5e11 solar masses.
+half_analytical_const_m6: same as half_analytical_const_m5, but 5e-10 step size and theta 5e-7
+
+half_analytical_const_lensz: constant z_lens, varying M, 10^12 - 10^13 solar masses, 20 mass points, 50 lambda points, theta 1e-6, method bdf, redshift 1.

@@ -420,7 +420,7 @@ def main2():
     om_lambdas = np.linspace(0, 0.9, 1)
     om_lambdas = np.array([0])
     # om = 0
-    z_lens = 0.05
+    z_lens = 0.2
     a_lens = 1/(z_lens+1)
     ds = []
     dls = []
@@ -434,6 +434,9 @@ def main2():
         dl.append(dang_lens)
         # print("lens distances: ", comoving_lens, dang_lens)
         r, a = solve(theta, plot=True, comoving_lens=comoving_lens, Omega_Lambda=om, dt=1e-6)
+        A_frw = 4*M/(dang_lens*theta) + 15*np.pi*M**2/4/(dang_lens*theta)**2 + 401/12*M**3/(dang_lens*theta)**3
+        expected = comoving_lens/(A_frw/theta -1)
+        print("answer", r, expected)
         d_s = a*(r + comoving_lens)
         d_ls = a * r
         ds.append(d_s)

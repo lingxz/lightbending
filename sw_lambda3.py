@@ -423,4 +423,75 @@ def main():
             df.to_csv(filename, index=False, header=False, mode='a')
     print("Time taken: {}".format(time.time() - start))
 
-main()
+def main2():
+    start = time.time()
+    om_lambdas = np.linspace(0, 0.99, 100)
+    # z_lens_all = np.linspace(0.05, 0.2, 10)
+    z_lens_all = np.linspace(0.1, 1, 20)
+    # a_lens = 1/(z_lens+1)
+    # start_thetas = np.linspace(0.7e-5, 2e-5, 100)
+    start_thetas = np.array([5e-6]*50)
+    # mass = np.linspace(1474e12/length_scale, 1474e13/length_scale, 50)
+    source_rs = np.array([theta2rls_flat(th1, z1) for th1, z1 in zip(start_thetas, z_lens_all)])
+    # source_rs = theta2rls_flat(start_thetas, z_lens)
+
+    source_zs = rs2redshift_flat(source_rs)
+    print("source_zs: ", source_zs)
+    # step_size = 1e-07
+    step_size = 4.67346938776e-07
+    first = True
+    filename = 'data/diff_lambdas_redshifts3.csv'
+    print(filename)
+    for z_lens, source_z in tqdm(list(zip(z_lens_all, source_zs))):
+        rs = []
+        thetas = []
+        dl = []
+        dls = []
+        ds = []
+        raw_r = []
+        com_lens = []
+        masses = []
+        for om in tqdm(om_lambdas):
+            comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om)
+            source_r, dang_r = get_distances(source_z, Omega_Lambda=om)
+            theta = rs2theta(source_r, comoving_lens, dang_lens)
+            com_lens.append(comoving_lens)
+            # theta = start_th
+            # dls, dl, ds
+            r, a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, dt=step_size)
+            thetas.append(theta)
+            raw_r.append(r)
+            rs.append(r+comoving_lens)
+            # num_theta = rs2theta(r+comoving_lens, comoving_lens, dang_lens)
+            ds.append((r+comoving_lens)*a)
+            dls.append(r*a)
+            dl.append(dang_lens)
+        rs = np.array(rs)
+        com_lens = np.array(com_lens)
+        thetas = np.array(thetas)
+        ds = np.array(ds)
+        dls = np.array(dls)
+        dl = np.array(dl)
+        raw_r = np.array(raw_r)
+        masses = np.array([M]*len(thetas))
+        df = pd.DataFrame({
+            'rs': rs, 
+            'raw_rs': raw_r, 
+            'M': masses, 
+            'comoving_lens':com_lens, 
+            'DL': dl, 
+            'DLS': dls, 
+            'DS': ds, 
+            'theta': thetas, 
+            'om_lambdas': om_lambdas, 
+            # 'om_lambdas': [0]*len(thetas),
+            'step': [step_size]*len(thetas)
+        })
+        if first:
+            df.to_csv(filename, index=False)
+            first = False
+        else:
+            df.to_csv(filename, index=False, header=False, mode='a')
+    print("Time taken: {}".format(time.time() - start))
+
+main2()

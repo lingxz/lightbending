@@ -2,11 +2,11 @@
 
 # Introduction
 
-Describe the problem
+Describe the problem. Briefly introduce 
 
 Overview of the literature, starting with Rindler and Ishak's paper. Outline the main points of disagreement (comoving observers as opposed to static, observable quantities, whether the effect is already accounted for). 
 
-Point out other work done on the Swiss Cheese (Kantowski, analytical) and also other numerical work that used a different metric (Aghili, Effect of Accelerated Global Expansion on Bending of Light, used a McVittie metric). 
+Point out other work done on the Swiss Cheese such as Schucker (numerical), Kantowski (analytical) and also other numerical work that used a different metric (Aghili, Effect of Accelerated Global Expansion on Bending of Light, used a McVittie metric). 
 
 Talk about the metric, Einstein field equations, and how light path follows the null geodesic. 
 
@@ -68,7 +68,9 @@ Similar matching conditions at the cheese-hole boundary due to birchoff's theore
 
 ### Density profile
 
-NFW mass profile and lensing mass calculated from thin lens approximation
+Describe NFW mass profile
+
+lensing mass calculated from thin lens approximation
 
 # Results and discussion
 

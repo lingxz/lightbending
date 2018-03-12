@@ -7,6 +7,33 @@
 
 ---
 
+metrics
+ds^2 = -dt^2 + a(t)^2 \left [ \frac{dr^2}{1-kr^2} + r^2(d\theta^2 + \sin^2\theta d\phi^2) \right ]
+ds^2 = -f(R)dT^2 + \frac{dR^2}{f(R)} + R^2(d\theta^2 + \sin^2 \theta d\phi^2)
+
+geodesic equations
+\ddot{x}^{\mu} + \Gamma^{\mu}_{\alpha \beta} \dot{x}^{\alpha} \dot{x}^{\beta} = 0 
+
+frw:
+\dot{t} = -\sqrt{\frac{a^2\dot{r}^2}{1-kr^2} + a^2r^2 \dot{\phi}}
+a_{,t} = aH_0 \sqrt{\Omega_M/a^3 + \Omega_k/a^2 + \Omega_{\Lambda}}
+\ddot{r}  = (1-kr^2)r\dot{\phi}^2 - \frac{k\dot{r}^2}{1-kr^2} - \frac{2a_{,t}}{a}\dot{r}\dot{t}
+
+kottler:
+\ddot{R}  = \frac{L_{\text{k}}^2 (R-3M)}{R^4}
+\dot{\phi} = \frac{L_k}{R^2}
+R_{h,t} = \left ( 1 - \frac{2M}{R_h} - \frac{\Lambda*R_h^2}{3} \right ) \sqrt{\frac{2M}{R_h} + \frac{\Lambda R_h^2}{3}}
+
+gravitational lensing equations
+D_s \theta_E = D_{LS}\alpha
+\alpha_{\text{FRW}} = 4\frac{M}{R} + \frac{15\pi}{4}\left ( \frac{M}{R} \right )^2 + \frac{401}{12}\left ( \frac{M}{R} \right )^3
+\alpha_{\text{Ishak}} &= 4\frac{M}{R} + \frac{15\pi}{4}\left ( \frac{M}{R} \right )^2 + \frac{305}{12}\left ( \frac{M}{R} \right )^3 - \frac{\Lambda R r_h}{3}
+
+
+---
+
+Instead of working directly with Lambda, throughout this paper we work with Omega_Lambda instead.
+
 Selection of the step size is one of the most important concepts in numerical integration of differential equation systems. It is not practical to use constant step size in numerical integration. If the selected step size is large in numerical integration, the computed solution can diverge from the exact solution. And if the chosen step size is small, the calculation time, number of arithmetic operations, and the calculation errors start to increase. So, if the solution is changing rapidly, the step size should be chosen small. Inversely, if the solution is changing slowly, we should choose bigger step size.
 
 Without loss of generality, we consider null geodesics on the plane with $\theta = \pi/2$. 

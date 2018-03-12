@@ -18,7 +18,7 @@ import pandas as pd
 
 
 length_scale = 3.086e22 # mega parsec
-INTEGRATOR = 'vode'
+INTEGRATOR = 'dopri'
 INTEGRATOR_PARAMS = {
     'atol': 1e-110, 
     # 'atol': 0,
@@ -370,7 +370,7 @@ def main():
 
     # source_zs = rs2redshift_flat(source_rs)
     # print("source_zs: ", source_zs)
-    step_size = 1e-07
+    step_size = 5e-07
     first = True
     for current_m, start_th in tqdm(list(zip(masses, start_thetas))):
         global M
@@ -421,7 +421,7 @@ def main():
             # 'om_lambdas': [0]*len(thetas),
             'step': [step_size]*len(thetas)
         })
-        filename = 'data/diff_lambdas_masses.csv'
+        filename = 'data/diff_lambdas_masses2.csv'
         if first:
             df.to_csv(filename, index=False)
             first = False
