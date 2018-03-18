@@ -47,19 +47,30 @@
 % identifier and citing everything in simple brackets. The first names,
 % if present, will be initialized. DOIs and URLs will be preserved.
 
-\usepackage[%
-  autocite     = plain,
-  backend      = bibtex,
-  doi          = true,
-  url          = true,
-  giveninits   = true,
-  hyperref     = true,
-  maxbibnames  = 99,
-  maxcitenames = 99,
-  sortcites    = true,
-  % style        = numeric,
-  style        = ieee,
-  ]{biblatex}
+% \usepackage[%
+%   % autocite     = plain,
+%   % backend      = bibtex,
+%   doi          = true,
+%   url          = true,
+%   giveninits   = true,
+%   hyperref     = true,
+%   maxbibnames  = 99,
+%   maxcitenames = 99,
+%   % sortcites    = true,
+%   style        = apa,
+%   % citestyle    = authoryear,
+%   % autocite     = inline,
+%   backend      = biber,
+%   natbib       = true,
+%   ]{biblatex}
+
+\usepackage[
+    backend      = biber,
+    style        = authoryear,
+    hyperref     = true,
+    natbib       = true,
+    maxcitenames = 2,
+]{biblatex}
 
 % \input{bibliography-mimosis}
 % \bibliographystyle{ieeetr}

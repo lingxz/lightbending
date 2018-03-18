@@ -1,0 +1,58 @@
+\documentclass[a4paper,12pt,twoside]{report}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=3cm]{geometry}
+
+% \usepackage[%
+%   colorlinks = true,
+%   citecolor  = RoyalBlue,
+%   linkcolor  = RoyalBlue,
+%   urlcolor   = RoyalBlue,
+%   ]{hyperref}
+
+\usepackage{hyperref}
+\usepackage[
+    backend  = biber,
+    style    = authoryear,
+    hyperref = true,
+    natbib   = true,
+]{biblatex}
+\addbibresource{library.bib}
+\renewcommand*{\nameyeardelim}{\addcomma\space}
+
+\include{thesis.preamble}
+
+
+\begin{document}
+
+\title{\LARGE {\bf Title of my Ph.D. Thesis}\\
+ \vspace*{6mm}
+}
+
+\author{Joe Bloggs}
+\submitdate{October 2008}
+
+\normallinespacing
+\maketitle
+
+\preface
+\input{chapters/abstract}
+% \input{acknowledgements/acknowledgements}
+% \input{dedication/dedication}
+% \input{quotes/quotes}
+
+\body
+\input{chapters/introduction}
+\input{chapters/swiss-cheese}
+
+% body of thesis comes here
+
+% \input{conclusion/conclusion}
+
+\appendix
+% appendices come here
+
+\printbibliography  
+% \addcontentsline{toc}{chapter}{Bibliography}
+% \bibliographystyle{alpha}
+% \bibliography{library}
+
+\end{document}

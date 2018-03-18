@@ -56,6 +56,18 @@ print("M: ", M)
 #         phidot,
 #     ]
 
+def omega_lambda2lambda(Omega_Lambda):
+    return 3*Omega_Lambda*H_0**2
+
+def kantowski_alpha(R, phi, Omega_Lambda):
+    r0 = 1/(1/R + M/R**2 + 3/16*M**2/R**3)
+    # r0 = R*(1-M/R - 3/2*(M/R)**2 - 4*(M/R)**3)
+    Lambda = omega_lambda2lambda(Omega_Lambda)
+    rs = 2*M
+    first_term = (rs/2/r0)*np.cos(phi)*(-4*(np.cos(phi))**2 - 12*np.cos(phi)*np.sin(phi)*np.sqrt(Lambda*r0**2/3+rs/r0*(np.sin(phi))**3) + Lambda*r0**2*(8/3-20/3*(np.sin(phi))**2))
+    second_term = (rs/2/r0)**2*(15/4*(2*phi-np.pi) + np.cos(phi)*(4+33/2*np.sin(phi)-4*(np.sin(phi))**2+19*(np.sin(phi))**3-64*(np.sin(phi))**5) - 12*np.log(np.tan(phi/2))*(np.sin(phi))**3)
+    return first_term + second_term
+
 def get_angle(r, phi, rdot, phidot):
     res = np.arctan((rdot*np.sin(phi)+r*np.cos(phi)*phidot)/(rdot*np.cos(phi)-r*np.sin(phi)*phidot))
     return res
@@ -187,10 +199,9 @@ def solve(angle_to_horizontal, comoving_lens=None, plot=True, Omega_Lambda=0, dt
 
     # res = np.arctan((rdot*np.sin(phi)+r*np.cos(phi)*phidot)/(rdot*np.cos(phi)-r*np.sin(phi)*phidot))
 
-
+    frw_angle_before_entering = get_angle(last[1], last[4], last[2], L_frw/(last[0]*last[1])**2)
     if plot:
         print("angle_to_horizontal", angle_to_horizontal)
-        frw_angle_before_entering = get_angle(last[1], last[4], last[2], L_frw/(last[0]*last[1])**2)
         print("Angle in FRW::")
         print(frw_angle_before_entering)
         print(last)
@@ -276,6 +287,7 @@ def solve(angle_to_horizontal, comoving_lens=None, plot=True, Omega_Lambda=0, dt
         print("time in hole: ", last[1])
 
     # r_h, t, r, rdot, phi = w
+    exit_phi = last[4]
     initial_phi = last[4]
     initial_r = r_h
     initial_a = last[2] / r_h
@@ -293,12 +305,6 @@ def solve(angle_to_horizontal, comoving_lens=None, plot=True, Omega_Lambda=0, dt
     p_frw[0] = initial_a**2 * initial_r**2*initial_phidot # change the L_frw
     # p_frw = [L_frw, k, Omega_Lambda, Omega_m, H_0]
     # r_h, t, r, rdot, phi = w
-
-    if Omega_Lambda:
-        initial_t = 0
-        # initial_t = 2/(3*H_0*np.sqrt(Omega_Lambda))*np.arcsin(np.sqrt(Omega_Lambda/(1-Omega_Lambda))*(last[2]/a0/r_h)**(3/2))
-    else:
-        initial_t = 2/(3*H_0)*(last[2]/a0/r_h)**(3/2)
     initial_t = 0
     # a, t, r, rdot, phi 
 
@@ -320,8 +326,10 @@ def solve(angle_to_horizontal, comoving_lens=None, plot=True, Omega_Lambda=0, dt
         print("initial angle to horizontal: ", angle_to_horizontal)
         print("----")
 
+    alpha = frw_angle_before_entering - frw_angle_after_exiting
     ans = initial_r*np.sin(initial_phi)/np.tan(np.abs(frw_angle_after_exiting)) + initial_r*np.cos(initial_phi)
-    return ans, exit_rh
+
+    return ans, exit_rh, exit_phi, alpha
     # return r[-1], source_a
 
 # [ 0.18075975  0.05122652  0.23824122  0.31020329  0.20010044  0.39768539
@@ -357,18 +365,17 @@ from tqdm import tqdm
 
 def main():
     start = time.time()
-    om_lambdas = np.linspace(0, 0.99, 50)
+    om_lambdas = np.linspace(0.9, 0.99, 1)
     # om_lambdas = np.array([0.99])
-    # z_lens_all = np.linspace(0.3, 1., 50)
-    start_ms = np.linspace(1474e12/length_scale, 5*1474e12/length_scale, 50)
+    start_ms = np.linspace(1474e12/length_scale, 5*1474e12/length_scale, 1)
+    # start_ms = np.linspace(8*1474e13/length_scale, 5*1474e15/length_scale, 1)
     z_lens = 1.
-    # a_lens = 1/(z_lens+1)
-    # start_thetas = np.linspace(0.7e-5, 2e-5, 100)
-    start_thetas = np.array([10e-07]*50)
+    start_thetas = np.array([2e-6]*50)
+    # start_thetas = np.array([2.18e-4]*50)
 
     step_size = 1e-9
     first = True
-    filename = 'data/half_analytical_const_lensz.csv'
+    filename = 'data/half_analytical_const_lensz_throwaway.csv'
     print(filename)
     for theta, current_m in tqdm(list(zip(start_thetas, start_ms))):
         global M
@@ -380,6 +387,8 @@ def main():
         raw_rs = []
         com_lens = []
         exit_rhs = []
+        enter_phis = []
+        alphas = []
         for om in tqdm(om_lambdas):
             ms.append(current_m)
             comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om)
@@ -387,12 +396,24 @@ def main():
             # theta = rs2theta(source_r, comoving_lens, dang_lens)
             # print("lens r", comoving_lens, theta)
             com_lens.append(comoving_lens)
-            r, exit_rh = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, dt=step_size)
+            r, exit_rh, enter_phi, alpha = solve(theta, plot=True, comoving_lens=comoving_lens, Omega_Lambda=om, dt=step_size)
             exit_rhs.append(exit_rh)
-            # A_frw = 4*M/(dang_lens*theta) + 15*np.pi*M**2/4/(dang_lens*theta)**2 + 401/12*M**3/(dang_lens*theta)**3
-            # frw = comoving_lens/(A_frw/theta -1)
-            # print("compare", r, frw, r/frw-1)
-            # print("A_frw", A_frw)
+            enter_phis.append(enter_phi)
+            alphas.append(alpha)
+
+            R = dang_lens*theta
+            A_frw = 4*M/R + 15*np.pi*M**2/4/R**2 + 401/12*M**3/R**3
+            frw = comoving_lens/(A_frw/theta -1)
+            print("enter_phi", enter_phi)
+            print("R", dang_lens*theta)
+            print("compare", r, frw, r/frw-1)
+            print("A_frw", A_frw)
+            k_alpha = kantowski_alpha(dang_lens*theta, enter_phi, om)
+            print("k_alpha", k_alpha)
+            print("difference", -alpha/k_alpha-1)
+            r0 = 1/(1/R + M/R**2 + 3/16*M**2/R**3)
+            extra_term = (2*M/r0 + omega_lambda2lambda(om)*r0**2)**(5/2) / (4*M/R*(np.cos(enter_phi))**3)
+            print("extra term ratio", extra_term)
 
             thetas.append(theta)
             raw_rs.append(r)
@@ -405,6 +426,8 @@ def main():
         raw_rs = np.array(raw_rs)
         com_lens = np.array(com_lens)
         exit_rhs = np.array(exit_rhs)
+        enter_phis = np.array(enter_phis)
+        alphas = np.array(alphas)
 
         # DL,DLS,DS,M,numerical_thetas,om_lambdas,rs,rs_initial,step,theta,z_lens,comoving_lens,raw_rs
         df = pd.DataFrame({
@@ -420,6 +443,8 @@ def main():
             'comoving_lens': com_lens,
             'raw_rs': raw_rs,
             'exit_rhs': exit_rhs,
+            'enter_phis': enter_phis,
+            'alphas': alphas,
         })
         # df = df[['DL','DLS','DS','M','numerical_thetas','om_lambdas','rs','rs_initial','step','theta','z_lens','comoving_lens','raw_rs']]
         if first:

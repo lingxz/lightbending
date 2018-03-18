@@ -31,11 +31,15 @@ diff_lambdas_redshifts3: same as diff_lambdas_redshifts2, just different step si
 half_analytical: from half_analytical.py. 10^12 solar masses, step size 1e-9, fixed rh
 half_analytical2: same as half_analytical, 10^13 solar masses, start thetas bigger (2e-6 instead of 8e-7)
 half_analytical3: same as half_analytical, with bdf instead of adams
+
 half_analytical_const_m: fixed m instead of fixed rh, redshifts 0.5-1, 50 redshift points, 50 lambda points, theta 8e-7
 half_analytical_const_m2: 10^11 solar masses, 0.2-1., 20 redshift points, 50 lambda points, theta 5e-7
 half_analytical_const_m3: 10^12 solar masses, 0.4-1, 50 redshits points, 50 lambda points, theta 8e-7, method bdf, lambdas up to 0.999
 half_analytical_const_m4: same as half_analytical_const_m3, but not bdf
 half_analytical_const_m5: same as half_analytical_const_m3, bdf, but 5e11 solar masses.
 half_analytical_const_m6: same as half_analytical_const_m5, but 5e-10 step size and theta 5e-7
+half_analytical_const_m_kant: same as half_analytical_const_m, with enter_phis or calculating kantowski_alpha
 
-half_analytical_const_lensz: constant z_lens, varying M, 10^12 - 10^13 solar masses, 20 mass points, 50 lambda points, theta 1e-6, method bdf, redshift 1.
+half_analytical_new: same as half_analytical, but using prev_last
+
+half_analytical_const_lensz: constant z_lens, varying M, 10^12 - 5*10^12 solar masses, 50 mass points, 50 lambda points, theta 1e-6, method bdf, redshift 1.

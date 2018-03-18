@@ -5,10 +5,98 @@ import seaborn as sns
 import scipy.integrate as spi
 # plt.style.use('seaborn-white')
 
+length_scale = 3.086e22
+H_0 = 7.56e-27 * length_scale
+
+def omega_lambda2lambda(Omega_Lambda):
+    return 3*Omega_Lambda*H_0**2
+
+def kantowski_alpha(R, M, phi, Omega_Lambda):
+    # r0 = 1/(1/R + M/R**2 + 3/16*M**2/R**3)
+    r0 = 1/(1/R + M/R**2)
+    # r0 = R*(1-M/R - 3/2*(M/R)**2 - 4*(M/R)**3)
+    Lambda = omega_lambda2lambda(Omega_Lambda)
+    rs = 2*M
+    first_term = (rs/2/r0)*np.cos(phi)*(-4*(np.cos(phi))**2 - 12*np.cos(phi)*np.sin(phi)*np.sqrt(Lambda*r0**2/3+rs/r0*(np.sin(phi))**3) + Lambda*r0**2*(8/3-20/3*(np.sin(phi))**2))
+    second_term = (rs/2/r0)**2*(15/4*(2*phi-np.pi) + np.cos(phi)*(4+33/2*np.sin(phi)-4*(np.sin(phi))**2+19*(np.sin(phi))**3-64*(np.sin(phi))**5) - 12*np.log(np.tan(phi/2))*(np.sin(phi))**3)
+    return first_term + second_term
+
+def plot_alphas(filename, plot_ishak=True, plot_kantowski=True):
+    df = pd.read_csv(filename)
+
+    preds_frw = []
+    preds_ishak = []
+    preds_kantowski = []
+    kant_higher_order_ratio = []
+
+    for index, row in df.iterrows():
+        M = row.M
+        Lambda = 3*row.om_lambdas*H_0**2
+        rho = (1-row.om_lambdas)*3*H_0**2/(8*np.pi)
+        rh = (3*M/(4*np.pi*rho))**(1./3)
+
+        R = (row.DL*row.theta)
+        A_frw = 4*M/R + 15*np.pi*M**2/4/R**2 + 401/12*M**3/R**3
+        # frw = row.comoving_lens/(A_frw/row.theta -1)
+
+        A_ishak = 4*M/R + 15*np.pi*M**2/4/R**2 + 305/12*M**3/R**3 - Lambda*R*row.exit_rhs/3
+        # ishak = row.comoving_lens/(A_ishak/row.theta -1)
+
+        A_kantowski = -kantowski_alpha(R, M, row.enter_phis, row.om_lambdas)
+
+        r0 = 1/(1/R + M/R**2)
+        extra_term_ratio = np.abs((2*M/r0 + omega_lambda2lambda(row.om_lambdas)*r0**2)**(5/2)/(4*M/r0*(np.cos(row.enter_phis))**3))
+        
+
+        preds_frw.append(A_frw)
+        preds_ishak.append(A_ishak)
+        preds_kantowski.append(A_kantowski)
+        kant_higher_order_ratio.append(extra_term_ratio)
+
+    df['preds_frw'] = preds_frw
+    df['preds_ishak'] = preds_ishak
+    df['preds_kantowski'] = preds_kantowski
+    df['kant_higher_order_ratio'] = kant_higher_order_ratio
+
+    df['numerical'] = df.alphas/df.preds_frw - 1
+    df['ishak'] = df.preds_ishak/df.preds_frw - 1
+    df['kantowski'] = df.preds_kantowski/df.preds_frw - 1
+    df['numerical_kantowski'] = df.alphas / df.preds_kantowski - 1
+
+    stats = df[['om_lambdas', 'numerical', 'ishak', 'kantowski', 'numerical_kantowski', 'kant_higher_order_ratio']].groupby('om_lambdas').agg(['mean', 'std', 'count'])
+    stats.columns = [' '.join(col).strip() for col in stats.columns.values]
+    stats['numerical mean std'] = stats['numerical std']/np.sqrt(stats['numerical count'])
+    # stats['numerical first order mean std'] = stats['numerical first order std']/np.sqrt(stats['numerical first order count'])
+    stats['ishak mean std'] = stats['ishak std']/np.sqrt(stats['ishak count'])
+
+    # stats['numerical mean'] = stats['numerical mean'] - 1
+    # stats['ishak mean'] = stats['ishak mean'] - 1
+    # stats['kantowski mean'] = stats['kantowski mean'] - 1
+
+    scale = 1
+    plt.plot(stats.index, stats['numerical mean']/scale, '.', label='__nolegend__')
+    # plt.plot(stats.index, stats['numerical first order mean']/scale, 'b-', label='with second order corrections')
+    plt.errorbar(stats.index, stats['numerical mean']/scale, yerr=stats['numerical mean std']/scale, linestyle='none', label='__nolegend__')
+    plt.xlabel('Omega_Lambda')
+    plt.ylabel('Mean fractional deviation/10^-6')
+    if plot_ishak:
+        plt.plot(stats.index, stats['ishak mean']/scale, 'g-', label='Rindler and Ishak predictions')
+    if plot_kantowski:
+        plt.plot(stats.index, stats['kantowski mean']/scale, 'b-', label="Kantowski predictions")
+    plt.plot(stats.index, [0/scale]*len(stats.index), 'r-', label='FRW predictions')
+    # plt.ylim((-0.0008, 0.0008))
+    if plot_ishak or plot_kantowski:
+        plt.legend()
+
+    plt.figure()
+    plt.plot(stats.index, stats['numerical_kantowski mean']/scale, '.', label='numerical to kantowski')
+    if plot_kantowski:
+        plt.plot(stats.index, stats['kant_higher_order_ratio mean']/scale, label='neglected term')
+    plt.grid()
+    plt.legend()
+
 def plot_diff_lambdas_distances(filename, plot_ishak=True):
     df = pd.read_csv(filename)
-    length_scale = 3.086e22
-    H_0 = 7.56e-27 * length_scale
 
     preds_frw = []
     preds_ishak = []
@@ -17,10 +105,15 @@ def plot_diff_lambdas_distances(filename, plot_ishak=True):
         Lambda = 3*row.om_lambdas*H_0**2
         rho = (1-row.om_lambdas)*3*H_0**2/(8*np.pi)
         rh = (3*M/(4*np.pi*rho))**(1./3)
+
+        try:
+            exit_rh = row.exit_rhs
+        except:
+            exit_rh = rh
         A_frw = 4*M/(row.DL*row.theta) + 15*np.pi*M**2/4/(row.DL*row.theta)**2 + 401/12*M**3/(row.DL*row.theta)**3
         frw = row.comoving_lens/(A_frw/row.theta -1)
         
-        A_ishak = 4*M/(row.DL*row.theta) + 15*np.pi*M**2/4/(row.DL*row.theta)**2 + 305/12*M**3/(row.DL*row.theta)**3 - Lambda*row.DL*row.theta*row.exit_rhs/3
+        A_ishak = 4*M/(row.DL*row.theta) + 15*np.pi*M**2/4/(row.DL*row.theta)**2 + 305/12*M**3/(row.DL*row.theta)**3 - Lambda*row.DL*row.theta*exit_rh/3
         ishak = row.comoving_lens/(A_ishak/row.theta -1)
         
         preds_frw.append(frw)
@@ -89,12 +182,8 @@ def plot_diff_lambdas(filename, recalculate_distances=False, scale=1e-5, plot_ri
 
         df['DL'] = dang_lens
 
-    length_scale = 3.086e22
-    H_0 = 7.56e-27 * length_scale
     M = 1474e12 / length_scale
 
-    def calc_theta(D_LS, D_L, D_S):
-        return np.sqrt(4*M*D_LS/D_L/D_S)
 
     theta_second_order = []
     theta_rindler = []

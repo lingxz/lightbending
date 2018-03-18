@@ -10,6 +10,7 @@
 metrics
 ds^2 = -dt^2 + a(t)^2 \left [ \frac{dr^2}{1-kr^2} + r^2(d\theta^2 + \sin^2\theta d\phi^2) \right ]
 ds^2 = -f(R)dT^2 + \frac{dR^2}{f(R)} + R^2(d\theta^2 + \sin^2 \theta d\phi^2)
+f(R) = 1-\frac{2M}{R} - \frac{\Lambda R^2}{3}
 
 geodesic equations
 \ddot{x}^{\mu} + \Gamma^{\mu}_{\alpha \beta} \dot{x}^{\alpha} \dot{x}^{\beta} = 0 
@@ -22,7 +23,7 @@ a_{,t} = aH_0 \sqrt{\Omega_M/a^3 + \Omega_k/a^2 + \Omega_{\Lambda}}
 kottler:
 \ddot{R}  = \frac{L_{\text{k}}^2 (R-3M)}{R^4}
 \dot{\phi} = \frac{L_k}{R^2}
-R_{h,t} = \left ( 1 - \frac{2M}{R_h} - \frac{\Lambda*R_h^2}{3} \right ) \sqrt{\frac{2M}{R_h} + \frac{\Lambda R_h^2}{3}}
+R_{h,t} = \left ( 1 - \frac{2M}{R_h} - \frac{\Lambda R_h^2}{3} \right ) \sqrt{\frac{2M}{R_h} + \frac{\Lambda R_h^2}{3}}
 
 gravitational lensing equations
 D_s \theta_E = D_{LS}\alpha

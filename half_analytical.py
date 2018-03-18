@@ -14,6 +14,7 @@ import scipy.integrate as spi
 import matplotlib.pyplot as plt
 import time
 import pandas as pd
+import random
 
 
 length_scale = 3.086e22 # mega parsec
@@ -31,36 +32,29 @@ H_0 = 7.56e-27 * length_scale
 # Omega_Lambda = 0
 # Omega_m = 1 - Omega_Lambda
 # M = 0.5e15 / length_scale
-M_initial = 1474e12 / length_scale
+M_initial = 5*1474e13 / length_scale
 rho_initial = 3*H_0**2/(8*np.pi)
 r_h = (3*M_initial/(4*np.pi*rho_initial))**(1./3)
 M = None
-
+# tdot_to_steps_ratio = None
 
 print("M: ", M)
 
-# def frw(eta, w, p):
-#     L, k, Omega_Lambda, Omega_m, H_0 = p
-
-#     a, r, rdot, t, phi = w
-
-#     a_t = a * H_0 * np.sqrt(Omega_m/a**3 + Omega_Lambda)
-
-#     phidot = L / (a*r)**2
-#     # tddot = -a*r**2*phidot**2*a_t - a*rdot**2*a_t/ (1 - k*r**2)
-#     tdot = -np.sqrt(a**2*rdot**2+a**2*r**2*phidot**2)
-#     rddot = r*phidot**2 - k*rdot**2 - 2*a_t/a*rdot*tdot
-
-#     return [
-#         a_t*tdot,
-#         rdot,
-#         rddot,
-#         tdot,
-#         phidot,
-#     ]
-
 def get_angle(r, phi, rdot, phidot):
+    # if phi > np.pi/2:
+    #     angle = np.pi - phi
+    # else:
+    #     angle = phi
+    # res = np.arctan(r*np.abs(phidot/rdot)) - angle
     res = np.arctan((rdot*np.sin(phi)+r*np.cos(phi)*phidot)/(rdot*np.cos(phi)-r*np.sin(phi)*phidot))
+    return res
+
+def get_angle_kottler(r, phi, rdot, phidot, f):
+    if phi > np.pi/2:
+        angle = np.pi - phi
+    else:
+        angle = phi
+    res = np.arctan(r*np.abs(phidot/rdot)*np.sqrt(f)) - angle
     return res
 
 def kottler(eta, w, p):
@@ -81,6 +75,18 @@ def kottler(eta, w, p):
         rddot,
         phidot,
     ]
+
+def omega_lambda2lambda(Omega_Lambda):
+    return 3*Omega_Lambda*H_0**2
+
+def kantowski_alpha(R, phi, Omega_Lambda):
+    r0 = 1/(1/R + M/R**2 + 3/16*M**2/R**3)
+    # r0 = R*(1-M/R - 3/2*(M/R)**2 - 4*(M/R)**3)
+    Lambda = omega_lambda2lambda(Omega_Lambda)
+    rs = 2*M
+    first_term = (rs/2/r0)*np.cos(phi)*(-4*(np.cos(phi))**2 - 12*np.cos(phi)*np.sin(phi)*np.sqrt(Lambda*r0**2/3+rs/r0*(np.sin(phi))**3) + Lambda*r0**2*(8/3-20/3*(np.sin(phi))**2))
+    second_term = (rs/2/r0)**2*(15/4*(2*phi-np.pi) + np.cos(phi)*(4+33/2*np.sin(phi)-4*(np.sin(phi))**2+19*(np.sin(phi))**3-64*(np.sin(phi))**5) - 12*np.log(np.tan(phi/2))*(np.sin(phi))**3)
+    return first_term + second_term
 
 def cart2spherical(x):
     return np.array([
@@ -190,10 +196,9 @@ def solve(angle_to_horizontal, comoving_lens=None, plot=True, Omega_Lambda=0, dt
 
     # res = np.arctan((rdot*np.sin(phi)+r*np.cos(phi)*phidot)/(rdot*np.cos(phi)-r*np.sin(phi)*phidot))
 
-
+    frw_angle_before_entering = get_angle(last[1], last[4], last[2], L_frw/(last[0]*last[1])**2)
     if plot:
         print("angle_to_horizontal", angle_to_horizontal)
-        frw_angle_before_entering = get_angle(last[1], last[4], last[2], L_frw/(last[0]*last[1])**2)
         print("Angle in FRW::")
         print(frw_angle_before_entering)
         print(last)
@@ -243,7 +248,7 @@ def solve(angle_to_horizontal, comoving_lens=None, plot=True, Omega_Lambda=0, dt
         print(initial_kottler)
         print("initial_tdot", initial_tdot)
 
-    angle_before_entering = get_angle(initial_r, initial_phi, initial_rdot, initial_phidot)
+    angle_before_entering = get_angle_kottler(initial_r, initial_phi, initial_rdot, initial_phidot, f)
     if plot:
         print("light ray angle before entering kottler hole: ", angle_before_entering)
         print("initial conditions on entering kottler hole: ", initial_kottler)
@@ -251,16 +256,18 @@ def solve(angle_to_horizontal, comoving_lens=None, plot=True, Omega_Lambda=0, dt
 
     first_time = True
     prev_r = np.inf
+    first_time_r0 = True
     while solver_kottler.successful():
         solver_kottler.integrate(solver_kottler.t + dt, step=False)
         # sol_kottler.append(list(solver_kottler.y))
 
-        # if solver_kottler.y[2] > prev_r and first_time:
-        #     if plot:
-        #         print("turning point in kottler metric:", solver_kottler.y[2])
-        #     first_time = False
-        # else:
-        #     prev_r = solver_kottler.y[2]
+        if solver_kottler.y[2] > prev_r and first_time_r0:
+            first_time_r0 = False
+            r0 = prev_r
+            if plot:
+                print("closest approach in kottler metric:", r0)
+        else:
+            prev_r = solver_kottler.y[2]
         if solver_kottler.y[4] < np.pi/2 and first_time:
             if plot:
                 print("turning point in kottler metric:", solver_kottler.y[2])
@@ -275,12 +282,18 @@ def solve(angle_to_horizontal, comoving_lens=None, plot=True, Omega_Lambda=0, dt
                 print("kottler rh on exit", solver_kottler.y[0])
             break
 
-    angle_after_exiting = get_angle(last[2], last[4], last[3], L_kottler/last[2]**2)
+    f = 1-2*M/last[2]-Lambda/3*last[2]**2
+    angle_after_exiting = get_angle_kottler(last[2], last[4], last[3], L_kottler/last[2]**2, f)
     if plot:
         print("light ray angle after exiting kottler hole: ", angle_after_exiting)
         print("bending angle in kottler: ", angle_before_entering - angle_after_exiting)
         print("\n")
 
+
+    # if plot:
+    #     k_alpha = kantowski_alpha(r0, last[4], Omega_Lambda)
+    #     print("Kantowski bending angle: ", k_alpha)
+    exit_phi = last[4]
     # r_h, t, r, rdot, phi = w
     initial_phi = last[4]
     initial_r = r_h
@@ -333,8 +346,9 @@ def solve(angle_to_horizontal, comoving_lens=None, plot=True, Omega_Lambda=0, dt
         print("initial angle to horizontal: ", angle_to_horizontal)
         print("----")
 
+    alpha = frw_angle_before_entering - frw_angle_after_exiting
     ans = initial_r*np.sin(initial_phi)/np.tan(np.abs(frw_angle_after_exiting)) + initial_r*np.cos(initial_phi)
-    return ans, exit_rh
+    return ans, exit_rh, exit_phi, alpha
     # return r[-1], source_a
 
 # [ 0.18075975  0.05122652  0.23824122  0.31020329  0.20010044  0.39768539
@@ -352,16 +366,6 @@ def get_distances(z, Omega_Lambda=0):
 def calc_theta(D_LS, D_L, D_S):
     return np.sqrt(4*M*D_LS/D_L/D_S)
 
-def theta2rls_flat(theta, z_lens):
-    rl, dl = get_distances(z_lens, Omega_Lambda=0)
-    return 4*calculate_mass(0)*rl/(4*calculate_mass(0)-dl*theta**2)
-
-def rs2theta(rs, rl, dl):
-    return np.sqrt(4*M*(rs-rl)/rs/dl)
-
-def rs2redshift_flat(rs):
-    return 1/(1-H_0*rs/2)**2 -1
-
 def calculate_mass(om):
     rho = (1-om)*3*H_0**2/(8*np.pi)
     return 4/3*np.pi*rho*r_h**3
@@ -370,23 +374,18 @@ from tqdm import tqdm
 
 def main():
     start = time.time()
-    om_lambdas = np.linspace(0., 0.99, 50)
+    om_lambdas = np.linspace(0., 0.98, 50)
     # om_lambdas = np.array([0.])
-    z_lens_all = np.linspace(0.2, 1., 50)
+    z_lens_all = np.linspace(0.5, 1., 50)
     # z_lens = 0.1
     # a_lens = 1/(z_lens+1)
     # start_thetas = np.linspace(0.7e-5, 2e-5, 100)
-    start_thetas = np.array([8e-7]*50)
-    source_rs = np.array([theta2rls_flat(th1, z1) for th1, z1 in zip(start_thetas, z_lens_all)])
-    # source_rs = theta2rls_flat(start_thetas, z_lens)
-    
-    # source_zs = rs2redshift_flat(source_rs)
-    # print("source_zs: ", source_zs)
+    start_thetas = np.array([10e-6]*50)
 
     # step_size = 4.67346938776e-07
-    step_size = 1e-9
+    step_size = 5e-9
     first = True
-    filename = 'data/half_analytical.csv'
+    filename = 'data/half_analytical_kant.csv'
     print(filename)
     for theta, z_lens in tqdm(list(zip(start_thetas, z_lens_all))):
         rs = []
@@ -396,23 +395,30 @@ def main():
         raw_rs = []
         com_lens = []
         exit_rhs = []
+        enter_phis = []
+        alphas = []
         for om in tqdm(om_lambdas):
             global M
             rho = (1-om)*3*H_0**2/(8*np.pi)
             M = 4/3*np.pi*rho*r_h**3
             ms.append(M)
             comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om)
-            # source_r, dang_r = get_distances(source_z, Omega_Lambda=om)
-            # theta = rs2theta(source_r, comoving_lens, dang_lens)
             # print("lens r", comoving_lens, theta)
             com_lens.append(comoving_lens)
-            r, exit_rh = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, dt=step_size)
+            r, exit_rh, enter_phi, alpha = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, dt=step_size)
             exit_rhs.append(exit_rh)
-            # A_frw = 4*M/(dang_lens*theta) + 15*np.pi*M**2/4/(dang_lens*theta)**2 + 401/12*M**3/(dang_lens*theta)**3
+            enter_phis.append(enter_phi)
+            alphas.append(alpha)
+
+            # R = dang_lens*theta
+            # A_frw = 4*M/R + 15*np.pi*M**2/4/R**2 + 401/12*M**3/R**3
             # frw = comoving_lens/(A_frw/theta -1)
             # print("R", dang_lens*theta)
             # print("compare", r, frw, r/frw-1)
             # print("A_frw", A_frw)
+            # k_alpha = kantowski_alpha(dang_lens*theta, enter_phi, om)
+            # print("k_alpha", k_alpha)
+            # print("difference", -alpha/k_alpha-1)
 
             thetas.append(theta)
             raw_rs.append(r)
@@ -425,6 +431,8 @@ def main():
         raw_rs = np.array(raw_rs)
         com_lens = np.array(com_lens)
         exit_rhs = np.array(exit_rhs)
+        enter_phis = np.array(enter_phis)
+        alphas = np.array(alphas)
 
         # DL,DLS,DS,M,numerical_thetas,om_lambdas,rs,rs_initial,step,theta,z_lens,comoving_lens,raw_rs
         df = pd.DataFrame({
@@ -440,6 +448,8 @@ def main():
             'comoving_lens': com_lens,
             'raw_rs': raw_rs,
             'exit_rhs': exit_rhs,
+            'enter_phis': enter_phis,
+            'alphas': alphas,
         })
         # df = df[['DL','M','comoving_lens','numerical_thetas','om_lambdas','raw_rs','rs','rs_initial','step','theta','z_lens']]
         if first:

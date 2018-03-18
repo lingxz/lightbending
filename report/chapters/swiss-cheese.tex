@@ -3,7 +3,82 @@
 
 \section{Spacetime patches}
 
-Swiss-cheese (SC) models were introduced by Einstein and Strauss
+Swiss-cheese (SC) models, also known as the Einstein-Straus models were introduced by Einstein and Strauss [??] to allow embedding of an inhomogeneous patch of spacetime within a homogeneous one (the "cheese"). Such a model is constructed by removing non-overlapping comoving spheres from the cheese and replacing them with a metric representing an appropriate condensed spherical mass distribution. 
+
+There are several reasons why this model was chosen. First, this is an exact solution of Einstein's equations, and hence it will allow us to properly investigate the higher order corrections that have been debated in literature. Previously some research \citep{simpson2010lensing} has been done using a perturbative approach, but others \citep{ishak2010more} have contested whether the approximations were valid. Secondly, by putting observers in the homogeneously expanding "cheese", it accounts for observers moving with the Hubble flow, which is a common objection[??] to Rindler and Ishak's [??] use of a static metric. Lastly, this model also takes the finite range of the mass into account by confining the influence of the central mass to the size of the hole. 
+
+This model has also previously been used to investigate the effect of local inhomogeneities on luminosity-redshift relations \citep{fleury2013interpretation}. [???]
+
+% In the Swiss-cheese model, in principle multiple holes can be inserted into the cheese. In this project, we use a single hole for the lens. 
+
+% The Swiss-cheese model is also oft used in literature to 
+
+% The Swiss-cheese model embeds an inhomogeneity in the homogeneous background by 
+
+% In the literature a Schwarzschild metric has been 
+
+\subsection{Friedmann-Robertson-Walker geometry}
+Outside the hole, geometry is described by the Friedmann-Robertson-Walker (FRW) metric, given by
+
+\begin{equation}
+  ds^2 = -dt^2 + a(t)^2 \left [ \frac{dr^2}{1-kr^2} + r^2(d\theta^2 + \sin^2\theta d\phi^2) \right ]
+  \label{eq:frw-metric}
+\end{equation}
+where $a$ is the scale factor and $k$ represents the curvature. This is the line element for a homogeneous and expanding universe, with general spatial curvature. The scale factor $a$ parametrizes the relative expansion of the universe, such that the relationship between physical distance and comoving distance between two points at a certain cosmic time $t$ is given as
+
+\begin{equation}
+  d_{\text{physical}} = a(t) d_{\text{comoving}}.
+  \label{eq:comoving-physical-distance}
+\end{equation}
+
+The scale factor also satisfies the Friedmann equation
+
+\begin{equation}
+  H^2 \equiv \left ( \frac{a_{,t}}{a} \right ) = \frac{8\pi G \rho}{3} + \frac{\Lambda}{3} - \frac{k}{a^2}
+  \label{eq:friedmann-equation}
+\end{equation}
+where $\rho$ is the energy density of a pressureless fluid and $H$ is the Hubble parameter. 
+
+It is common to introduce the cosmological parameters, where a subscript 0 refers to quantities evaluated today: 
+
+\begin{equation}
+  \Omega_m = \frac{8\pi G \rho_0}{3H_0^2}, \,\, \Omega_{\Lambda} = \frac{\Lambda}{3H_0^2}, \,\, \Omega_k = - \frac{k}{a_0^2 H_0^2}
+  \label{eq:cosmo-params}
+\end{equation}
+
+and rewrite the Friedmann equation as
+
+\begin{equation}
+  H^2 = H_0^2 \left [ \Omega_m \left ( \frac{a_0}{a}\right )^3 + \Omega_k \left ( \frac{a_0}{a}\right )^2 + \Omega_{\Lambda} \right ]. 
+  \label{eq:friedmann-eqn-version2}
+\end{equation}
+
+Subsequently in this dissertation instead of working directly with $\Lambda$ I will work with $\Omega_{\Lambda}$ instead. 
+
+\subsection{Kottler geometry}
+
+In this project we use a Kottler condensation in the Swiss-cheese for the central lensing mass. This is described by a Kottler metric \citep{kottler1918physikalischen}, which is the extension of the famous Schwarzschild metric to include a cosmological constant, given by
+
+\begin{equation}
+  ds^2 = -f(R)dT^2 + \frac{dR^2}{f(R)} + R^2(d\theta^2 + \sin^2 \theta d\phi^2)
+  \label{eq:kottler-metric}
+\end{equation}
+with
+\begin{equation}
+  f(R) = 1-\frac{2M}{R} - \frac{\Lambda R^2}{3},
+  \label{eq:kottler-metric-f}
+\end{equation}
+where M is the mass of the central object. Unlike the FRW, this metric describes a static spacetime. 
 
 \section{Matching conditions}
 
+and we arrive at the somewhat intuitive result that the central mass $M$ in Kottler space must be equal to the original mass inside the homogeneous comoving sphere of radius $r_h$
+
+\begin{equation}
+  M = \frac{4\pi}{3} a^3 r_h^3. 
+\end{equation}
+
+
+\section{Light propagation}
+
+Light propagation is governed by the geodesic equation. 
