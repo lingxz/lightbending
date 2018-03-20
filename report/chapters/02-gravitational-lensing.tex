@@ -1,0 +1,43 @@
+%!TEX root = ../thesis.tex
+\chapter{Gravitational lensing formalism}
+
+It is useful to first revise gravitational lensing in a universe without $\Lambda$, in a Schwarzschild metric, which is well understood. The Schwarzschild metric, one of the first known solutions to Einstein's field equations, describes the vacuum that lies outside a spherically symmetric distribution of matter. Its line element is given by
+
+\begin{equation}
+  ds^2 = -\left ( 1- \frac{2M}{R} \right ) dt^2 + \left ( 1 - \frac{2M}{R}\right )^{-1} dr^2 + r^2(d\theta^2 + \sin^2\theta d \phi^2).
+  \label{eq:schwarzschild-metric}
+\end{equation}
+where $M$ is the central mass. 
+
+Due to spherical symmetry, we can restrict ourselves to the equatorial plane $\theta = \pi/2$ without loss of generality. This metric is asymptotically flat as $r \rightarrow \infty$. We can then find the total deflection angle $\alpha$ experienced by a particle that comes in from $r=-\infty$, gets deflected, and travels on towards $r=+\infty$ as 
+
+\begin{equation}
+  \alpha = 2 \int_{r_0}^{\infty} \left |  \frac{d\phi}{dr} \right | dr - \pi
+\end{equation}
+where $r_0$ is the distance of closest approach. 
+
+The static nature and spherical symmetry of the Schwarzschild metric implies that there are two constants of motion for any particle traveling in this geometry. These can be obtained from the E-L equation [??]
+
+\begin{equation}
+  E = \left ( 1 - \frac{2M}{R} \right ) \dot{t}, \,\, L = r^2\dot{\phi}.
+  \label{eq:schwarzschild-constants}
+\end{equation}
+
+By applying the null condition (\autoref{eq:null-condition}) on the metric, we obtain an expression for $\frac{d\phi}{dr}$
+
+\begin{equation}
+  \frac{d\phi}{dr} = \pm \frac{1}{r^2} \sqrt{\frac{1}{ \frac{1}{b^2} - \left (1- \frac{2M}{r} \right )\frac{1}{r^2} }}
+  \label{eq:dphi-dr}
+\end{equation}
+where $b = L/E$ is the impact parameter (since $\frac{d\phi}{dr} = \dot{\phi}/\dot{r}$). Integrating this (for a detailed derivation see \cite{keeton2005formalism}), we obtain an expression for the bending angle $\alpha$ as a series expansion in $M/r_b$, 
+
+We can define another constant of the motion $R$ which corresponds to the unperturbed trajectory of light [see diagram ??] by (see Eq. 6 of \citet{ishak2008new})
+
+\begin{equation}
+  
+  \label{eq:r0-R-relation}
+\end{equation}
+
+The purpose of expressing the bending angle in terms of $R$ instead of $b$ is that it has been pointed out in literature 
+Hence we use 
+The purpose of doing is this is 

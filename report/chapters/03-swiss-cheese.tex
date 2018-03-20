@@ -1,21 +1,16 @@
 %!TEX root = ../thesis.tex
 \chapter{Description of the Swiss Cheese model}
+\label{chapter:swiss-cheese}
 
 \section{Spacetime patches}
 
-Swiss-cheese (SC) models, also known as the Einstein-Straus models were introduced by Einstein and Strauss [??] to allow embedding of an inhomogeneous patch of spacetime within a homogeneous one (the "cheese"). Such a model is constructed by removing non-overlapping comoving spheres from the cheese and replacing them with a metric representing an appropriate condensed spherical mass distribution. 
+Swiss-cheese models model were first introduced by \citet{einstein1945influence} to investigate the gravitational field of a mass well described by the Schwarzschild metric but embedded in a non-Minkowski background spacetime.  Such a model is constructed by removing non-overlapping comoving spheres from the background cheese and replacing them with a metric representing an appropriate condensed spherical mass distribution. This stitching together of two metrics is of course not arbitrary, and matching conditions will impose restriction on the parameters of the two metrics. This will be detailed in the next section. 
 
-There are several reasons why this model was chosen. First, this is an exact solution of Einstein's equations, and hence it will allow us to properly investigate the higher order corrections that have been debated in literature. Previously some research \citep{simpson2010lensing} has been done using a perturbative approach, but others \citep{ishak2010more} have contested whether the approximations were valid. Secondly, by putting observers in the homogeneously expanding "cheese", it accounts for observers moving with the Hubble flow, which is a common objection[??] to Rindler and Ishak's [??] use of a static metric. Lastly, this model also takes the finite range of the mass into account by confining the influence of the central mass to the size of the hole. 
+There are several reasons why this model was chosen. First, this is an exact solution of Einstein's equations, and hence it will allow us to properly investigate the higher order corrections that have been debated in literature. Previously some research \citep{simpson2010lensing}[??] has been done using a perturbative approach, but others \citep{ishak2010more} have contested whether the approximations were valid. Secondly, by putting observers in the homogeneously expanding "cheese", it accounts for observers moving with the Hubble flow, which is a common objection to Rindler and Ishak's use of a static metric \citep{simpson2010lensing,butcher2016no,park2008rigorous,khriplovich2008does}. Lastly, this model also takes the finite range of the mass into account by confining the influence of the central mass to the size of the hole. 
 
-This model has also previously been used to investigate the effect of local inhomogeneities on luminosity-redshift relations \citep{fleury2013interpretation}. [???]
+Previously, this model has been used to investiate the effect of local inhomogeneities on luminosity-redshift relations \citep{kantowski1969corrections,fleury2013interpretation}. 
 
 % In the Swiss-cheese model, in principle multiple holes can be inserted into the cheese. In this project, we use a single hole for the lens. 
-
-% The Swiss-cheese model is also oft used in literature to 
-
-% The Swiss-cheese model embeds an inhomogeneity in the homogeneous background by 
-
-% In the literature a Schwarzschild metric has been 
 
 \subsection{Friedmann-Robertson-Walker geometry}
 Outside the hole, geometry is described by the Friedmann-Robertson-Walker (FRW) metric, given by
@@ -72,6 +67,14 @@ where M is the mass of the central object. Unlike the FRW, this metric describes
 
 \section{Matching conditions}
 
+Two geometries can be matched across the boundary to form a well defined spacetime only if and only if they satisfy the Israel junction conditions [??]. These conditions dictate that the first and second fundamental forms of the two metrics must match on the matching hypersurface $\Sigma$, that is, both metrics must induce 
+\begin{inparaenum}[(i)]
+  \item the same metric, and 
+  \item the same extrinsic curvature.
+\end{inparaenum}
+
+
+
 and we arrive at the somewhat intuitive result that the central mass $M$ in Kottler space must be equal to the original mass inside the homogeneous comoving sphere of radius $r_h$
 
 \begin{equation}
@@ -82,3 +85,5 @@ and we arrive at the somewhat intuitive result that the central mass $M$ in Kott
 \section{Light propagation}
 
 Light propagation is governed by the geodesic equation. 
+
+Due to spherical symmetry, we can restrict ourselves to the $\theta = \pi/2$ plane without loss of generality. 

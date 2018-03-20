@@ -43,3 +43,5 @@ half_analytical_const_m_kant: same as half_analytical_const_m, with enter_phis o
 half_analytical_new: same as half_analytical, but using prev_last
 
 half_analytical_const_lensz: constant z_lens, varying M, 10^12 - 5*10^12 solar masses, 50 mass points, 50 lambda points, theta 1e-6, method bdf, redshift 1.
+
+half_analytical_steps: trying to get a sense of the numerical error

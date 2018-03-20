@@ -12,8 +12,8 @@ def omega_lambda2lambda(Omega_Lambda):
     return 3*Omega_Lambda*H_0**2
 
 def kantowski_alpha(R, M, phi, Omega_Lambda):
-    # r0 = 1/(1/R + M/R**2 + 3/16*M**2/R**3)
-    r0 = 1/(1/R + M/R**2)
+    r0 = 1/(1/R + M/R**2 + 3/16*M**2/R**3)
+    # r0 = 1/(1/R + M/R**2)
     # r0 = R*(1-M/R - 3/2*(M/R)**2 - 4*(M/R)**3)
     Lambda = omega_lambda2lambda(Omega_Lambda)
     rs = 2*M
@@ -21,7 +21,11 @@ def kantowski_alpha(R, M, phi, Omega_Lambda):
     second_term = (rs/2/r0)**2*(15/4*(2*phi-np.pi) + np.cos(phi)*(4+33/2*np.sin(phi)-4*(np.sin(phi))**2+19*(np.sin(phi))**3-64*(np.sin(phi))**5) - 12*np.log(np.tan(phi/2))*(np.sin(phi))**3)
     return first_term + second_term
 
-def plot_alphas(filename, plot_ishak=True, plot_kantowski=True):
+def plot_alphas(filename, plot_ishak=True, plot_kantowski=True, latex=False, filenames=None):
+    if latex:
+        from matplotlib import rc
+        rc('text', usetex=True)
+
     df = pd.read_csv(filename)
 
     preds_frw = []
@@ -66,6 +70,7 @@ def plot_alphas(filename, plot_ishak=True, plot_kantowski=True):
     stats = df[['om_lambdas', 'numerical', 'ishak', 'kantowski', 'numerical_kantowski', 'kant_higher_order_ratio']].groupby('om_lambdas').agg(['mean', 'std', 'count'])
     stats.columns = [' '.join(col).strip() for col in stats.columns.values]
     stats['numerical mean std'] = stats['numerical std']/np.sqrt(stats['numerical count'])
+    stats['numerical_kantowski mean std'] = stats['numerical_kantowski std'] / np.sqrt(stats['numerical_kantowski count'])
     # stats['numerical first order mean std'] = stats['numerical first order std']/np.sqrt(stats['numerical first order count'])
     stats['ishak mean std'] = stats['ishak std']/np.sqrt(stats['ishak count'])
 
@@ -73,12 +78,18 @@ def plot_alphas(filename, plot_ishak=True, plot_kantowski=True):
     # stats['ishak mean'] = stats['ishak mean'] - 1
     # stats['kantowski mean'] = stats['kantowski mean'] - 1
 
-    scale = 1
+    scale = 1e-6
     plt.plot(stats.index, stats['numerical mean']/scale, '.', label='__nolegend__')
     # plt.plot(stats.index, stats['numerical first order mean']/scale, 'b-', label='with second order corrections')
     plt.errorbar(stats.index, stats['numerical mean']/scale, yerr=stats['numerical mean std']/scale, linestyle='none', label='__nolegend__')
-    plt.xlabel('Omega_Lambda')
-    plt.ylabel('Mean fractional deviation/10^-6')
+
+    if latex:
+        plt.xlabel(r'$\Omega_{\Lambda}$')
+        plt.ylabel(r'Fractional deviation of $\alpha$ / $10^{-6}$')
+    else:
+        plt.xlabel('Omega_Lambda')
+        plt.ylabel('Mean fractional deviation/10^-6')
+
     if plot_ishak:
         plt.plot(stats.index, stats['ishak mean']/scale, 'g-', label='Rindler and Ishak predictions')
     if plot_kantowski:
@@ -88,12 +99,24 @@ def plot_alphas(filename, plot_ishak=True, plot_kantowski=True):
     if plot_ishak or plot_kantowski:
         plt.legend()
 
+    if filenames:
+        plt.savefig(filenames[0], dpi=400, transparent=True)
+
     plt.figure()
-    plt.plot(stats.index, stats['numerical_kantowski mean']/scale, '.', label='numerical to kantowski')
+    scale2 = 1e-6
+    plt.plot(stats.index, -stats['numerical_kantowski mean']/scale2, '.', label='__nolegend__')
+    plt.errorbar(stats.index, -stats['numerical_kantowski mean']/scale2, yerr=stats['numerical_kantowski mean std']/scale2, label='__nolegend__', linestyle='none')
     if plot_kantowski:
-        plt.plot(stats.index, stats['kant_higher_order_ratio mean']/scale, label='neglected term')
-    plt.grid()
+        plt.plot(stats.index, stats['kant_higher_order_ratio mean']/scale2, label='neglected term ratio')
+    
+    if latex:
+        plt.xlabel(r'$\Omega_{\Lambda}$')
+        plt.ylabel(r'Fractional deviation of $\alpha$ / $10^{-6}$')
+    
+    # plt.grid()
     plt.legend()
+    if filenames:
+        plt.savefig(filenames[1],  dpi=400, transparent=True)
 
 def plot_diff_lambdas_distances(filename, plot_ishak=True):
     df = pd.read_csv(filename)

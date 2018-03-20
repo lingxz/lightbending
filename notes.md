@@ -1,3 +1,10 @@
+The 3 distances in lensing: r0, b, R
+When we say this is D_L*theta, which are we referring to? Because they are the same to first order but differ in higher orders. 
+
+
+---
+
+
 # LTB hole
 
 - Is LTB in comoving or static coordinates?
