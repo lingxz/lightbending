@@ -48,19 +48,41 @@ So with this we have the full picture. We start off the light ray with a fixed a
 
 Inside the hole, the light ray is moving, and the boundary of the hole is also moving with a different differential equation. At every point we check if it has exited the hole. When it has, we stop the integration and convert back into the FRW, and then we record the coordinate at which it crosses the axis. 
 
-finally, results! This is a graph of the results when we keep the size of the hole constant and vary Lambda. So on the y-axis is how much the results deviate from the current FRW lensing prediction, in fractional terms, and on the x-axis it is plotted against Omega_Lambda. So of course the FRW predictions themselves, the red line, have zero deviations, and the blue point are our numerical results. The green one is the prediction by the Rindler and Ishak, the yes camp people. In this graph, the size of the hole is kept constant, and so the mass decreases as Lambda increases, since the matter density decreases as Lambda goes higher. The error bars are obtained from repeating the integration for different lens redshift.  
+---
 
-This is another run, where we kept the central mass constant. This means that as we increase Lambda the size of the hole increases. 
 
-Our results do not favour the Rindler and Ishak predictions. There is also a downward trend that I am still looking into, I think from looking at the Kantowski paper that did an analytical estimation of the effect, it might be due to the increase in size of the holes, so on this side (towards the right) the light ray spends more time in the hole and hence it's bent more. 
 
-So that is something I am currently working on. 
+finally, results! 
 
-So that's the first bullet point, comparing with the analytical estimation of the effect in the Swiss-Cheese universe. 
+This is a graph of the results when we keep the mass constant and vary Lambda. On the y-axis we have plot how much the results deviate from the current FRW lensing prediction, in fractional terms. And on the x-axis we have Omega_Lambda, which we are varying. So of course the FRW prediction themselves, the red line, have zero deviations, and the blue points are our numerical results. The green is Rindler and Ishak, and the blue is Kantowski. 
 
-Also, currently the calculations done in the FRW only apply for flat spce, so it would be good to extend that to curved space. Numerically it's not difficult, but since the light ray spends most of its time in the FRW universe, that is going to introduce a lot more numerical errors. 
+<!-- Towards the right, as Lambda increases, the hole size increases because we're keeping the mass constant while matter density is being reduced.  -->
 
-Also lastly, gravitational lensing could be investigated in a more realistic scenario, for example a NFW mass distribution instead of a point mass. This would just involve replacing the Kottler hole with another LTB metric for a general mass distribution, and applying the matching conditions again. 
+Our results seem to follow the Kantowski predictions most closely. But there is also a gap between our results and the Kantowski predictions which gets smaller as Lambda increases. If you remember the Kantowski equation for alpha, which you don't, it looks like this:
+
+His analytical calculations were up to some order, and there are higher order terms he neglected, which is this term, the ratio of this term to the lowest order term is around the same order of magnitude as the difference here, and as expected, this term decreases towards the right. So it can probaby explain why our numerical results agree better with the Kantowski predictions at higher Lambda.  
+
+Although the difference here looks quite big, as you can see the y-axis scale is at 10^-7, so this is quite a small effect. 
+
+There are a few factors at play here. 
+
+First, if we keep the mass constant, the size of the hole is related to the matter denity in the universe, and in a flat universe, density decreases as Lambda increases, so the hole gets bigger. So intuitively, alpha increases towards the right because light spends more time in the bigger hole, and all the bending happens inside the hole only. 
+
+Secondly, Lambda also has an effect on how fast the hole boundary expands in static kottler coordinates. So light may have a little more or a little less time in the hole depending on what Lambda is. 
+
+Thirdly, Jacobian at the boundary also has a Lambda dependence. 
+
+The second seems to be a direct effect of how Lambda affects the universe's expansion, but the first one doesn't seem to be a truly direct Lambda effect--it just seems to be an indirect effect of a higher lambda implying a lower matter density, hence causing the hole to be bigger. 
+
+So I did another run for keeping the hole size constant, but in flat space in order to keep the hole size constant we would have to vary the mass. So going towards higher Lambda, for the same hole size, mass would have to decrease. 
+
+So preferably we would want to keep both the hole size and the mass constant and only vary Lambda, but to do that we would have to use a curved universe, which is something that I'm currently working on. 
+
+So the preliminary conclusion is that according to our numerical integrations, the Kantowski results seems to be most correct, GIVEN that the Swiss-Cheese model is an accurate model of lensing in our universe. 
+
+Currently I'm working on doing the FRW calculations in curved space, which would be useful to understanding the true difference that Lambda makes in lensing. Also, numerical errors are currently quite crudely estimated, if possible perhaps it would be good to look into how numerical errors can be properly estimated for the integrator, maybe by varying the step size. 
+
+Lastly, it may be useful to extend the integration to more realistic mass distributions, which would just involve replacing the Kottler hole with another metric and applying the matching conditions again. 
 
 Thank you!
 

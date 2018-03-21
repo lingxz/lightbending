@@ -1,9 +1,18 @@
-The 3 distances in lensing: r0, b, R
-When we say this is D_L*theta, which are we referring to? Because they are the same to first order but differ in higher orders. 
-
+repeating for different redshift for error estimation doesn't seem right
 
 ---
 
+Light propagation in Swiss Cheese models has been extensively studied, but not particularly so in the subject of Lambda's dependence on gravitational lensing.
+
+Light propagation in Swiss Cheese models has been extensively studied [13, 17, 18, 20,
+69–97]. In particular, Swiss Cheese models have been used to study fluctuations in redshift
+and distance of the cosmic microwave background (CMB) [81, 98, 99]. Some papers, including
+recent ones, based either on Swiss Cheese and perturbative calculations, have claimed
+surprisingly large effects on the distance, given that the average expansion rate has been
+close to FRW [20, 78, 82, 94, 95, 99, 100]. Such deviations have been due to selection effects,
+some of which are quite clear and others rather subtle
+
+---
 
 # LTB hole
 
