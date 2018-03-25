@@ -1,6 +1,19 @@
+Distance measures in cosmology (for different kinds of distances)
+
 repeating for different redshift for error estimation doesn't seem right
 
 ---
+
+rmb to cite some textbooks
+
+textbooks:
+winberg1972gravitation, Gravitation and cosmology
+Cosmological physics, Peacock
+
+---
+
+It is well known that light traveling through space is bent according to the mass distribution it encounters and is
+thus gravitationally lensed. 
 
 Light propagation in Swiss Cheese models has been extensively studied, but not particularly so in the subject of Lambda's dependence on gravitational lensing.
 

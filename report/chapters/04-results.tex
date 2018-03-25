@@ -1,0 +1,20 @@
+%!TEX root = ../thesis.tex
+\chapter{Results and discussion}
+\label{chapter:results}
+
+A graph of results when we keep the lensing mass $M$ constant and vary $\Omega_{\Lambda}$ can be seen in [fig??]. On the $y$-axis, we have plotted the the deviation of $\alpha$ as a fraction of the standard FRW lensing case (given by [eq??]), in order to put them on the same scale. [State te mass and zlens parameters] 
+
+By varying the integration step size, we are able to estimate numerical errors on the integration. For a certain step size, we group the results obtained from the vicinity of step sizes together and find the variance in bending angles in that range. Fig [??] shows how the $\alpha$ obtained varies with step size. As is expected, the precision increases as we reduce the step size. 
+
+Our results seem to follow the trend of Kantowski's predictions most closely, with a gap that reduces towards higher $\Lambda$. A possible explanation of this gap can be found by examining the neglected higher order term in Kantowski's predicted bending angle [eq??]. When $\Lambda = 0$, the ratio of this term to the leading order $(4M/r_0^2) \cos^3 \tilde{\phi_1}$ term is of the same order of magnitude as the fractional deviation of our numerical results from Kantowski's predictions. As is expected, this ratio decreases as $\Lambda$ when mass is kept constant, as can be seen from [fig??]. 
+
+From the graph, we can see that even for the $\Lambda = 0$ case there is an offset between the numerical Swiss-Cheese result and the FRW prediction. Qualitatively, this is due to the fact that conventional lensing analyis assumes a mass superimposed on the homogeneous background, and this mass has infinite range. However, in the Swiss-Cheese model, the influence of the mass is limited, and bending stops once it leaves the Kottler hole. This is the main effect that Kantowski quantified in his paper \citet{kantowski2010gravitational}. This then begs the question of which model is a more accurate description of our physical universe, but this is not our primary concern. We are concerned about whether $\Lambda$ has an influence on this effect. 
+
+There are a few different factors at play here. In discussing the results of this numerical integration, let us take a step back to look at the specific parts of ray-tracing that have a $\Lambda$-dependence. These are:
+\begin{enumerate}
+  \item The size of the hole. This is governed by \autoref{eq:junction-conditions-mass-volume}. In flat space, increasing $\Omega_{\Lambda}$ implies decreasing $\Omega_{\Lambda}$, which corresponds to the matter density of the universe. If we are to keep the mass constant, the hole size would have to increase as we increase $\Omega_{\Lambda}$. 
+  \item The rate of expansion of the hole in static Kottler coordinates, given by [ref??].  
+  \item The Jacobian at the boundary, given by [??]
+\end{enumerate}
+
+The first effect does not seem to be a truly direct $\Lambda$ effect, merely a side effect that in a flat universe, changing $\Omega_{\Lambda}$ must imply a change in matter density, but ultimately, it is the size of the hole that is the true determining factor. 

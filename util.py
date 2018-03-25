@@ -21,6 +21,8 @@ def kantowski_alpha(R, M, phi, Omega_Lambda):
     second_term = (rs/2/r0)**2*(15/4*(2*phi-np.pi) + np.cos(phi)*(4+33/2*np.sin(phi)-4*(np.sin(phi))**2+19*(np.sin(phi))**3-64*(np.sin(phi))**5) - 12*np.log(np.tan(phi/2))*(np.sin(phi))**3)
     return first_term + second_term
 
+
+
 def plot_alphas(filename, plot_ishak=True, plot_kantowski=True, latex=False, filenames=None):
     if latex:
         from matplotlib import rc
@@ -36,7 +38,10 @@ def plot_alphas(filename, plot_ishak=True, plot_kantowski=True, latex=False, fil
     for index, row in df.iterrows():
         M = row.M
         Lambda = 3*row.om_lambdas*H_0**2
-        rho = (1-row.om_lambdas)*3*H_0**2/(8*np.pi)
+        if 'om_ks' in df.columns:
+            rho = (1-row.om_lambdas-row.om_ks)*3*H_0**2/(8*np.pi)
+        else:
+            rho = (1-row.om_lambdas)*3*H_0**2/(8*np.pi)
         rh = (3*M/(4*np.pi*rho))**(1./3)
 
         R = (row.DL*row.theta)
@@ -51,7 +56,6 @@ def plot_alphas(filename, plot_ishak=True, plot_kantowski=True, latex=False, fil
         r0 = 1/(1/R + M/R**2)
         extra_term_ratio = np.abs((2*M/r0 + omega_lambda2lambda(row.om_lambdas)*r0**2)**(5/2)/(4*M/r0*(np.cos(row.enter_phis))**3))
         
-
         preds_frw.append(A_frw)
         preds_ishak.append(A_ishak)
         preds_kantowski.append(A_kantowski)
@@ -68,6 +72,7 @@ def plot_alphas(filename, plot_ishak=True, plot_kantowski=True, latex=False, fil
     df['numerical_kantowski'] = df.alphas / df.preds_kantowski - 1
 
     stats = df[['om_lambdas', 'numerical', 'ishak', 'kantowski', 'numerical_kantowski', 'kant_higher_order_ratio']].groupby('om_lambdas').agg(['mean', 'std', 'count'])
+    # stats = df[['om_lambdas', 'om_ks', 'numerical', 'ishak', 'kantowski', 'numerical_kantowski', 'kant_higher_order_ratio']].groupby('om_ks').agg(['mean', 'std', 'count'])
     stats.columns = [' '.join(col).strip() for col in stats.columns.values]
     stats['numerical mean std'] = stats['numerical std']/np.sqrt(stats['numerical count'])
     stats['numerical_kantowski mean std'] = stats['numerical_kantowski std'] / np.sqrt(stats['numerical_kantowski count'])
@@ -117,6 +122,117 @@ def plot_alphas(filename, plot_ishak=True, plot_kantowski=True, latex=False, fil
     plt.legend()
     if filenames:
         plt.savefig(filenames[1],  dpi=400, transparent=True)
+
+def r2chi(k, r):
+    if k == 0:
+        return r
+    if k > 0:
+        return np.arcsin(np.sqrt(k)*r)/np.sqrt(k)
+    if k < 0:
+        return np.arcsinh(np.sqrt(-k)*r)/np.sqrt(-k)
+
+def chi2r(k, chi):
+    if k == 0:
+        return chi
+    if k > 0:
+        return np.sin(np.sqrt(k)*chi)/np.sqrt(k)
+    if k < 0:
+        return np.sinh(np.sqrt(-k)*chi)/np.sqrt(-k)
+
+def omk2k(om_k, H0):
+    return H0**2*om_k
+
+def plot_rs(filename, plot_ishak=True, plot_kantowski=True, latex=False, filenames=None):
+    if latex:
+        from matplotlib import rc
+        rc('text', usetex=True)
+
+    df = pd.read_csv(filename)
+
+    numerical_res =[]
+    preds_frw = []
+    preds_ishak = []
+    preds_kantowski = []
+    kant_higher_order_ratio = []
+
+    for index, row in df.iterrows():
+        M = row.M
+        Lambda = 3*row.om_lambdas*H_0**2
+        if 'om_ks' in df.columns:
+            rho = (1-row.om_lambdas-row.om_ks)*3*H_0**2/(8*np.pi)
+        else:
+            rho = (1-row.om_lambdas)*3*H_0**2/(8*np.pi)
+        rh = (3*M/(4*np.pi*rho))**(1./3)
+
+        k = omk2k(row.om_ks, H_0)
+        numerical = chi2r(k, r2chi(k, row.raw_rs)+r2chi(k, row.comoving_lens))/row.raw_rs*row.theta
+
+        R = (row.DL*row.theta)
+        A_frw = 4*M/R + 15*np.pi*M**2/4/R**2 + 401/12*M**3/R**3
+        # frw = row.comoving_lens/(A_frw/row.theta -1)
+
+        A_ishak = 4*M/R + 15*np.pi*M**2/4/R**2 + 305/12*M**3/R**3 - Lambda*R*row.exit_rhs/3
+        # ishak = row.comoving_lens/(A_ishak/row.theta -1)
+
+        A_kantowski = -kantowski_alpha(R, M, row.enter_phis, row.om_lambdas)
+
+        r0 = 1/(1/R + M/R**2)
+        extra_term_ratio = np.abs((2*M/r0 + omega_lambda2lambda(row.om_lambdas)*r0**2)**(5/2)/(4*M/r0*(np.cos(row.enter_phis))**3))
+        
+
+        preds_frw.append(A_frw)
+        preds_ishak.append(A_ishak)
+        preds_kantowski.append(A_kantowski)
+        kant_higher_order_ratio.append(extra_term_ratio)
+        numerical_res.append(numerical)
+
+    df['preds_frw'] = preds_frw
+    df['preds_ishak'] = preds_ishak
+    df['preds_kantowski'] = preds_kantowski
+    df['kant_higher_order_ratio'] = kant_higher_order_ratio
+    df['numerical_res'] = numerical_res
+
+    df['numerical'] = df.numerical_res/df.preds_frw - 1
+    df['ishak'] = df.preds_ishak/df.preds_frw - 1
+    df['kantowski'] = df.preds_kantowski/df.preds_frw - 1
+    df['numerical_kantowski'] = df.numerical_res / df.preds_kantowski - 1
+
+    stats = df[['om_lambdas', 'numerical', 'ishak', 'kantowski', 'numerical_kantowski', 'kant_higher_order_ratio']].groupby('om_lambdas').agg(['mean', 'std', 'count'])
+    # stats = df[['om_lambdas', 'om_ks', 'numerical', 'ishak', 'kantowski', 'numerical_kantowski', 'kant_higher_order_ratio']].groupby('om_ks').agg(['mean', 'std', 'count'])
+    stats.columns = [' '.join(col).strip() for col in stats.columns.values]
+    stats['numerical mean std'] = stats['numerical std']/np.sqrt(stats['numerical count'])
+    stats['numerical_kantowski mean std'] = stats['numerical_kantowski std'] / np.sqrt(stats['numerical_kantowski count'])
+    # stats['numerical first order mean std'] = stats['numerical first order std']/np.sqrt(stats['numerical first order count'])
+    stats['ishak mean std'] = stats['ishak std']/np.sqrt(stats['ishak count'])
+
+    # stats['numerical mean'] = stats['numerical mean'] - 1
+    # stats['ishak mean'] = stats['ishak mean'] - 1
+    # stats['kantowski mean'] = stats['kantowski mean'] - 1
+
+    scale = 1
+    plt.plot(stats.index, stats['numerical mean']/scale, '.', label='__nolegend__')
+    # plt.plot(stats.index, stats['numerical first order mean']/scale, 'b-', label='with second order corrections')
+    plt.errorbar(stats.index, stats['numerical mean']/scale, yerr=stats['numerical mean std']/scale, linestyle='none', label='__nolegend__')
+
+    if latex:
+        plt.xlabel(r'$\Omega_{\Lambda}$')
+        plt.ylabel(r'Fractional deviation of $\alpha$ / $10^{-6}$')
+    else:
+        plt.xlabel('Omega_Lambda')
+        plt.ylabel('Mean fractional deviation')
+
+    if plot_ishak:
+        plt.plot(stats.index, stats['ishak mean']/scale, 'g-', label='Rindler and Ishak predictions')
+    if plot_kantowski:
+        plt.plot(stats.index, stats['kantowski mean']/scale, 'b-', label="Kantowski predictions")
+    plt.plot(stats.index, [0/scale]*len(stats.index), 'r-', label='FRW predictions')
+    # plt.ylim((-0.0008, 0.0008))
+    if plot_ishak or plot_kantowski:
+        plt.legend()
+
+    if filenames:
+        plt.savefig(filenames[0], dpi=400, transparent=True)
+
 
 def plot_diff_lambdas_distances(filename, plot_ishak=True):
     df = pd.read_csv(filename)

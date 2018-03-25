@@ -4,22 +4,24 @@
 
 \section{Spacetime patches}
 
-Swiss-cheese models model were first introduced by \citet{einstein1945influence} to investigate the gravitational field of a mass well described by the Schwarzschild metric but embedded in a non-Minkowski background spacetime.  Such a model is constructed by removing non-overlapping comoving spheres from the background cheese and replacing them with a metric representing an appropriate condensed spherical mass distribution. This stitching together of two metrics is of course not arbitrary, and matching conditions will impose restriction on the parameters of the two metrics. This will be detailed in the next section. 
+Swiss-Cheese (SC) models model were first introduced by \citet{einstein1945influence} to investigate the gravitational field of a mass well described by the Schwarzschild metric but embedded in a non-Minkowski background spacetime. Such a model is contructed by removing a coming sphere from the homogeneous and replacing it with an inhomogeneous mass distribution. In this case, we use a mass distribution that is vacuum everywhere except for a point mass at the centre. In principle, since the sphere is comoving, multiple spheres can be inserted in the cheese as long as they are initially non-overlapping. In our model, only one hole is needed to model the lens. This stitching of two metrics on the `cheese'-`hole' boundary is of course not arbitrary, and matching conditions will impose restriction on the parameters of the two metrics. This will be discussed in detail in the following sections. 
 
-There are several reasons why this model was chosen. First, this is an exact solution of Einstein's equations, and hence it will allow us to properly investigate the higher order corrections that have been debated in literature. Previously some research \citep{simpson2010lensing}[??] has been done using a perturbative approach, but others \citep{ishak2010more} have contested whether the approximations were valid. Secondly, by putting observers in the homogeneously expanding "cheese", it accounts for observers moving with the Hubble flow, which is a common objection to Rindler and Ishak's use of a static metric \citep{simpson2010lensing,butcher2016no,park2008rigorous,khriplovich2008does}. Lastly, this model also takes the finite range of the mass into account by confining the influence of the central mass to the size of the hole. 
+There are several reasons why this model was chosen. First, this is an exact solution of Einstein's equations which preserves the global dynamics, and hence it will allow us to properly investigate the higher order corrections that have been oft-debated in literature. Previously some research \citep{simpson2010lensing}[??] has been done using a perturbative approach, but others \citep{ishak2010more} have contested whether the approximations were valid. Secondly, by putting observers in the homogeneously expanding "cheese", it accounts for observers moving with the Hubble flow, which is a common objection to Rindler and Ishak's use of a static metric \citep{simpson2010lensing,butcher2016no,park2008rigorous,khriplovich2008does}. Lastly, this model also takes the finite range of the mass into account by confining the influence of the central mass to the size of the hole. 
 
-Previously, this model has been used to investiate the effect of local inhomogeneities on luminosity-redshift relations \citep{kantowski1969corrections,fleury2013interpretation}. 
+Light propagation in SC models has been extensively studied \citep{szybka2011light,vanderveld2008luminosity,fleury2014swiss}, but not particularly so in the subject of Lambda's dependence on gravitational lensing. Some of the areas that Swiss-Cheese models have been commonly used include investigating the effect of local inhomogeneities on luminosity-redshift relations \citep{kantowski1969corrections,fleury2013interpretation} and studying fluctuations in redshift and distance of the cosmic microwave background \citep{bolejko2009szekeres,valkenburg2009swiss,bolejko2011effect}.
+
 
 % In the Swiss-cheese model, in principle multiple holes can be inserted into the cheese. In this project, we use a single hole for the lens. 
 
 \subsection{Friedmann-Robertson-Walker geometry}
-Outside the hole, geometry is described by the Friedmann-Robertson-Walker (FRW) metric, given by
+
+Outside the hole, geometry is described by the Friedmann-Robertson-Walker (FRW) metric, the simplest homogeneous and isotropic model of the universe. Its line element is given by
 
 \begin{equation}
-  ds^2 = -dt^2 + a(t)^2 \left [ \frac{dr^2}{1-kr^2} + r^2(d\theta^2 + \sin^2\theta d\phi^2) \right ]
+  ds^2 = -dt^2 + a(t)^2 \left ( \frac{dr^2}{1-kr^2} + r^2 d \Omega^2 \right )
   \label{eq:frw-metric}
 \end{equation}
-where $a$ is the scale factor and $k$ represents the curvature. This is the line element for a homogeneous and expanding universe, with general spatial curvature. The scale factor $a$ parametrizes the relative expansion of the universe, such that the relationship between physical distance and comoving distance between two points at a certain cosmic time $t$ is given as
+where $d \Omega^2 = d\theta^2 + \sin^2\theta d\phi^2$ is the metric on a 2-sphere, $a$ is the scale factor, and $k$ represents the curvature. This is the line element for a homogeneous and expanding universe, with general spatial curvature. The scale factor $a$ parametrizes the relative expansion of the universe, such that the relationship between physical distance and comoving distance between two points at a certain cosmic time $t$ is given as
 
 \begin{equation}
   d_{\text{physical}} = a(t) d_{\text{comoving}}.
@@ -48,14 +50,14 @@ and rewrite the Friedmann equation as
   \label{eq:friedmann-eqn-version2}
 \end{equation}
 
-Subsequently in this dissertation instead of working directly with $\Lambda$ I will work with $\Omega_{\Lambda}$ instead. 
+Subsequently in this report instead of working directly with $\Lambda$ I will work with $\Omega_{\Lambda}$ instead. 
 
 \subsection{Kottler geometry}
 
-In this project we use a Kottler condensation in the Swiss-cheese for the central lensing mass. This is described by a Kottler metric \citep{kottler1918physikalischen}, which is the extension of the famous Schwarzschild metric to include a cosmological constant, given by
+In this project we use a Kottler condensation in the Swiss-Cheese for the central lensing mass. This is described by a Kottler metric \citep{kottler1918physikalischen}, which is the extension of the famous Schwarzschild metric to include a cosmological constant, given by
 
 \begin{equation}
-  ds^2 = -f(R)dT^2 + \frac{dR^2}{f(R)} + R^2(d\theta^2 + \sin^2 \theta d\phi^2)
+  ds^2 = -f(R)dT^2 + \frac{dR^2}{f(R)} + R^2 d \Omega^2
   \label{eq:kottler-metric}
 \end{equation}
 with
@@ -67,20 +69,165 @@ where M is the mass of the central object. Unlike the FRW, this metric describes
 
 \section{Matching conditions}
 
-Two geometries can be matched across the boundary to form a well defined spacetime only if and only if they satisfy the Israel junction conditions [??]. These conditions dictate that the first and second fundamental forms of the two metrics must match on the matching hypersurface $\Sigma$, that is, both metrics must induce 
+Two geometries can be matched across the boundary to form a well defined spacetime only if and only if they satisfy the Darmois-Israel junction conditions \citep{darmois1927equations,israel1966singular}. These conditions dictate that the first and second fundamental forms of the two metrics must match on the matching hypersurface $\Sigma$, that is, both metrics must induce 
 \begin{inparaenum}[(i)]
   \item the same metric, and 
   \item the same extrinsic curvature.
 \end{inparaenum}
 
+\subsection{Continuity of the induced metric}
 
+We match the FRW and Kottler metrics on a surface of a comoving 2-sphere, $\Sigma$, which is defined by $r = r_h = \text{constant}$ in FRW coordinates and $R = R_h(T)$ in Kottler coordinates.
 
-and we arrive at the somewhat intuitive result that the central mass $M$ in Kottler space must be equal to the original mass inside the homogeneous comoving sphere of radius $r_h$
+The induced metric is the quantity 
+
+\begin{equation}
+  h_{ab} = g_{\alpha \beta} j^{\alpha}_{a} j^{\alpha}_{\beta}
+  \label{eq:induced-metric-defn}
+\end{equation}
+where $j^{\alpha}_{a}$ is defined as
+
+\begin{equation}
+  j^{\alpha}_{a} = \frac{\partial \bar{X}^{\alpha}}{\partial \sigma^a}.
+  \label{eq:j-defn}
+\end{equation}
+Here we have introduced $X^{\alpha}$ to represents coordinates of the original metric. We define $\sigma^a$ to be natural intrinsic coordinates for $\Sigma$, and $\bar{X}^{\alpha}(\sigma^a)$ is the parametric equation of the hypersurface. 
+
+More concretely, using the coordinates defined previously in \autoref{eq:frw-metric}, these quantities are
+
+\begin{subequations}
+  \begin{align}
+    X^{\alpha} &= \{ t, r, \theta, \phi \} \\
+    \sigma^a &= \{ t, \theta, \phi \} \\
+    \bar{X}^{\alpha}(\sigma^a) &= \{ t, r_h, \theta, \phi\}.
+  \end{align}
+\end{subequations}
+
+Similarly, in the Kottler region, we have 
+
+\begin{subequations}
+  \begin{align}
+    X^{\alpha} &= \{ T, R, \theta, \phi \} \\
+    \sigma^a &= \{ T, \theta, \phi \} \\
+    \bar{X}^{\alpha}(\sigma^a) &= \{ T, R_h(T), \theta, \phi\}.
+  \end{align}
+\end{subequations}
+
+Using these definitions, the 3-metric induced by the FRW geometry on $\Sigma$ is
+
+\begin{equation}
+  ds^2_{\Sigma} = -dt^2 + a^2(t)r^2 d \Omega^2,
+  \label{eq:frw-induced-metric}
+\end{equation}
+while the induced metric on the Kottler metric is
+\begin{equation}
+  ds_{\Sigma}^2 = -\kappa^2(T)dT^2 + R_h^2(T) d \Omega^2,
+  \label{eq:kottler-induced-metric}
+\end{equation}
+where
+\begin{equation}
+  \kappa \equiv \sqrt{\frac{f^2[R_h(T)] - R_{h,T}^2(T)}{f[R_h(T)]}}.
+  \label{eq:kottler-kappa}
+\end{equation}
+
+Equating the components of \autoref{eq:frw-induced-metric} and \autoref{eq:kottler-induced-metric}, we obtain the following:
+
+\begin{equation}
+  R_h(T) = a(t)r
+  \label{eq:r-to-ar},
+\end{equation}
+
+\begin{equation}
+  \frac{dt}{dT} = \kappa(T).
+  \label{eq:dt-dT}
+\end{equation}
+
+% \begin{subequations}
+%   \begin{align}
+%     R_h(T) = a(t)r \\
+%     \frac{dt}{dT} = \kappa(T).
+%   \end{align}
+% \end{subequations}
+
+These two relationships relate the radial and time coordinates of the two metrics respectively. 
+
+\subsection{Continuity of the extrinsic curvature}
+
+The second condition equates extrinsic curvature of the two geometries. By definition, the extrinsic curvature $K_{ab}$ of a hypersurface is given by
+
+\begin{equation}
+  K_{ab} = n_{\alpha;\beta} j^{\alpha}_{a} j^{\beta}_{a}
+  \label{eq:extrinsic-curvature-defn}
+\end{equation}
+where $n_{\mu}$ is the unit vector normal to $\Sigma$, $j$ is as defined previously in \autoref{eq:j-defn},and the semicolon notation ``;'' denotes a covariant derivative, for example, $n_{\alpha;\beta} = \nabla_{\beta}\, n_{\alpha}$. For any vector $V^{\nu}$, the covariant derivative is defined as
+
+\begin{equation}
+  \nabla_{\mu} = \partial_{\mu}V^{\nu} + \Gamma^{\nu}_{\mu \rho} V^{\rho}.
+  \label{eq:covariant-derivative-defn}
+\end{equation}
+
+For a hypersurface defined by a function $q = 0$, the unit vector normal to it is
+
+\begin{equation}
+  n_{\mu} = \frac{q_{,\mu}}{\sqrt{g^{\alpha \beta} f_{,\alpha} f_{,\beta}}}.
+  \label{eq:unit-normal-vector}
+\end{equation}
+
+In our case $q = r-r_h$ in FRW coordinates and $q = R - R_h(T)$ in Kottler coordinates. For example, the unit vector in the FRW region is trivial to calculate, and we get $n_{\mu}^{\text{(FRW)}} = \delta^r_{\mu}/a$. Applying this formula, the extrinsic curvature induced by the FRW geometry is
+
+\begin{equation}
+  K_{ab} dx^a dx^b = \frac{a(t)r}{\sqrt{1-kr^2}} d \Omega^2
+  \label{eq:extrinsic-curvature-frw}
+\end{equation}
+while the extrinsic curvature induced by the Kottler geometry is
+\begin{equation}
+  K_{ab} dx^a dx^b = \frac{1}{\kappa} \left [ R_{h,tt} + \frac{f^{\prime}}{2f}(f^2 - 3R_{h,t}^2) \right ] dT^2 + \frac{R_h f}{\kappa} d \Omega^2
+  \label{eq:extrinsic-curvature-kottler}
+\end{equation}
+where $f^{\prime} = \partial f / \partial R$, and all quantities are evaluated at $R = R_h(T)$.
+
+Equating the components of \autoref{eq:extrinsic-curvature-frw} and \autoref{eq:extrinsic-curvature-kottler}, we obtain
+
+\begin{equation}
+  \frac{R_h f}{\kappa} = \frac{a(t)r}{\sqrt{1-kr^2}}
+  \label{eq:kappa-to-fprime}
+\end{equation}
+and
+\begin{equation}
+  R_{h,tt} + \frac{f^{\prime}}{2f}(f^2 - 3R_{h,t}^2) = 0.
+\end{equation}
+The second equation is provided for completeness although it is not needed for subsequent derivations. 
+
+\subsection{Consequences on the property of the hole}
+
+Combining \autoref{eq:kappa-to-fprime} with \autoref{eq:kottler-kappa}, we can eliminate $\kappa$. We can also replace $R_{h,T}$ using the relation obtained in \autoref{eq:r-to-ar}, since
+
+\begin{equation}
+  \frac{dR_h}{dT} = \frac{d(ar)}{dT} = \frac{da}{dt}\frac{dt}{dT}r.
+\end{equation}
+where $da/dt$ is given by the Friedmann equation \ref{eq:friedmann-equation}. 
+
+Following through the algebra, we arrive at the somewhat intuitive result that both regions must have the same cosmological constant $\Lambda$ and that the central mass $M$ in the Kottler region must be equal to the original mass inside the homogeneous comoving sphere of radius $r_h$
 
 \begin{equation}
   M = \frac{4\pi}{3} a^3 r_h^3. 
+  \label{eq:junction-conditions-mass-volume}
 \end{equation}
 
+The last thing we need from the boundary conditions is the relate the tangent vectors between the two metrics. The continuity of the metric, imposed by the first junction condition, implies that the connection does not diverge across the boundary. Therefore, light is not deflected as it crosses the boundary and we just need to convert the components of the tangent vector between the two coordinate systems. To obtain $\dot{R}$ in terms of FRW tangent vectors $\dot{r}$ and $\dot{t}$, we differentiate \autoref{eq:r-to-ar} and substitute $a_t$ with the Friedmann equation \autoref{eq:friedmann-equation}. Keeping in mind the boundary conditions, we get an expression for $\dot{R}$. The angular coordinates and angular tangent vectors are unchanged moving from Kottler to FRW coordinates, and vice versa. With $\dot{R}$ and $\dot{\phi}$, $\dot{T}$ then can be easily obtained from the null condition \autoref{eq:null-condition}. The result is
+
+\begin{subequations}
+  \begin{align}
+    \dot{T} &= \frac{1}{f}\sqrt{1-kr^2} \dot{t} + \frac{a}{f\sqrt{1-kr^2}} \sqrt{\frac{2M}{ar} - kr^2 + \frac{\Lambda}{3}a^2 r^2} \dot{r} \\
+    \dot{R} &= \sqrt{\frac{2M}{ar} - kr^2 + \frac{\Lambda}{3}a^2 r^2} \dot{t} + a\dot{r}\\
+    \dot{\phi} &= \dot{\phi}\\
+    \dot{\theta} &= \dot{\theta}
+  \end{align}
+  \label{eq:kottler-to-frw-transform}
+\end{subequations}
+where for completeness I have also given the trivial relations between the angular tangent vectors. The quantities above are all evaluated at the boundary of the hole. This result is given for flat space in \citet{fleury2013interpretation} and \citet{schucker2009strong}, but here it has been extended to allow for arbitrary spatial curvature. The reverse transformation is easily obtained by inverting the Jacobian from above. 
+
+In summary, given a FRW spacetime with pressureless matter and a cosmological constant $\Lambda$, a spherical hole, whose geometry is described by the Kottler metric, can be constructed which contains a constant mass $M = 4\pi \rho a^3 r_h^3/3$ at its centre. The geometry resulting from combining the two metrics at the boundary is an exact solution of the Einstein field equations. Applying the boundary conditions, we can obtain all the necessary transformations needed for continuation of light propagation at the boundary. 
 
 \section{Light propagation}
 
