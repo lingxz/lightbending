@@ -83,7 +83,7 @@ def plot_alphas(filename, plot_ishak=True, plot_kantowski=True, latex=False, fil
     # stats['ishak mean'] = stats['ishak mean'] - 1
     # stats['kantowski mean'] = stats['kantowski mean'] - 1
 
-    scale = 1e-6
+    scale = 1
     plt.plot(stats.index, stats['numerical mean']/scale, '.', label='__nolegend__')
     # plt.plot(stats.index, stats['numerical first order mean']/scale, 'b-', label='with second order corrections')
     plt.errorbar(stats.index, stats['numerical mean']/scale, yerr=stats['numerical mean std']/scale, linestyle='none', label='__nolegend__')
@@ -93,7 +93,7 @@ def plot_alphas(filename, plot_ishak=True, plot_kantowski=True, latex=False, fil
         plt.ylabel(r'Fractional deviation of $\alpha$ / $10^{-6}$')
     else:
         plt.xlabel('Omega_Lambda')
-        plt.ylabel('Mean fractional deviation/10^-6')
+        plt.ylabel('Fractional deviation')
 
     if plot_ishak:
         plt.plot(stats.index, stats['ishak mean']/scale, 'g-', label='Rindler and Ishak predictions')
@@ -107,21 +107,21 @@ def plot_alphas(filename, plot_ishak=True, plot_kantowski=True, latex=False, fil
     if filenames:
         plt.savefig(filenames[0], dpi=400, transparent=True)
 
-    plt.figure()
-    scale2 = 1e-6
-    plt.plot(stats.index, -stats['numerical_kantowski mean']/scale2, '.', label='__nolegend__')
-    plt.errorbar(stats.index, -stats['numerical_kantowski mean']/scale2, yerr=stats['numerical_kantowski mean std']/scale2, label='__nolegend__', linestyle='none')
-    if plot_kantowski:
-        plt.plot(stats.index, stats['kant_higher_order_ratio mean']/scale2, label='neglected term ratio')
+    # plt.figure()
+    # scale2 = 1e-6
+    # plt.plot(stats.index, -stats['numerical_kantowski mean']/scale2, '.', label='__nolegend__')
+    # plt.errorbar(stats.index, -stats['numerical_kantowski mean']/scale2, yerr=stats['numerical_kantowski mean std']/scale2, label='__nolegend__', linestyle='none')
+    # if plot_kantowski:
+    #     plt.plot(stats.index, stats['kant_higher_order_ratio mean']/scale2, label='neglected term ratio')
     
-    if latex:
-        plt.xlabel(r'$\Omega_{\Lambda}$')
-        plt.ylabel(r'Fractional deviation of $\alpha$ / $10^{-6}$')
+    # if latex:
+    #     plt.xlabel(r'$\Omega_{\Lambda}$')
+    #     plt.ylabel(r'Fractional deviation of $\alpha$ / $10^{-6}$')
     
-    # plt.grid()
-    plt.legend()
-    if filenames:
-        plt.savefig(filenames[1],  dpi=400, transparent=True)
+    # # plt.grid()
+    # plt.legend()
+    # if filenames:
+    #     plt.savefig(filenames[1],  dpi=400, transparent=True)
 
 def r2chi(k, r):
     if k == 0:

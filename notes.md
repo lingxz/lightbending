@@ -9,8 +9,16 @@ rmb to cite some textbooks
 textbooks:
 winberg1972gravitation, Gravitation and cosmology
 Cosmological physics, Peacock
+wald2010general, General Relativity by Wald
 
 ---
+
+The strategy for obtaining dA in our Swiss-cheese model is to propagate a light beam from observer to source
+by solving the geodesic and Jacobi evolution equations simultaneously. In reality, the beam travels from source to
+observer, but our calculations proceed the other direction, since we want to take the observation event, where the
+beam is converged to a vertex, as boundary condition. 
+
+
 
 It is well known that light traveling through space is bent according to the mass distribution it encounters and is
 thus gravitationally lensed. 

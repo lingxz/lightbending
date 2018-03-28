@@ -2,10 +2,12 @@
 \chapter{Gravitational lensing formalism}
 \label{chapter:gravitational-lensing-formalism}
 
+\section{Derivation of bending angle in the Schwarzschild metric}
+
 It is useful to first revise gravitational lensing in a universe without $\Lambda$, in a Schwarzschild metric, which is well understood. The Schwarzschild metric, one of the first known solutions to Einstein's field equations, describes the vacuum that lies outside a spherically symmetric distribution of matter. Its line element is given by
 
 \begin{equation}
-  ds^2 = -\left ( 1- \frac{2M}{R} \right ) dt^2 + \left ( 1 - \frac{2M}{R}\right )^{-1} dr^2 + r^2(d\theta^2 + \sin^2\theta d \phi^2).
+  ds^2 = -\left ( 1- \frac{2M}{r} \right ) dt^2 + \left ( 1 - \frac{2M}{r}\right )^{-1} dr^2 + r^2(d\theta^2 + \sin^2\theta d \phi^2).
   \label{eq:schwarzschild-metric}
 \end{equation}
 where $M$ is the central mass. 
@@ -17,7 +19,7 @@ Due to spherical symmetry, we can restrict ourselves to the equatorial plane $\t
 \end{equation}
 where $r_0$ is the distance of closest approach. 
 
-The static nature and spherical symmetry of the Schwarzschild metric implies that there are two constants of motion for any particle traveling in this geometry. These can be obtained from the E-L equation [??]
+The static nature and spherical symmetry of the Schwarzschild metric implies that there are two constants of motion for any particle traveling in this geometry. These can be obtained through direct application of the E-L equation (\autoref{eq:euler-lagrange-eqn}), and we have
 
 \begin{equation}
   E = \left ( 1 - \frac{2M}{R} \right ) \dot{t}, \,\, L = r^2\dot{\phi}.
@@ -30,15 +32,68 @@ By applying the null condition (\autoref{eq:null-condition}) on the metric, we o
   \frac{d\phi}{dr} = \pm \frac{1}{r^2} \sqrt{\frac{1}{ \frac{1}{b^2} - \left (1- \frac{2M}{r} \right )\frac{1}{r^2} }}
   \label{eq:dphi-dr}
 \end{equation}
-where $b = L/E$ is the impact parameter (since $\frac{d\phi}{dr} = \dot{\phi}/\dot{r}$). Integrating this (for a detailed derivation see \cite{keeton2005formalism}), we obtain an expression for the bending angle $\alpha$ as a series expansion in $M/r_b$, 
+where $b = L/E$ is the impact parameter (since $\frac{d\phi}{dr} = \dot{\phi}/\dot{r}$). Integrating this (for a detailed derivation see \cite{keeton2005formalism}), we obtain an expression for the bending angle $\alpha$ as a series expansion in $M/r_0$. This series, to third order in $M/r_0$, is as follows:
 
-We can define another constant of the motion $R$ which corresponds to the unperturbed trajectory of light [see diagram ??] by (see Eq. 6 of \citet{ishak2008new})
+\begin{equation}
+  \alpha = 4 \frac{M}{r_0} + \left ( -4 + \frac{15\pi}{4} \right )\left ( \frac{M}{r_0}\right )^2 + \left ( \frac{122}{3} - \frac{15\pi}{2} \right )\left ( \frac{M}{b}\right )^2.
+  \label{eq:lensing-series-expansion-r0}
+\end{equation}
 
-% \begin{equation}
-  
-%   \label{eq:r0-R-relation}
-% \end{equation}
+This can be easily converted to a series in $M/b$ instead of $M/r_0$, which is usually done in literature, since a relation beteen $b$ and $r_0$ can be derived in a series expansion by setting $\dot{r} = 0$, giving \citep{keeton2005formalism}
 
-The purpose of expressing the bending angle in terms of $R$ instead of $b$ is that it has been pointed out in literature 
-Hence we use 
-The purpose of doing is this is 
+\begin{equation}
+  r_0 = b \left [ 1 - \frac{M}{b} - \frac{3}{2} \left ( \frac{M}{b}\right)^2 - 4\left ( \frac{M}{b}\right)^3 \right ].
+  \label{eq:b-r0-relation}
+\end{equation} 
+
+This relation can then be used to rewrite the expansion in terms of $\frac{M}{b}4$ to give us
+
+\begin{equation}
+  \alpha = 4 \frac{M}{b} + \frac{15\pi}{4} \left ( \frac{M}{b} \right )^2 + \frac{128}{3} \left ( \frac{M}{b} \right )^3.
+  \label{eq:series-expansion-b}
+\end{equation}
+and indeed many authors use the impact parameter to discuss the bending of light in Schwarzschild spacetime \citep{wald2010general,misner2017gravitation,butcher2016no}. However, it has been pointed out in literature that \citep{ishak2008new,hammad2013note} in the non-zero $\Lambda$ case, the definition of the impact parameter is no longer independent of $\Lambda$ and becomes questionable due to the fact that spacetime is no longer asymptotically flat. Therefore we need to use another parameter when we include $\Lambda$, and for consistency we will use that parameter here as well so that a fair comparison can be made, even though the Schwarzschild case does not include a cosmological constant.
+
+We can define another constant of the motion $R_u$ which corresponds to the unperturbed trajectory of light [see diagram ??], which is related to $r_0$ by (see Eq. 6 of \citet{ishak2008new} and Eq. 3 of \citet{butcher2016no})
+
+\begin{equation}
+  \frac{1}{r_0} = \frac{1}{R_u} + \frac{M}{R_u^2} + \frac{3M^2}{16R_u^3}
+  \label{eq:r0-R-relation}
+\end{equation}
+where we have added a subscript $u$ to differentiate it from the Kottler coordinate $R$ in the next section. Using this relation and applying it to \autoref{eq:lensing-series-expansion-r0}, we can get a series expansion in $M/R_u$, which, up to third order, is given by
+
+\begin{equation}
+  \alpha = 4 \frac{M}{R_u} + \frac{15\pi}{4} \left ( \frac{M}{R_u} \right )^2 + \frac{401}{12} \left ( \frac{M}{R_u} \right )^3.
+  \label{eq:series-expansion-R}
+\end{equation}
+
+There are 3 length quantities that are typically used in Schwarzschild lensing: the distance of closest approach $r_0$, the impact parameter $b$, and the parameter of the unperturbed trajectory $R_u$. They are related to each other through \autoref{eq:b-r0-relation} and \autoref{eq:r0-R-relation}, and their related series expansions are respectively given by \autoref{eq:lensing-series-expansion-r0}, \autoref{eq:series-expansion-b} and \autoref{eq:series-expansion-R}. The coefficient of the leading order term is the same for all three but they differ on higher order terms in the series expansion. Many gravitational lensing analysis done on the Schwarzschild metric are only concerned with the leading order term, and hence use these three lengths somewhat interchangeably. But in this project we are interested in corrections at the second order or higher, and the distinction becomes important. In the subsequent section of the report, we will be using the series expansion in $M/R_u$ (\autoref{eq:series-expansion-R}). 
+
+\citet{rindler2007contribution} proposed a different expression for $\alpha$, which was later refined for a Swiss-Cheese universe \citep{ishak2008new}, and I will state it here (in our notation) for easy comparison:
+
+\begin{equation}
+  \alpha_{\text{Ishak}} = 4 \frac{M}{R_u} + \frac{15\pi}{4} \left ( \frac{M}{R_u} \right )^2 + \frac{305}{12} \left ( \frac{M}{R_u} \right )^3 - \frac{\Lambda R R_h}{3},
+  \label{eq:rindler-ishak-alpha}
+\end{equation}
+where $R_h$ is the boundary of the hole in static coordinates in the Swiss-Cheese model. 
+
+\section{Lensing observables}
+
+A significant part of the conflict in literature comes from the question of which quantities in lensing are observable, and whether these observable quantities are ultimately affected by the presence of the cosmological constant. Therefore we aim to stick with strictly observable quantities. 
+
+We consider a simple picture where the observer, lens, and source are aligned, as shown in [fig??]. Bending is assumed to happen at a single point above the lens, since the distance from the observer to the lens and source is assumed to be much larger than the distance of closest approach between the light ray and the lens. From this diagram we can easily obtain the lens equation \citep{schneider1992gravitationallenses}
+
+\begin{equation}
+  D_S \theta_E = D_{LS} \alpha
+  \label{eq:lens-eqn}
+\end{equation}
+where $\alpha$ is the bending angle as previously derived, $D_S$ is the angular diameter distance from observer to source, and $D_{LS}$ is the angular diameter distance from lens to source. $R_u$ can also be expressed in terms of the observable quantities $R_u = D_L \theta_E$, where $D_L$ is the angular diameter distance from observer to the lens.  
+
+In the Friedmann-Robertson-Walker (FRW) metric, which is used for most cosmological observations, we can calculate angular diameter distance D for a given redshift $z$ by
+
+\begin{equation}
+  D(z) = 
+  \label{eq:angular-diameter-distance}
+\end{equation}
+
+In relation to the comoving distance, 

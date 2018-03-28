@@ -10,18 +10,29 @@ There are several reasons why this model was chosen. First, this is an exact sol
 
 Light propagation in SC models has been extensively studied \citep{szybka2011light,vanderveld2008luminosity,fleury2014swiss}, but not particularly so in the subject of Lambda's dependence on gravitational lensing. Some of the areas that Swiss-Cheese models have been commonly used include investigating the effect of local inhomogeneities on luminosity-redshift relations \citep{kantowski1969corrections,fleury2013interpretation} and studying fluctuations in redshift and distance of the cosmic microwave background \citep{bolejko2009szekeres,valkenburg2009swiss,bolejko2011effect}.
 
+A significant difference between the Swiss-Cheese model and what is used in conventional gravitational lensing, as described in the previous section, is that in the Swiss-Cheese, the bending happens only inside the hole, whereas in conventional lensing, the mass is superimposed on the FRW background and has infinite range. In the Swiss-Cheese model, due to the boundary conditions, all bending is truncated once the light ray leaves the hole, and outside the hole the light ray travels as if the hole does not exist. Therefore even in the $\Lambda = 0$ case, we would expect a slightly smaller bending angle in the Swiss-Cheese than predicted in conventional lensing, even though this difference is small. 
+
+\citet{kantowski2010gravitational} did analytical calculations in estimating the bending angle in the Swiss-Cheese model in flat space (see Eq. 32 of \citet{kantowski2010gravitational}). This prediction, together with the conventional lensing prediction (\autoref{eq:series-expansion-R}) and the Rindler and Ishak prediction (\autoref{eq:rindler-ishak-alpha}), are the theoretical models that we will be comparing our numerical results against. 
 
 % In the Swiss-cheese model, in principle multiple holes can be inserted into the cheese. In this project, we use a single hole for the lens. 
 
 \subsection{Friedmann-Robertson-Walker geometry}
 
-Outside the hole, geometry is described by the Friedmann-Robertson-Walker (FRW) metric, the simplest homogeneous and isotropic model of the universe. Its line element is given by
+Outside the hole, geometry is described by the Friedmann-Robertson-Walker (FRW) metric \cite{wald2010general}, the simplest homogeneous and isotropic model of the universe. Its line element is given by
 
 \begin{equation}
   ds^2 = -dt^2 + a(t)^2 \left ( \frac{dr^2}{1-kr^2} + r^2 d \Omega^2 \right )
   \label{eq:frw-metric}
 \end{equation}
-where $d \Omega^2 = d\theta^2 + \sin^2\theta d\phi^2$ is the metric on a 2-sphere, $a$ is the scale factor, and $k$ represents the curvature. This is the line element for a homogeneous and expanding universe, with general spatial curvature. The scale factor $a$ parametrizes the relative expansion of the universe, such that the relationship between physical distance and comoving distance between two points at a certain cosmic time $t$ is given as
+where $d \Omega^2 = d\theta^2 + \sin^2\theta d\phi^2$ is the metric on a 2-sphere, $a(t)$ is the varying scale factor of the universe, and $k$ represents the curvature of space. This is the line element for a homogeneous and expanding universe, with general spatial curvature. There are 3 possibilities for the value of $k$, each implying a different geometry of the universe:
+
+\begin{itemize}
+  \item $k = 0$: The universe is flat and Euclidean.
+  \item $k > 0$: The universe has positive spatial curvature and is closed
+  \item $k < 0$: The universe has negative spatial curvature and is open. 
+\end{itemize}
+
+The scale factor $a$ parametrizes the relative expansion of the universe, such that the relationship between physical distance and comoving distance between two points at a certain cosmic time $t$ is given as
 
 \begin{equation}
   d_{\text{physical}} = a(t) d_{\text{comoving}}.
@@ -82,7 +93,7 @@ We match the FRW and Kottler metrics on a surface of a comoving 2-sphere, $\Sigm
 The induced metric is the quantity 
 
 \begin{equation}
-  h_{ab} = g_{\alpha \beta} j^{\alpha}_{a} j^{\alpha}_{\beta}
+  h_{ab} = g_{\alpha \beta} j^{\alpha}_{a} j^{\beta}_{b}
   \label{eq:induced-metric-defn}
 \end{equation}
 where $j^{\alpha}_{a}$ is defined as
@@ -93,7 +104,7 @@ where $j^{\alpha}_{a}$ is defined as
 \end{equation}
 Here we have introduced $X^{\alpha}$ to represents coordinates of the original metric. We define $\sigma^a$ to be natural intrinsic coordinates for $\Sigma$, and $\bar{X}^{\alpha}(\sigma^a)$ is the parametric equation of the hypersurface. 
 
-More concretely, using the coordinates defined previously in \autoref{eq:frw-metric}, these quantities are
+More concretely, using the coordinates defined previously in \autoref{eq:frw-metric}, these quantities are, for the FRW, 
 
 \begin{subequations}
   \begin{align}
@@ -162,7 +173,7 @@ The second condition equates extrinsic curvature of the two geometries. By defin
 where $n_{\mu}$ is the unit vector normal to $\Sigma$, $j$ is as defined previously in \autoref{eq:j-defn},and the semicolon notation ``;'' denotes a covariant derivative, for example, $n_{\alpha;\beta} = \nabla_{\beta}\, n_{\alpha}$. For any vector $V^{\nu}$, the covariant derivative is defined as
 
 \begin{equation}
-  \nabla_{\mu} = \partial_{\mu}V^{\nu} + \Gamma^{\nu}_{\mu \rho} V^{\rho}.
+  \nabla_{\mu}V^{\nu} = \partial_{\mu}V^{\nu} + \Gamma^{\nu}_{\mu \rho} V^{\rho}.
   \label{eq:covariant-derivative-defn}
 \end{equation}
 
@@ -214,6 +225,13 @@ Following through the algebra, we arrive at the somewhat intuitive result that b
   \label{eq:junction-conditions-mass-volume}
 \end{equation}
 
+From the junction conditions the rate of expansion of the hole in static coordinates can also be obtained. By combining \autoref{eq:kottler-kappa} and \autoref{eq:kappa-to-fprime}, we get an expression for $dR/dT$
+
+\begin{equation}
+  \frac{dR_h}{dT} = f(R_h) \sqrt{1- \frac{f(R_h)}{1-k r_h^2}}.
+  \label{eq:hole-expansion-in-kottler-dR-dT}
+\end{equation}
+
 The last thing we need from the boundary conditions is the relate the tangent vectors between the two metrics. The continuity of the metric, imposed by the first junction condition, implies that the connection does not diverge across the boundary. Therefore, light is not deflected as it crosses the boundary and we just need to convert the components of the tangent vector between the two coordinate systems. To obtain $\dot{R}$ in terms of FRW tangent vectors $\dot{r}$ and $\dot{t}$, we differentiate \autoref{eq:r-to-ar} and substitute $a_t$ with the Friedmann equation \autoref{eq:friedmann-equation}. Keeping in mind the boundary conditions, we get an expression for $\dot{R}$. The angular coordinates and angular tangent vectors are unchanged moving from Kottler to FRW coordinates, and vice versa. With $\dot{R}$ and $\dot{\phi}$, $\dot{T}$ then can be easily obtained from the null condition \autoref{eq:null-condition}. The result is
 
 \begin{subequations}
@@ -223,14 +241,98 @@ The last thing we need from the boundary conditions is the relate the tangent ve
     \dot{\phi} &= \dot{\phi}\\
     \dot{\theta} &= \dot{\theta}
   \end{align}
-  \label{eq:kottler-to-frw-transform}
+  \label{eq:kottler-to-frw-transform-jacobian}
 \end{subequations}
-where for completeness I have also given the trivial relations between the angular tangent vectors. The quantities above are all evaluated at the boundary of the hole. This result is given for flat space in \citet{fleury2013interpretation} and \citet{schucker2009strong}, but here it has been extended to allow for arbitrary spatial curvature. The reverse transformation is easily obtained by inverting the Jacobian from above. 
+where for completeness I have also given the trivial relations between the angular tangent vectors. The quantities above are all evaluated at the boundary of the hole. This result is given for flat space in \citet{schucker2009strong} and \citet{fleury2013interpretation}, but here it has been extended to allow for arbitrary spatial curvature. The reverse transformation is easily obtained by inverting the Jacobian from above. 
 
 In summary, given a FRW spacetime with pressureless matter and a cosmological constant $\Lambda$, a spherical hole, whose geometry is described by the Kottler metric, can be constructed which contains a constant mass $M = 4\pi \rho a^3 r_h^3/3$ at its centre. The geometry resulting from combining the two metrics at the boundary is an exact solution of the Einstein field equations. Applying the boundary conditions, we can obtain all the necessary transformations needed for continuation of light propagation at the boundary. 
 
 \section{Light propagation}
 
-Light propagation is governed by the geodesic equation. 
+We propagate a light ray backwards from observer to source by solving the geodesic equation (\autoref{eq:geodesic-eqn}). In reality, the light ray travels from source to observer, but our calculations proceed in the opposite direction since we want to take the current observer position and observation event, where the light ray has a certain Einstein angle, as the initial condition. The observer is placed in the FRW region, where we start propagating the light ray. The mass of the lensing object is fixed and consequently so is the size of the hole. The light ray is started off with an Einstein angle $\theta_{E}$, travels through the FRW region, encounters the Kottler hole which deflects its trajectory, and returns to the FRW region again. In the Swiss-Cheese model, all the bending occurs only in the Kottler hole and is truncated once light leaves the hole. 
 
-Due to spherical symmetry, we can restrict ourselves to the $\theta = \pi/2$ plane without loss of generality. 
+\subsection{FRW region}
+
+% this theta expression is flat space only
+The light ray begins in the FRW region. The starting velocity angle $\theta_E$ is fixed, and the initial tangent vectors are set such that $\theta_E = \tan^{-1}(\sqrt{1-kr^2}r\dot{\phi}/\dot{r})$. We place the lens at the origin and take the observer to be at an azimuthal angle of $\phi = \pi$. 
+
+Null geodesics govern the subsequent trajectory of the light ray. Without loss of generality, we can take $\theta = \pi/2$ to simplify the geodesic equations. Due to spherical symmetry, the FRW has a conserved quantity $L = a^2 r^2 \dot{\phi}$ that corresponds to the angular momentum of the photon. Thus, in terms of the conserved quantity, the null geodesic equations are
+
+\begin{subequations}
+  \begin{align}
+    \dot{t} &= -\sqrt{\frac{a^2\dot{r}^2}{1-kr^2} + a^2r^2 \dot{\phi}}\\
+    \ddot{r}  &= (1-kr^2)r\dot{\phi}^2 - \frac{k\dot{r}^2}{1-kr^2} - \frac{2a_{,t}}{a}\dot{r}\dot{t}\\
+    \dot{\phi} &= \frac{L}{a^2 r^2}
+  \end{align}
+  \label{eq:frw-null-geodesics}
+\end{subequations}
+which, combined with the Friedmann equation (\autoref{eq:friedmann-eqn-version2}) fully determine the light ray's path. The negative sign on $\dot{t}$ is due to the fact that we're propagating the light ray backwards in time. We can then solve these differential equations numerically to propagate the light ray and stop the integration once the light ray reaches the boundary of the hole, which is defined by $r_h = \text{constant}$. We call this intersection event $\mathcal{E}_{\text{out}}$, since this is where the light, traveling from the source to observer in the opposite direction of our numerical calculations, \emph{leaves} the hole. 
+
+In the particular case of Euclidean geometry ($k = 0$), the coordinates of the event $\mathcal{E}_{\text{out}}$ can be calculated analytically \citep{fleury2013interpretation}. To do that, we first rewrite the flat metric in terms of the conformal time $\eta$, as
+
+\begin{equation}
+  ds^2 = a^2(\eta) \left ( -d \eta^2 + dr^2 + r^2 d \Omega^2 \right ).
+  \label{eq:frw-metric-conformal-time}
+\end{equation}
+
+We can then write down the following system of equations in Cartesian coordinates $x^i_{\text{out}}$, in terms of the hole radius $r_h$ and Cartesian position of the observer $x^i_0$:
+
+\begin{subequations}
+  \begin{align}
+  \delta_{ij} (x^i_{\text{out}} - x^i_h)(x^j_{\text{out}} - x^j_h) = r_h^2\\
+  x^i_{\text{out}} = x^i_0 + (\eta_0 - \eta_{\text{out}})d^i    
+  \end{align}
+  \label{eq:flat-cartesian-frw}
+\end{subequations}
+where $d^i$ is the unit vector representing direction of travel. For a given Einstein angle $\theta_E$, if the observer is placed at given , then in Cartesian coordinates, we have 
+
+\begin{align}
+    d &= \frac{1}{\sqrt{(\dot{r}\cos\phi - r\sin\phi\dot{\phi})^2 + (\dot{r}\sin\phi + r\cos\phi\dot{\phi})^2}}
+          \begin{pmatrix}
+           \dot{r}\cos\phi - r\sin\phi\dot{\phi} \\
+           \dot{r}\sin\phi + r\cos\phi\dot{\phi} \\
+         \end{pmatrix}
+\end{align}
+
+The final thing we need is to recover the scale factor from the conformal time. From \autoref{eq:flat-cartesian-frw}, we can obtain the value of $\eta_{\text{out}}$, since we can arbitrarily set $\eta_0 = 0$. We take $a_0 = 1$ at the observer, so the conformal time $\eta$ is related to $a$ by
+
+\begin{equation}
+  \eta_{\text{out}} = \frac{1}{H_0} \int_1^{a_{\text{out}}} \frac{1}{a^2 \sqrt{\Omega_m/a^3 + \Omega_{\Lambda}}}.
+  \label{eq:conformal-time-eta-to-a-integral}
+\end{equation}
+where $H_0$ is the current value of the Hubble parmeter. Since $\eta$ increases monotonically with $a$, we did a simple binary search to find the value of $a_{\text{out}}$ that produced $\eta_{text{out}}$ to the required level of accuracy. 
+
+The above calculation only applies for flat space, and in arbitrarily curved space, we do the full numerical integration to obtain the conditions at $\mathcal{E}_{\text{out}}$.
+
+\subsection{Conversion from FRW region to Kottler region at $\mathcal{E}_{\text{out}}$}
+\label{subsec:frw-to-kottler}
+
+From the FRW coordinates and tangent vectors, we can first obtain the starting coordinate $R_{\text{out}}$ from \autoref{eq:r-to-ar}. The angular coordinates remain the same in both coordinate systems. We are free to set $T_{\text{out}}$ since we are not concerned with the amount of time taken by the light, only the trajectory. 
+
+The initial tangent vectors to start off the Kottler integration can be obtained from the Jacobian derived in the previous section (\autoref{eq:kottler-to-frw-transform-jacobian}).
+
+\subsection{Kottler region}
+
+Inside the hole, the staticity and spherical symmetry of the Kottler metric imply the existence of two conserved quantities, $E = f(R) \dot{t}$ and $L = R^2 \dot{\phi}$, which correspond to the the energy and angular momentum of the photon respectively. For this metric, the null condition, after rearranging to make $\dot{r}$ the subject, reads
+
+\begin{equation}
+  \dot{R} = \pm \sqrt{E^2 - \frac{L^2}{R^2} \left ( 1 - \frac{2M}{R} - \frac{\Lambda R^2}{3}\right )}.
+  \label{eq:kottler-null-condition}
+\end{equation}
+The $\pm$ before square root on the right hand side is troublesome for numerical computations because it would be necessary to determine a point to switch signs for $\dot{R}$. To circumvent that, we can differentiate the equation obtained from the null condition to get a second order differential equation in $R$. Combining that with the conserved quantities, we have the following equations which fully determine the light trajectory in Kottler space:
+
+\begin{subequations}
+  \begin{align}
+    \dot{T} &= \frac{E}{f(R)}\\
+    \ddot{R}  &= \frac{L^2 (R-3M)}{R^4}\\
+    \dot{\phi} &= \frac{L}{R^2}.
+  \end{align}
+  \label{eq:kottler-null-geodesics}
+\end{subequations}
+Note that the second order differential equation in $R$ now has no dependence on $\Lambda$, which is the aforementioned conventional argument pioneered by \citet{islam1983cosmological} for why $\Lambda$ does not directly contribute to lensing. 
+
+At the same time that the light ray is moving through the Kottler hole, the hole boundary is also changing in the static coordinates, with an expansion rate governed by \autoref{eq:hole-expansion-in-kottler-dR-dT}. This equation needs to be integrated simulataneously with the null geodesic equations in order to find the point that the light ray intersects with the hole again. We call this event $\mathcal{E}_{\text{in}}$, again to emphasize the fact that this is where light enters the hole, although the propagation is done backwards. 
+
+\subsection{Conversion from Kottler region to FRW region at $\mathcal{E}_{\text{in}}$}
+
+Conversion from the Kottler to FRW region is simply the reverse of the transformations stated in \autoref{subsec:frw-to-kottler}. We set $t_{\text{in}} = 0$ since we are not concerned in the path time. 
