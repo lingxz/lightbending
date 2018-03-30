@@ -2,6 +2,59 @@
 \chapter{Gravitational lensing formalism}
 \label{chapter:gravitational-lensing-formalism}
 
+\section{Mathematical preliminaries}
+
+The essence of General Relativity (GR) is very elegantly summarized by John Wheeler into two parts: matter tells spacetime how to curve, and spacetime tells matter how to move \citep[pg.235]{wheeler2000geons}. 
+
+The first half of this statement is quantified by the Einstein Field Equations (EFEs), which is the analogue of Poisson's equation in Newtonian gravity. They are a group of 10 coupled differential equations that describe the interaction between matter and geometry of spacetime, given by (in tensor notation)
+
+\begin{equation}
+  G_{\mu \nu} + \Lambda g_{\mu \nu} = 8\pi T_{\mu \nu}
+  \label{eq:efes}
+\end{equation}
+where $g_{\mu \nu}$ is the metric of spacetime, $\Lambda$ is the cosmological constant, $G_{\mu \nu}$ is the Einstein tensor and $T_{\mu \nu}$ is the energy-momentum tensor. The energy momentum tensor on the right hand side is a source term that encodes how matter is distributed in the universe, and on the left hand side the Einstein tensor depends on the metric tensor, which describes the spacetime geometry. For a perfect pressureless fluid, the energy momentum tensor is
+
+\begin{equation}
+  T^{\mu \nu} = \rho u^{\mu} u^{\nu}
+\end{equation}
+where $u^{\mu}$ is the 4-velocity of the fluid. 
+
+If we solve Einstein's field equations, we can obtain the metric tensor $g_{\mu \nu}$, which encodes the spacetime geometry. The metric tensor then influences how a particle moving in this spacetime behaves, bringing us to the second part of the statement: spacetime tells matter how to move. Given a metric tensor $g_{\mu \nu}$, equations of motion of a particle moving in this spacetime can be derived by first considering the Lagrangian of this particle
+
+\begin{equation}
+  \mathcal{L} = \sqrt{g_{\mu \nu} \frac{dx^{\mu}}{d \lambda} \frac{dx^{\nu}}{d \lambda}}
+\end{equation}
+where $\lambda$ is an affine parameter which increases monotonically along the particle's worldline and $x^{\mu}(\lambda)$ describes the trajectory of the particle. Between two spacetime points $A$ and $B$, We want to maximize $\int^{A}_{B} L(x^{\mu} \dot{x}^{\mu})\, d \lambda$, so $\mathcal{L}$ satisfies the Euler-Lagrange (E-L) equations
+
+\begin{equation}
+  \frac{\partial \mathcal{L}}{\partial x^{\mu}} - \frac{d}{d \lambda}\left ( \frac{\partial \mathcal{L}}{\partial \dot{x}^{\mu}} \right ).
+  \label{eq:euler-lagrange-eqn}
+\end{equation}
+
+From the E-L equations we arrive at the geodesic equation
+
+\begin{equation}
+  \ddot{x}^{\mu} + \Gamma^{\mu}_{\alpha \beta} \dot{x}^{\alpha} \dot{x}^{\beta} = 0 
+  \label{eq:geodesic-eqn}
+\end{equation}
+where an overdot represents a derivative with respect to the affine parameter $\lambda$, and $\Gamma$ are the Christoffel symbols given by
+
+\begin{equation}
+  \Gamma^{\mu}_{\alpha \beta} = \frac{1}{2} g^{\mu \rho} (g_{\rho \alpha, \beta} + g_{\rho \beta, \alpha} - g_{\alpha \beta, \rho}).
+  \label{eq:christoffels}
+\end{equation}
+
+A freely moving particle always move along a geodesic, which is a generalisation of the notion of "straight lines" to a curved spacetime. 
+
+In addition, light, as a massless particle, travels along null geodesic, in contrast to timelike ones for massive particles. Therefore, all light trajectories have to satisfy the null condition
+
+\begin{equation}
+  g_{\mu \nu} dx^{\mu} dx^{\nu} = 0.
+  \label{eq:null-condition}
+\end{equation}
+
+The result is a handful of coupled differential equations that need to be solved to find the trajectory of light. These are almost impossible to solve exactly analytically except in the simplest cases. In order to find the trajectory taken by the photon, we integrate the null geodesics nnumerically. 
+
 \section{Derivation of bending angle in the Schwarzschild metric}
 
 It is useful to first revise gravitational lensing in a universe without $\Lambda$, in a Schwarzschild metric, which is well understood. The Schwarzschild metric, one of the first known solutions to Einstein's field equations, describes the vacuum that lies outside a spherically symmetric distribution of matter. Its line element is given by
@@ -52,7 +105,9 @@ This relation can then be used to rewrite the expansion in terms of $\frac{M}{b}
   \alpha = 4 \frac{M}{b} + \frac{15\pi}{4} \left ( \frac{M}{b} \right )^2 + \frac{128}{3} \left ( \frac{M}{b} \right )^3.
   \label{eq:series-expansion-b}
 \end{equation}
-and indeed many authors use the impact parameter to discuss the bending of light in Schwarzschild spacetime \citep{wald2010general,misner2017gravitation,butcher2016no}. However, it has been pointed out in literature that \citep{ishak2008new,hammad2013note} in the non-zero $\Lambda$ case, the definition of the impact parameter is no longer independent of $\Lambda$ and becomes questionable due to the fact that spacetime is no longer asymptotically flat. Therefore we need to use another parameter when we include $\Lambda$, and for consistency we will use that parameter here as well so that a fair comparison can be made, even though the Schwarzschild case does not include a cosmological constant.
+and indeed many authors use the impact parameter to discuss the bending of light in Schwarzschild spacetime \citep{wald2010general,misner2017gravitation,butcher2016no}. However, it has been pointed out in literature that \citep{ishak2008new,hammad2013note} in the non-zero $\Lambda$ case, the definition of the impact parameter is no longer independent of $\Lambda$ and becomes questionable due to the fact that spacetime is no longer asymptotically flat. \citet{lebedev2013influence} does an in-depth analysis of the impact parameter in $\Lambda$ spacetime. 
+
+In this work we will work with another constant of the motion for the non-zero $\Lambda$ case, and for consistency we will use that parameter here as well so that a fair comparison can be made, even though the Schwarzschild case does not include a cosmological constant.
 
 We can define another constant of the motion $R_u$ which corresponds to the unperturbed trajectory of light [see diagram ??], which is related to $r_0$ by (see Eq. 6 of \citet{ishak2008new} and Eq. 3 of \citet{butcher2016no})
 
@@ -88,12 +143,3 @@ We consider a simple picture where the observer, lens, and source are aligned, a
   \label{eq:lens-eqn}
 \end{equation}
 where $\alpha$ is the bending angle as previously derived, $D_S$ is the angular diameter distance from observer to source, and $D_{LS}$ is the angular diameter distance from lens to source. $R_u$ can also be expressed in terms of the observable quantities $R_u = D_L \theta_E$, where $D_L$ is the angular diameter distance from observer to the lens.  
-
-In the Friedmann-Robertson-Walker (FRW) metric, which is used for most cosmological observations, we can calculate angular diameter distance D for a given redshift $z$ by
-
-\begin{equation}
-  D(z) = 
-  \label{eq:angular-diameter-distance}
-\end{equation}
-
-In relation to the comoving distance, 

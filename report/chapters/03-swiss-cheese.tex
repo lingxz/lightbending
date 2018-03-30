@@ -18,7 +18,7 @@ A significant difference between the Swiss-Cheese model and what is used in conv
 
 \subsection{Friedmann-Robertson-Walker geometry}
 
-Outside the hole, geometry is described by the Friedmann-Robertson-Walker (FRW) metric \cite{wald2010general}, the simplest homogeneous and isotropic model of the universe. Its line element is given by
+Outside the hole, geometry is described by the Friedmann-Robertson-Walker (FRW) metric \cite{wald2010general}, the simplest homogeneous and isotropic model of the universe. Its line element, in spherical polar coordinates, is given by
 
 \begin{equation}
   ds^2 = -dt^2 + a(t)^2 \left ( \frac{dr^2}{1-kr^2} + r^2 d \Omega^2 \right )
@@ -57,11 +57,17 @@ It is common to introduce the cosmological parameters, where a subscript 0 refer
 and rewrite the Friedmann equation as
 
 \begin{equation}
-  H^2 = H_0^2 \left [ \Omega_m \left ( \frac{a_0}{a}\right )^3 + \Omega_k \left ( \frac{a_0}{a}\right )^2 + \Omega_{\Lambda} \right ]. 
+  H^2 = H_0^2 \left [ \Omega_m \left ( \frac{a_0}{a}\right )^3 + \Omega_k \left ( \frac{a_0}{a}\right )^2 + \Omega_{\Lambda} \right ]
   \label{eq:friedmann-eqn-version2}
 \end{equation}
+where the $\Omega$ terms are commonly known as density parameters, evaluated at the present day. In the absence of radiation, they obey the relation
 
-Subsequently in this report instead of working directly with $\Lambda$ I will work with $\Omega_{\Lambda}$ instead. 
+\begin{equation}
+  \Omega_m + \Omega_{\Lambda} + \Omega_k = 1.
+  \label{eq:density-parameters-1}   
+\end{equation} 
+
+In a flat universe, space is Euclidean and $\Omega_k = 0$. Subsequently in this report instead of working directly with $\Lambda$ I will work with $\Omega_{\Lambda}$ instead. 
 
 \subsection{Kottler geometry}
 
@@ -209,7 +215,7 @@ and
 \end{equation}
 The second equation is provided for completeness although it is not needed for subsequent derivations. 
 
-\subsection{Consequences on the property of the hole}
+\subsection{Consequences on properties of the hole}
 
 Combining \autoref{eq:kappa-to-fprime} with \autoref{eq:kottler-kappa}, we can eliminate $\kappa$. We can also replace $R_{h,T}$ using the relation obtained in \autoref{eq:r-to-ar}, since
 
@@ -232,7 +238,7 @@ From the junction conditions the rate of expansion of the hole in static coordin
   \label{eq:hole-expansion-in-kottler-dR-dT}
 \end{equation}
 
-The last thing we need from the boundary conditions is the relate the tangent vectors between the two metrics. The continuity of the metric, imposed by the first junction condition, implies that the connection does not diverge across the boundary. Therefore, light is not deflected as it crosses the boundary and we just need to convert the components of the tangent vector between the two coordinate systems. To obtain $\dot{R}$ in terms of FRW tangent vectors $\dot{r}$ and $\dot{t}$, we differentiate \autoref{eq:r-to-ar} and substitute $a_t$ with the Friedmann equation \autoref{eq:friedmann-equation}. Keeping in mind the boundary conditions, we get an expression for $\dot{R}$. The angular coordinates and angular tangent vectors are unchanged moving from Kottler to FRW coordinates, and vice versa. With $\dot{R}$ and $\dot{\phi}$, $\dot{T}$ then can be easily obtained from the null condition \autoref{eq:null-condition}. The result is
+The last thing we need from the boundary conditions is the relate the tangent vectors between the two metrics. The continuity of the metric, imposed by the first junction condition, implies that the connection does not diverge across the boundary. Therefore, light is not deflected as it crosses the boundary and we just need to convert the components of the tangent vector between the two coordinate systems. To obtain $\dot{R}$ in terms of FRW tangent vectors $\dot{r}$ and $\dot{t}$, we differentiate \autoref{eq:r-to-ar} and substitute $a_{,t}$ with the Friedmann equation \autoref{eq:friedmann-equation}. Keeping in mind the boundary conditions, we get an expression for $\dot{R}$. The angular coordinates and angular tangent vectors are unchanged moving from Kottler to FRW coordinates, and vice versa. With $\dot{R}$ and $\dot{\phi}$, $\dot{T}$ then can be easily obtained from the null condition \autoref{eq:null-condition}. The result is
 
 \begin{subequations}
   \begin{align}
@@ -251,10 +257,51 @@ In summary, given a FRW spacetime with pressureless matter and a cosmological co
 
 We propagate a light ray backwards from observer to source by solving the geodesic equation (\autoref{eq:geodesic-eqn}). In reality, the light ray travels from source to observer, but our calculations proceed in the opposite direction since we want to take the current observer position and observation event, where the light ray has a certain Einstein angle, as the initial condition. The observer is placed in the FRW region, where we start propagating the light ray. The mass of the lensing object is fixed and consequently so is the size of the hole. The light ray is started off with an Einstein angle $\theta_{E}$, travels through the FRW region, encounters the Kottler hole which deflects its trajectory, and returns to the FRW region again. In the Swiss-Cheese model, all the bending occurs only in the Kottler hole and is truncated once light leaves the hole. 
 
+We begin by fixing the lens redshift, since it is the redshift that is directly observable and not the radial coordinate $r$. From the lens redshift, we can then calculate the radial coordinate and angular diameter distance to the lens. 
+
+In the FRW, assuming $a_0 = 1$, we can calculate the angular diameter distance $D_L$ for a given lens redshift $z_L$ as \citep{hogg1999distance}
+
+\begin{equation}
+  D_L = D_A(z_L) = \frac{1}{1+z_L} S_k\left ( \frac{1}{H_0}\int_0^{z_L} \frac{dz}{\sqrt{\Omega_m(1+z)^3 + \Omega_k (1+z)^2 + \Omega_{\Lambda}}}  \right )
+  \label{eq:angular-diameter-distance-redshit-z}
+\end{equation}
+where we define the function $S_k(x)$
+
+\begin{equation}
+  S_k(x) = 
+  \begin{cases}
+    \mathopen| k \mathclose|^{-1/2} \sin(\sqrt{\mathopen| k \mathclose|}x) & k > 0\\
+    x & k = 0\\
+    \mathopen| k \mathclose|^{-1/2} \sinh(\sqrt{\mathopen| k \mathclose|}x) & k < 0
+  \end{cases}
+  \label{eq:sk}
+\end{equation}
+and its inverse function
+
+\begin{equation}
+  S_k^{-1}(x) = 
+  \begin{cases}
+    \mathopen| k \mathclose|^{-1/2} \sin^{-1}(\sqrt{\mathopen| k \mathclose|}x) & k > 0\\
+    x & k = 0 \\
+    \mathopen| k \mathclose|^{-1/2} \sinh^{-1}(\sqrt{\mathopen| k \mathclose|}x) & k < 0
+  \end{cases}
+  \label{eq:sk-inverse}
+\end{equation}
+
+From the angular diameter distance, the radial coordinate is given by 
+
+\begin{equation}
+  r_L = (1+z_L)D_L.
+\end{equation}
+Therefore, as we vary $\Lambda$, $r_L$ is expected to change as we fix $z_L$. 
+
+We then place the lens at the origin and observer at a radial coordinate of $r = r_L$ and $\phi = \pi$. 
+
+Numerical integration is done with the \texttt{scipy.integrate.solve\_ivp} function in Python \citep{jones2014scipy}, which uses an explict Runge-Kutte method of order 5 \citep{dormand1980family}. The solver uses an adaptive step size, and intersection between the light ray and the point of enter and exit of the hole are found with the classic Brent's method \citep{brent2013algorithms}, a root-finding algorithm. 
+
 \subsection{FRW region}
 
-% this theta expression is flat space only
-The light ray begins in the FRW region. The starting velocity angle $\theta_E$ is fixed, and the initial tangent vectors are set such that $\theta_E = \tan^{-1}(\sqrt{1-kr^2}r\dot{\phi}/\dot{r})$. We place the lens at the origin and take the observer to be at an azimuthal angle of $\phi = \pi$. 
+The light ray begins in the FRW region from the observer. The starting velocity angle $\theta_E$ is fixed, and the initial tangent vectors are set such that $\theta_E = \tan^{-1}(\sqrt{1-kr^2}r\dot{\phi}/\dot{r})$. We place the lens at the origin and take the observer to be at an azimuthal angle of $\phi = \pi$. 
 
 Null geodesics govern the subsequent trajectory of the light ray. Without loss of generality, we can take $\theta = \pi/2$ to simplify the geodesic equations. Due to spherical symmetry, the FRW has a conserved quantity $L = a^2 r^2 \dot{\phi}$ that corresponds to the angular momentum of the photon. Thus, in terms of the conserved quantity, the null geodesic equations are
 
@@ -336,3 +383,28 @@ At the same time that the light ray is moving through the Kottler hole, the hole
 \subsection{Conversion from Kottler region to FRW region at $\mathcal{E}_{\text{in}}$}
 
 Conversion from the Kottler to FRW region is simply the reverse of the transformations stated in \autoref{subsec:frw-to-kottler}. We set $t_{\text{in}} = 0$ since we are not concerned in the path time. 
+
+\subsection{Back in the FRW region}
+
+Once we get back to the FRW region, we continue using FRW null geodesics (\autoref{eq:frw-null-geodesics}) to propagate the light and stop once we reach the axis. The coordinate at which it crosses the axis is then recorded. 
+
+In flat space, numerical integration here is no longer necessary, since there will be no more bending in this region. Thus the intersection of the light path with the axis can be calculated from the tangent vector directly once light exits the Kottler hole. 
+
+\subsection{Converting raw radial coordinates to angular diameter distances}
+
+Our aim is to compare our results against the cosmological lens equation (\autoref{eq:lens-eqn}), using strictly observable quantities. Gravitational lensing analysis is usually done with the observer at the origin, but in our model we have placed the lens at the origin instead out of convenience. Therefore we take extra care when converting from raw radial coordinates back into observable angular distances. By an extension of the redshift formula (\autoref{eq:angular-diameter-distance-redshit-z}), we can get the angular diameter distance between two arbitrary points given their respective radial coordinates \citep{peacock1999cosmological}
+
+\begin{equation}
+  D_{AB} = \frac{a_0  S_k(S_k^{-1}(r_B) - S_k^{-1}(r_A))}{1+z_B}
+\end{equation}
+
+Applying this formula and remembering that we place the observer at $(r, \phi) = (r_L, \pi)$, we can use our final numerical coordinate at $(r, \phi) = (r_{LS}, 0)$ to get $D_S$ and $D_{LS}$:
+
+\begin{subequations}
+  \begin{gather}
+    D_{S} = \frac{S_k(S_k^{-1}(r_{LS}) + S_k^{-1}(r_L))}{1+z_S}\\
+    D_{LS} = \frac{r_{LS}}{1+z_S}
+  \end{gather}
+\end{subequations}
+
+With this, we now have all the formulation needed to carry out the numerical integration and also to translate the numerical results into observable quantities. 

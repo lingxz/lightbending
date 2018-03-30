@@ -1,0 +1,39 @@
+%!TEX root = ../main.tex
+\section{Other approaches to $\Lambda$ contribution in light deflection}\label{section:other}
+
+\citet{Arakida2016} approached the problem by looking at the time-transfer function \citep{LePoncin-Lafitte2004} instead of solving the null-geodesic equation, as is done conventionally. He concludes that the deflection angle in a Kottler metric, using a time-transfer function, is the same as in the Schwarzschild case, where there is no cosmological constant. 
+
+In a more numerical approach, \citet{beyon2012} examine the LTB dust model \citep{1997GReGr..29..641L,1934PNAS...20..169T,1947MNRAS.107..410B} and numerically integrated the null geodesic equations with a Adams-Bashforth-Moulton solver, a multistep ODE solver. She followed the trajectory of several light rays by propagating them backwards with the null geodesic equations and used these to calculate lensing quantities such as the bend angle. In the LTB dust model, she models the lens as an overdensity in the FRW metric. However, results were only presented for the LTB model without pressure, whereas to fully investigate the effect of the cosmological constant, numerical simulations need to be run for the generalized LTB model with pressure. 
+
+There have also been some arguments that the cosmological constant enters into the null geodesic equation directly at the first-order differential equation level, directly challenging the conventional view outlined in Section \ref{section:conventional}. The main argument is that the cosmological constant is hidden implicitly in the null geodesic equation since the coordinate distance of closest approach depends on $\Lambda$. 
+
+This was first proposed by \citet{Bhadra2010}, who reason that the first order differential equation for the null geodesic in the Kottler metric (described by \eqref{eq:null-geodesic-kottler}) contains a $\Lambda$-term that drops out at second order. The second-order solution must also satisfy the parent first-order differential equation from which \eqref{eq:null-geodesic-kottler} was derived:
+
+\begin{equation}
+  \frac{1}{r^4} \left ( \frac{dr}{d\phi} \right )^2 + \frac{f(r)}{r^2} - \frac{1}{b^2} = 0
+  \label{eq:kottler-null-geodesic-first-order}
+\end{equation}
+where $f(r)$ is given by \eqref{eq:kottler-metric2}. Therefore the authors assert that $\Lambda$ should reappear in the null geodesic solution as an integration constant, and together with \eqref{eq:kottler-null-geodesic-first-order} it implies $\Lambda$-dependence should appear in the distance of closest approach. 
+
+\citet{HAMMAD2013} agrees with this, and reiterated this claim in his paper where he claims the effects of the cosmological constant lies in the impact parameter $b = L/E$ where $E$ is the total energy and $L$ is the total angular momentum. Solving for the null geodesic in the Kottler metric and introducing $b$, he arrived at 
+
+% \citet{HAMMAD2013} also claim the effects of the cosmological constant lies within the null geodesic equation, but hidden in the impact parameter. He starts from the normal Kottler metric, described by \eqref{eq:kottler-metric}, and apply the Euler-Lagrange equations normally to obtain the null geodesic. As is customary, he introduces the impact parameter $b = L/E$ where $E$ is the total energy and $L$ is the total angular momentum, arriving at (similar to \eqref{eq:null-geodesic-kottler})
+
+\begin{equation}
+  \left ( \frac{dr}{d \phi} \right )^2 = \left ( \frac{1}{R_0^2} - \frac{2M}{R_0^3} \right )r^4 - r^2 + 2Mr
+  \label{eq:hammad-1}
+\end{equation}
+where he claims that $\Lambda$ also appears implicitly in the nearest distance of approach to the mass $R_0$, in the form of
+
+\begin{equation}
+  \frac{1}{b^2} = \frac{\alpha_0}{R_0^2} = \frac{1}{\sin^2 \psi} \left ( \frac{1}{R_1^2} - \frac{2M}{R_1^3} - \frac{\Lambda}{3}\right )
+  \label{eq:hammad-2}
+\end{equation}
+
+Substituting \eqref{eq:hammad-2} into \eqref{eq:hammad-1}, we can see explicitly the contribution of $\Lambda$ to the geodesic. The author then extracted the bending angle $\sin \psi$ from the null geodesic to get
+
+\begin{equation}
+  \sin \psi = \sqrt{\frac{2M}{R_1}} + \frac{15 \pi M}{32 R_1} - \left ( \sqrt{2} + \frac{675 \pi^2}{2048 \sqrt{2}} \right ) \left ( \frac{M}{R_1}\right )^{3/2} - \frac{1}{3\sqrt{2}} \Lambda \sqrt{MR_1^3} + \mathcal{O}(M^2, \Lambda M), 
+  \label{eq:hammad-3}
+\end{equation}
+where he recovered the first- and second-order mass-terms as well as the first order $\Lambda$-term that appeared in \citet{Rindler2007}. 

@@ -4,7 +4,7 @@
 \LoadClass[paper=a4,
            twoside,
            pagesize,
-           11pt,
+           12pt,
            DIV=10,                % TODO: Make configurable
            BCOR=10mm,             % TODO: Make configurable
            cleardoublepage=empty,
@@ -12,6 +12,8 @@
            titlepage,
            toc=bibliography,
            toc=index,]{scrbook}
+\setlength\oddsidemargin{\dimexpr(\paperwidth-\textwidth)/2 - 1in\relax}
+\setlength\evensidemargin{\oddsidemargin}
 
 \RequirePackage{ifpdf}
 \RequirePackage{ifxetex}
@@ -231,7 +233,8 @@
 
 \setkomafont{part}{\normalfont\huge\scshape}
 
-\setkomafont{sectioning}{\normalfont\scshape}
+% \setkomafont{sectioning}{\normalfont\scshape}
+\setkomafont{sectioning}{\normalfont}
 \setkomafont{descriptionlabel}{\normalfont\bfseries}
 
 \setkomafont{caption}{\small}

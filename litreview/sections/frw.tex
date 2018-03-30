@@ -1,0 +1,86 @@
+%!TEX root = ../main.tex
+\section{$\Lambda$ lensing and perturbation in a FRW model}\label{section:frw}
+
+
+The main criticism against the findings of Rindler and Ishak is that the relative movements of the source, observer, and lens were not incorporated into their analysis. In order to accomodate such a feature, most opponents of the Rindler-Ishak method use the Friedmann-Robertson-Walker (FRW) metric to look at the effect of $\Lambda$ on lensing. Studies by \citet{Park2008,Khriplovich2008,Simpson2008} using this model led to the conclusion that classical bending is practically unaffected by $\Lambda$. 
+
+% In particular, \citet{Simpson2008} consider a perturbed FRW and reached a similar conclusion. The authors argue that the $\Lambda$-dependent term obtained from the Kottler metric in \eqref{eq:rindler-ishak-correction} is merely a gauge artefact.  
+
+The FRW is the most general metric possible that describes a homogeneous, isotropic, and expanding universe. \citet{Simpson2008} compared the perturbed FRW, in particular the Newtonian gauge, to the Kottler metric and found an expression for the Kottler metric components, and concluded the $\Lambda$-dependent term obtained in \citet{Rindler2007} is merely a gauge artefact. Assuming a universe without anisotropic stress, the Newtonian gauge is given by 
+
+\begin{equation}
+  ds^2 = (1 + 2 \Phi) dt^2 - a^2(t) (1 - 2 \Phi)(d \chi^2 + \chi^2 d \psi^2)
+  \label{eq:newtonian-gauge}
+\end{equation}
+where $a(t)$ is the scale factor, $\chi$ is the comoving radius, $d\psi$ is an element of angle on the sky, and $\Phi$ is the scalar potential that describes the scalar metric fluctuation. The cosmological constant $\Lambda$ appears implicitly through the scale actor $a(t)$. 
+
+The authors consider a Kottler vacuole embedded in FRW spacetime. After some approximations and a coordinate transformation, the authors arrived at the following equation for $f$ in the Kottler metric (described by \eqref{eq:kottler-metric}), to first order in $\Phi$:
+
+\begin{equation}
+  f = 1 - 2 \chi \Phi^{\prime} - \dot{a}^2 \chi^2 \left [ 1 - 2 \Phi \left ( \frac{\partial \ln \vert \Phi \vert}{\partial \ln a} + 2 \right ) \right ].
+  \label{eq:simpsons-f}
+\end{equation}
+
+After dropping the term proportional to $\Phi$ in the square brackets and using the Friedmann equation to express \eqref{eq:simpsons-f} in terms of $\Lambda$, they arrive at
+
+\begin{equation}
+  f = 1 - 2r \Phi^{\prime} / a - 2mr^2  R^3 - \Lambda r^2 / 3.
+\end{equation}
+Comparing this equation with \eqref{eq:kottler-metric2}, they found the explicit expression for the perturbing potential responsible for light bending in the vacuole to be 
+
+\begin{equation}
+  \Phi = - \frac{m}{r} - \frac{mr^2}{2R^3} + \frac{3m}{2R}
+  \label{eq:simpsons-potential}
+\end{equation}
+where $\Lambda$ has cancelled out with the corresponding $\Lambda$-term in the Kottler expression for $f(r)$ in \ref{eq:kottler-metric2}, and the potential is independent of $\Lambda$. 
+
+However, this analysis is perturbative and the expression for $\Phi$ is only correct to lowest order. It is possible that $\Lambda$ may appear in higher-order corrections to $\Phi$, but even so, by this analysis the hiher-order corrections are expected to be of smaller magnitude than the correction predicted by Rindler and Ishak. 
+
+\citet{Ishak2008} criticized these studies and reported new calculations in which they estimated the bending by considering a model where a Kottler vacuole is embedded in a FRW background. According to them, the argument presented by Simpsons et al. \citep{Simpson2008} eliminates the contribution of $\Lambda$ a priori due to the too stringent assumption that the Kottler vacuole around the lens is negligibly small in comparison with the Hubble length. They proceeded differently from \eqref{eq:simpsons-f} and, without neglecting the size of the vacuole, they showed that their proposed $\Lambda$ contribution is restored. 
+
+\citet{Park2008} begins his analysis by using the McVittie \citep{1933MNRAS..93..325M} solutions for embedding a mass (the lens) in a FRW spacetime. This metric interpolates between the Schwarzschild and FRW geometries, and contains the Kottler solution as a special case:
+
+\begin{equation}
+  ds^2 = - \left ( \frac{1 - \mu}{1 + \mu} \right )^2 dt^2 + (1 + \mu)^4 a(t)^2 d\vec{X}^2
+  \label{eq:mcvittie-metric}
+\end{equation}
+where $\vec{X}$ is the comoving coordinate, 
+\begin{equation}
+  \mu = \frac{m}{4 a(t) \vert \vec{X} - \vec{X}_0 \vert }
+  \label{eq:mcvittie-metric2}
+\end{equation}
+where $\vec{X}_0$ is the location of a mass of Schwarzschild radius $m$ and $a(t)$ is the scale factor. He noted that the angle $\psi$ in \citet{Rindler2007} is one measured by a static observer, but for actual observations all three objects (lens, source, object) are moving relative to each other due to expansion. Therefore, to solve for the null geodesics connecting a source to an observer in this background, he defined "physical" spatial coordinates by $\vec{x} = e^{Ht} \vec{X}$. He worked up to $\mathcal{O}(m)$, arriving at the following metric
+
+\begin{equation}
+  ds^2 = -\left ( 1 - \frac{m}{\sqrt{(x + e^{Ht}q)^2 + y^2 + z^2}} \right ) dt^2 + (1 + \frac{m}{\sqrt{(x + e^{Ht}q)^2 + y^2 + z^2}})(d\vec{x} - H\vec{x}dt)^2
+  \label{eq:park-equation}
+\end{equation}
+where the coordinates are aligned to put the lens on the $x$-axis. He derived the null geodesic equations for this metric, and with some simplifying assumptions and approximations, he arrived at the following lens equation
+
+\begin{equation}
+  \theta = \beta + \frac{2md_{SL}}{\beta d_S d_L} \left ( 1 + \mathcal{O}(H^3) + \mathcal{O}(\beta^2) \right ) + \mathcal{O}(m^2)
+  \label{eq:park-equation-theta}
+\end{equation}
+where
+\begin{equation}
+  \mathcal{O}(\beta^2) = - \beta^2 \frac{x_S^{2} - 4 x_S d_L + 2d_L^2}{4(x_S - d_L) + ...}
+\end{equation}
+This contradicts the conclusion of \citet{Rindler2007} since there is no $\mathcal{O}(\Lambda) \sim \mathcal{O}(H^2)$ correction as predicted by Rindler and Ishak. However, this was questioned by \citet{Ishak2008}, where they noted that second-order terms including $H^2 = \Lambda / 3$ terms were dropped in the calculations due to the smallness assumption, which may explain the absence of a $\Lambda$ contribution. \citet{Sereno2008} also argued that the $\Lambda$ does not appear explicitly in \citet{Park2008,Khriplovich2008} as it is already included in the angular diameter distances. 
+
+More recently, \citet{Faraoni2017} revisited this problem, using also the perturbed FRW metric but taking a different approach to the notion of ``mass'' as compared to the simple Newtonian central mass $m$ used in previous investigations. The authors note that defining mass in General Relativity is problematic, since the Equivalence Principle allows us to locally eliminate gravity. This is especially so in non-asymtotically flat spacetimes (which is implied by the addition of the cosmological constant), and there are several definitions of mass that may be applicable in their own circumstances. In this analysis, they adopt the Hawking-Hayward quasilocal energy construct \citep{Hawking1968,Hayward1994}, specifically the Misner-Sharp-Hernandez mass \citep{Misner1964}, $M_{MSH}$. Under conformal transformations, this mass is
+
+\begin{equation}
+  \tilde{M}_{MSH} \simeq ma(t) + \frac{H^2 \tilde{R^3}}{2},
+  \label{eq:misner-mass}
+\end{equation}
+where $\tilde{R}$ is the conformal areal radius of the spherically symmetric spacetime in which the Misner-Sharp-Hernandez mass is defined. 
+
+The authors use the conformal Newtonian gauge, in a similar form to \eqref{eq:newtonian-gauge}, only they used conformal time $\eta$ instead of comoving time $t$. These are related by $dt = a d\eta$ where $a$ is the scale factor. 
+
+After some conformal transformations and approximations, the authors obtained the deflection to be
+
+\begin{equation}
+  \Delta \tilde{\phi} = \frac{4\tilde{M}_{MSH}}{\tilde{R}} - 2H^2 \tilde{R}^3
+  \label{eq:faraoni-angle}
+\end{equation}
+to first order in $\Phi$ (in \eqref{eq:newtonian-gauge}) and $H^2\tilde{R}^3$,  where the quantities with tilde hat represent conformal quantities, and $\Delta \tilde{\phi} = \Delta \phi$ since angle are left invariant by conformal transformations. After substituting in $M_{MSH}$ from \eqref{eq:misner-mass}, the contributions to $\Delta \tilde{\phi}$ due to the cosmologial background vanishes. The authors then argue that the question of whether the cosmological constant directly affects the light bending angle depends on whether one identifies the lens mass with the Newtonian mass $m$ or with the a quasi-local mass construct.

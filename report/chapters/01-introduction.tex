@@ -3,6 +3,8 @@
 
 % There has been a debate over the past decade about whether the cosmological constant enters directly into the gravitational lensing equation. 
 
+\section{Motivation and background}
+
 It has been established that the Universe is accelerating in its expansion, based on various complementary observations \citep{riess2004type,spergel2003first}. In the $\Lambda \text{CDM}$ cosmological model, this acceleration is powered by a cosmological constant $\Lambda$, that dominates the Universe's current energy budget. Ironically, the idea of a cosmological constant was first pioneered by Einstein, who, being a believer of a static universe, introduced the term to keep his equations static, but later dropped it in favour evidence of an expanding universe, famously describing it as his biggest blunder. As fate would have it, the cosmological constant has made its way back into modern cosmology to account for the Universe's accelerating expansion. 
 
 An active dispute that has been the subject of several papers in the last decade is whether the cosmological constant enters into the gravitational lensing equation. It is well known that light traveling through space is bent according to the mass distribution it encounters. This effect is gravitationa lensing, and it is one of the three classical tests of General Relativity \cite{will1993theory}. Since its first discovery in the 1970s, gravitational lensing has become an important observation tool in cosmology and astrophysics. Given the undisputed success of General Relativity, and the central role that $\Lambda$ now plays in gravitational physics and observational cosmology \citep{peebles2003cosmological}, one would think that the effect of a cosmological constant on gravitational lensing is well known. However, this is not the case. Scientific opinion has not converged on this issue and till now, there is still no consensus as to whether $\Lambda$ contributes directly to lensing. 
@@ -19,13 +21,13 @@ Conventional view, firt put forth by \citet{islam1983cosmological}, is that it d
 % falls out of the exact equations of motion for the trajectory of the light ray. 
 The main challenge to the conventional view came from \citet{rindler2007contribution}, who argue that while the $\Lambda$ term drops out of the equations of motion, $\Lambda$ still affects light bending through the metric of spacetime itself, since the photon is moving in $\Lambda$-dependent geometry. The angles that are measurable are defined by the metric, and since spacetime that includes a cosmological constant is not asymptotically flat, the process of measurement causes the cosmological constant to creep into the light bending angle. 
 
-Since then, a plethora of papers have been written about this topic, but none have conclusively settled the debate. While there have supporting arguments in favour of Rindler and Ishak's proposal \citep{sereno2008influence,bhadra2010gravitational,schucker2008strong}, more recently there have been several arguments against it that question whether the influence of the cosmological constant has already been taken into account in the angular diameter distances and impact parameter in the formula \citep{butcher2016no,piattella2016lensing,arakida2012effect}. Indeed, most of the disagreements are about how the mathematical results should translate into observable quantities, especially since the pioneering analyses use a static metric that do not take into account the relative movement of the observer and source.  
+Since then, a plethora of papers have been written about this topic, but none have conclusively settled the debate. While there have supporting arguments in favour of Rindler and Ishak's proposal \citep{sereno2008influence,bhadra2010gravitational,schucker2008strong}, more recently there have been several arguments against it that question whether the influence of the cosmological constant has already been taken into account in the angular diameter distances and impact parameter in the formula \citep{butcher2016no,piattella2016lensing,arakida2012effect}. Indeed, most of the disagreements are about how the mathematical results should translate into observable quantities, especially since the pioneering analyses use a static metric that do not take into account the relative movement of the observer and source. The conflict comes from the fact that coordinate angles are not necessarily physically measurable, and \citet{lebedev2013influence} explore the question of measurable angles in detail. 
 
 To date, most of the work done on this topic has been analytical. This inevitably lend some of the work to criticisms of whether the approximations used in deriving the results are valid (see for example criticisms in \citet{ishak2010more}). There have been some numerical work on this subject, but they have been few and far from comprehensive. 
 
 For example, \citet{beynon2012testing} took a numerical approach in a Lema{\^\i}tre-Tolman-Bondi metric \citep{lemaitre1997expanding,tolman1934effect,bondi1947spherically} but did not reach a definitive conclusion. More recently \citep{aghili2017effect} used the McVittie metric \citep{mcvittie1933mass} in analyzing the effect of $\Lambda$. 
 
-\citet{schucker2009strong} adopted a partially numerical approach in the model we are using (the Swiss-Cheese model) and concluded he agrees with Rindler and Ishak, but he only uses a single numerical example to reach a conclusion. He compares the results of \emph{different} models (pure Kottler versus Swiss-Cheese), both involving a non-zero $\Lambda$, to observed quantities, and hence his result are more inclined towards answering the question of which is the right physical model for gravitational lensing, as compared to the question we hope to answer, which is: What is the influence of the cosmological constant given a \emph{single} model, which we assume for the purpose of the analysis, and not without basis, is an accurate model of our universe? On this note we take a slightly different approach from Sch{\"u}cker, where we work with a single model (the Swiss-Cheese), and compare the results from a $\Lambda = 0$ universe with a universe in which we have a non-zero $\Lambda$. 
+The most similar work was done in \citet{schucker2009strong}, who adopted a partially numerical approach in the model we are using (the Swiss-Cheese model) and concluded he agrees with Rindler and Ishak, but he only uses a single numerical example to reach a conclusion. Furthermore, some higher-order terms were dropped out in the integration in the Kottler metric and the contributiong of $\Lambda$ to the deflection was not singled out. He compares the results of \emph{different} models (pure Kottler versus Swiss-Cheese), both involving a non-zero $\Lambda$, to observed quantities, and hence his result are more inclined towards answering the question of which is the right physical model for gravitational lensing, as compared to the question we hope to answer, which is: What is the influence of the cosmological constant given a \emph{single} model, which we assume for the purpose of the analysis, and not without basis, is an accurate model of our universe? On this note we take a slightly different approach from Sch{\"u}cker, where we work with a single model (the Swiss-Cheese), and compare the results from a $\Lambda = 0$ universe with a universe in which we have a non-zero $\Lambda$. 
 
 % state their shortcoming?
 Our work will be numerical, and we hope to tackle some of the shortcomings of the previous numerical work, without falling into the approximation traps that exist in analytical work. In addition, we use a Swiss-Cheese model that deals with the problem of comoving observers in a cosmological setting and we use observable quantities throughout to compare the effect of $\Lambda$. The details of the model will be explained further in \autoref{chapter:swiss-cheese}.
@@ -35,61 +37,8 @@ In the remaining portions of this chapter I give an introduction of General Rela
 
 The bulk of the work is in \autoref{chapter:swiss-cheese}, where I give the mathematical derivation of the equations which form the basis of this project, some of which do not appear explicitly in literature. In particular, in this chapter I describe the construction and mathematical properties of the Swiss-Cheese model with a Kottler condensation, and based on that, obtain the equations for light propagation in such a universe. 
 
-Finally, in \autoref{chapter:results}, I present my numerical results for light propagation in such a universe and discuss their significance in the context of some of the analytical analyses that have been previously done. 
+Finally, in \autoref{chapter:results}, I present my numerical results for light propagation in such a universe and discuss their significance in the context of some of the previous analytical analyses. 
 
 % notation
 \section{A note on units and notation}
 I use a comma to denote partial derivative and an overdot to denote derivative with respect to the affine parameter $\lambda$. For example, $x_{,t}$ refers to $\frac{\partial x}{\partial t}$ and $\dot{x} = \frac{dx}{d\lambda}$. Throughout this work I use natural units such that $c = G = 1$. 
-
-\section{Background}
-
-The essence of General Relativity (GR) is very elegantly summarized by John Wheeler into two parts: matter tells spacetime how to curve, and spacetime tells matter how to move \citep[pg.235]{wheeler2000geons}. 
-
-The first half of this statement is quantified by the Einstein Field Equations (EFEs), which is the analogue of Poisson's equation in Newtonian gravity. They are a group of 10 coupled differential equations that describe the interaction between matter and geometry of spacetime, given by (in tensor notation)
-
-\begin{equation}
-  G_{\mu \nu} + \Lambda g_{\mu \nu} = 8\pi T_{\mu \nu}
-  \label{eq:efes}
-\end{equation}
-where $g_{\mu \nu}$ is the metric of spacetime, $\Lambda$ is the cosmological constant, $G_{\mu \nu}$ is the Einstein tensor and $T_{\mu \nu}$ is the energy-momentum tensor. The energy momentum tensor on the right hand side is a source term that encodes how matter is distributed in the universe, and on the left hand side the Einstein tensor depends on the metric tensor, which describes the spacetime geometry. For a perfect pressureless fluid, the energy momentum tensor is
-
-\begin{equation}
-  T^{\mu \nu} = \rho u^{\mu} u^{\nu}
-\end{equation}
-where $u^{\mu}$ is the 4-velocity of the fluid. 
-
-If we solve Einstein's field equations, we can obtain the metric tensor $g_{\mu \nu}$, which encodes the spacetime geometry. The metric tensor then influences how a particle moving in this spacetime behaves, bringing us to the second part of the statement: spacetime tells matter how to move. Given a metric tensor $g_{\mu \nu}$, equations of motion of a particle moving in this spacetime can be derived by first considering the Lagrangian of this particle
-
-\begin{equation}
-  \mathcal{L} = \sqrt{g_{\mu \nu} \frac{dx^{\mu}}{d \lambda} \frac{dx^{\nu}}{d \lambda}}
-\end{equation}
-where $\lambda$ is an affine parameter which increases monotonically along the particle's worldline and $x^{\mu}(\lambda)$ describes the trajectory of the particle. Between two spacetime points $A$ and $B$, We want to maximize $\int^{A}_{B} L(x^{\mu} \dot{x}^{\mu})\, d \lambda$, so $\mathcal{L}$ satisfies the Euler-Lagrange (E-L) equations
-
-\begin{equation}
-  \frac{\partial \mathcal{L}}{\partial x^{\mu}} - \frac{d}{d \lambda}\left ( \frac{\partial \mathcal{L}}{\partial \dot{x}^{\mu}} \right ).
-  \label{eq:euler-lagrange-eqn}
-\end{equation}
-
-From the E-L equations we arrive at the geodesic equation
-
-\begin{equation}
-  \ddot{x}^{\mu} + \Gamma^{\mu}_{\alpha \beta} \dot{x}^{\alpha} \dot{x}^{\beta} = 0 
-  \label{eq:geodesic-eqn}
-\end{equation}
-where an overdot represents a derivative with respect to the affine parameter $\lambda$, and $\Gamma$ are the Christoffel symbols given by
-
-\begin{equation}
-  \Gamma^{\mu}_{\alpha \beta} = \frac{1}{2} g^{\mu \rho} (g_{\rho \alpha, \beta} + g_{\rho \beta, \alpha} - g_{\alpha \beta, \rho}).
-  \label{eq:christoffels}
-\end{equation}
-
-A freely moving particle always move along a geodesic, which is a generalisation of the notion of "straight lines" to a curved spacetime. 
-
-In addition, light, as a massless particle, travels along null geodesic, in contrast to timelike ones for massive particles. Therefore, all light trajectories have to satisfy the null condition
-
-\begin{equation}
-  g_{\mu \nu} dx^{\mu} dx^{\nu} = 0.
-  \label{eq:null-condition}
-\end{equation}
-
-The result is a handful of coupled differential equations that need to be solved to find the trajectory of light. These are almost impossible to solve exactly analytically except in the simplest cases. In order to find the trajectory taken by the photon, we integrate the null geodesics nnumerically. 
