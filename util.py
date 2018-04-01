@@ -10,6 +10,18 @@ length_scale = 3.086e22
 H_0 = 70*1000/(3.086e22)/299792458 * length_scale # 70km/s/Mpc
 
 
+def set_typography(latex=False):
+    from matplotlib import rc
+    font = {'family' : 'sans-serif',
+        'weight' : 'bold',
+        'size'   : 15}
+    rc('font', **font)
+    rc('figure', autolayout=True)
+    if latex:
+        rc('text', usetex=True)
+    else:
+        rc('text', usetex=False)
+
 def omega_lambda2lambda(Omega_Lambda):
     return 3*Omega_Lambda*H_0**2
 
@@ -161,9 +173,7 @@ def omk2k(om_k, H0):
     return H0**2*om_k
 
 def plot_rs(filename, plot_ishak=True, plot_kantowski=True, latex=False, filenames=None):
-    if latex:
-        from matplotlib import rc
-        rc('text', usetex=True)
+    set_typography(latex)
 
     df = pd.read_csv(filename)
 
@@ -176,11 +186,6 @@ def plot_rs(filename, plot_ishak=True, plot_kantowski=True, latex=False, filenam
     for index, row in df.iterrows():
         M = row.M
         Lambda = 3*row.om_lambdas*H_0**2
-        if 'om_ks' in df.columns:
-            rho = (1-row.om_lambdas-row.om_ks)*3*H_0**2/(8*np.pi)
-        else:
-            rho = (1-row.om_lambdas)*3*H_0**2/(8*np.pi)
-        rh = (3*M/(4*np.pi*rho))**(1./3)
 
         k = omk2k(row.om_ks, H_0)
 
@@ -196,15 +201,17 @@ def plot_rs(filename, plot_ishak=True, plot_kantowski=True, latex=False, filenam
 
         A_kantowski = -kantowski_alpha(R, M, row.enter_phis, row.om_lambdas)
 
-        r0 = 1/(1/R + M/R**2)
+        # r0 = 1/(1/R + M/R**2)
+        r0 = 1/(1/R + M/R**2 + 3/16*M**2/R**3)
         extra_term_ratio = np.abs((2*M/r0 + omega_lambda2lambda(row.om_lambdas)*r0**2)**(5/2)/(4*M/r0*(np.cos(row.enter_phis))**3))
-        
 
-        preds_frw.append(A_frw)
-        preds_ishak.append(A_ishak)
-        preds_kantowski.append(A_kantowski)
+        # print(15*np.pi*M**2/4/R**2/(4*M/R))
+
+        preds_frw.append(A_frw/row.theta)
+        preds_ishak.append(A_ishak/row.theta)
+        preds_kantowski.append(A_kantowski/row.theta)
         kant_higher_order_ratio.append(extra_term_ratio)
-        numerical_res.append(numerical)
+        numerical_res.append(numerical/row.theta)
 
     df['preds_frw'] = preds_frw
     df['preds_ishak'] = preds_ishak
@@ -228,18 +235,168 @@ def plot_rs(filename, plot_ishak=True, plot_kantowski=True, latex=False, filenam
     # stats['numerical mean'] = stats['numerical mean'] - 1
     # stats['ishak mean'] = stats['ishak mean'] - 1
     # stats['kantowski mean'] = stats['kantowski mean'] - 1
-
-    scale = 1
-    plt.plot(stats.index, stats['numerical mean']/scale, '.', label='__nolegend__')
+    # stats = stats.head(48)
+    scale = 1e-4
+    plt.plot(stats.index, stats['numerical mean']/scale, 'k.', label='Numerical results')
     # plt.plot(stats.index, stats['numerical first order mean']/scale, 'b-', label='with second order corrections')
-    plt.errorbar(stats.index, stats['numerical mean']/scale, yerr=stats['numerical mean std']/scale, linestyle='none', label='__nolegend__')
+    # plt.errorbar(stats.index, stats['numerical mean']/scale, yerr=stats['numerical mean std']/scale, linestyle='none', label='__nolegend__')
 
     if latex:
         plt.xlabel(r'$\Omega_{\Lambda}$')
-        plt.ylabel(r'Fractional deviation of $\alpha$ / $10^{-6}$')
+        plt.ylabel(r'Fractional deviation of $\frac{D_S}{D_{LS}}$ / $10^{-4}$')
     else:
         plt.xlabel('Omega_Lambda')
-        plt.ylabel('Mean fractional deviation')
+        plt.ylabel('Mean fractional deviation/10^-5')
+
+    if plot_ishak:
+        plt.plot(stats.index, stats['ishak mean']/scale, 'g-', label='Rindler and Ishak predictions')
+    if plot_kantowski:
+        plt.plot(stats.index, stats['kantowski mean']/scale, 'b-', label="Kantowski predictions")
+    plt.plot(stats.index, [0/scale]*len(stats.index), 'r-', label='FRW predictions')
+    # plt.ylim((-0.0008, 0.0008))
+    plt.legend()
+    # if plot_ishak or plot_kantowski:
+    #     plt.legend()
+
+    if filenames:
+        plt.savefig(filenames[0], dpi=400, transparent=True)
+
+    plt.figure()
+    scale2 = 1e-6
+    plt.plot(stats.index, -stats['numerical_kantowski mean']/scale2, '.', label='Numerical deviation from Kantowski')
+    plt.errorbar(stats.index, -stats['numerical_kantowski mean']/scale2, yerr=stats['numerical_kantowski mean std']/scale2, label='__nolegend__', linestyle='none')
+    if plot_kantowski:
+        plt.plot(stats.index, stats['kant_higher_order_ratio mean']/scale2, label='Neglected term ratio')
+    
+    if latex:
+        plt.xlabel(r'$\Omega_{\Lambda}$')
+        plt.ylabel(r'Fractional deviation of $\frac{D_S}{D_{LS}}$ / $10^{-6}$')
+    
+    # plt.grid()
+    plt.legend()
+    if filenames:
+        plt.savefig(filenames[1],  dpi=400, transparent=True)
+
+from nfw import NFW
+def plot_rs_ltb(filename, plot_ishak=True, plot_kantowski=True, latex=False, filenames=None):
+    set_typography(latex)
+
+    df = pd.read_csv(filename)
+
+    preds_frw = []
+    preds_ishak = []
+    preds_kantowski = []
+    numerical_res = []
+    kant_higher_order_ratio = []
+    for index, row in df.iterrows():
+        M_total = row.M
+        Lambda = 3*row.om_lambdas*H_0**2
+        enclosed_r = row.DL*row.theta
+        rho_frw_initial = (1-row.om_lambdas)*3*H_0**2/(8*np.pi)
+        r_h = (3*M_total/(4*np.pi*rho_frw_initial))**(1./3)
+        
+        def mass(r):
+            initial_rh = (3*M_total/(4*np.pi*rho_frw_initial))**(1./3)
+            rlimit = initial_rh*0.5
+            if r > rlimit:
+                return M_total
+            else:
+                c = 10
+                Rvir = rlimit/100
+                Rs = Rvir/c
+                rho0 = M_total/(4*np.pi*Rs**3*(np.log((Rs + rlimit)/Rs) - rlimit/(Rs + rlimit)))
+                return 4*np.pi*rho0*Rs**3*(np.log((Rs+r)/Rs) - r/(Rs+r))
+
+                # integral, error = spi.quad(lambda r1: rho(r1)*r1**2, 0, r)
+                # return 4*np.pi*integral
+
+        def rho(r):
+            initial_rh = (3*M_total/(4*np.pi*rho_frw_initial))**(1./3)
+            rlimit = initial_rh*0.5
+            if r > rlimit:
+                return 0
+            else:
+                c = 10
+                Rvir = rlimit/100
+                Rs = Rvir/c
+                rho0 = M_total/(4*np.pi*Rs**3*(np.log((Rs + rlimit)/Rs) - rlimit/(Rs + rlimit)))
+                return rho0/(r/Rs)/(1 + r/Rs)**2
+
+        def projected_mass(r):
+            initial_rh = (3*M_total/(4*np.pi*rho_frw_initial))**(1./3)
+            rlimit = initial_rh*0.5
+            if r > rlimit:
+                return M_total
+            else:
+                c = 10
+                Rvir = rlimit/100
+                Rs = Rvir/c
+                
+                g = 1/(np.log(1+c) - c/(1+c))
+                Rtilde = r / Rvir
+                if r > Rs:
+                    c_inverse = np.arccos(1/c/Rtilde)
+                else:
+                    c_inverse = np.arccosh(1/c/Rtilde)
+                Rtilde1 = rlimit/Rvir
+                return 1/(np.log(1+c*Rtilde1) - c*Rtilde1/(1+c*Rtilde1))*M_total*(c_inverse/np.abs(c**2*Rtilde**2-1)**(1/2) + np.log(c*Rtilde/2))
+                # return 1/(np.log(1+c*Rtilde) - c*Rtilde/(1+c*Rtilde))*mass(r)*(c_inverse/np.abs(c**2*Rtilde**2-1)**(1/2) + np.log(c*Rtilde/2))
+
+        R = (row.DL*row.theta)
+        M = projected_mass(enclosed_r)
+        numerical = (row.raw_rs + row.comoving_lens)/row.raw_rs*row.theta
+        
+        A_frw = 4*M/R + 15*np.pi*M**2/4/R**2 + 401/12*M**3/R**3
+
+        A_ishak = 4*M/R + 15*np.pi*M**2/4/R**2 + 305/12*M**3/R**3 - Lambda*R*row.exit_rhs/3
+
+        A_kantowski = -kantowski_alpha(R, M, row.enter_phis, row.om_lambdas)
+        
+        # r0 = 1/(1/R + M/R**2)
+        r0 = 1/(1/R + M/R**2 + 3/16*M**2/R**3)
+        extra_term_ratio = np.abs((2*M/r0 + omega_lambda2lambda(row.om_lambdas)*r0**2)**(5/2)/(4*M/r0*(np.cos(row.enter_phis))**3))
+        
+
+        
+        preds_frw.append(A_frw/row.theta)
+        preds_ishak.append(A_ishak/row.theta)
+        preds_kantowski.append(A_kantowski/row.theta)
+        numerical_res.append(numerical/row.theta)
+        kant_higher_order_ratio.append(extra_term_ratio)
+
+
+    df['preds_frw'] = preds_frw
+    df['preds_ishak'] = preds_ishak
+    df['preds_kantowski'] = preds_kantowski
+    # df['kant_higher_order_ratio'] = kant_higher_order_ratio
+    df['numerical_res'] = numerical_res
+    df['kant_higher_order_ratio'] = kant_higher_order_ratio
+
+    df['numerical'] = df.numerical_res/df.preds_frw - 1
+    df['ishak'] = df.preds_ishak/df.preds_frw - 1
+    df['kantowski'] = df.preds_kantowski/df.preds_frw - 1
+    df['numerical_kantowski'] = df.numerical_res / df.preds_kantowski - 1
+
+    stats = df[['om_lambdas', 'numerical', 'ishak', 'kantowski', 'numerical_kantowski', 'kant_higher_order_ratio']].groupby('om_lambdas').agg(['mean', 'std', 'count'])
+    # stats = df[['om_lambdas', 'om_ks', 'numerical', 'ishak', 'kantowski', 'numerical_kantowski', 'kant_higher_order_ratio']].groupby('om_ks').agg(['mean', 'std', 'count'])
+    stats.columns = [' '.join(col).strip() for col in stats.columns.values]
+    stats['numerical mean std'] = stats['numerical std']/np.sqrt(stats['numerical count'])
+    stats['numerical_kantowski mean std'] = stats['numerical_kantowski std'] / np.sqrt(stats['numerical_kantowski count'])
+    # stats['numerical first order mean std'] = stats['numerical first order std']/np.sqrt(stats['numerical first order count'])
+    stats['ishak mean std'] = stats['ishak std']/np.sqrt(stats['ishak count'])
+
+
+    scale = 1e-5
+    plt.plot(stats.index, stats['numerical mean']/scale, 'k.', label='Numerical results')
+    # plt.plot(stats.index, stats['numerical first order mean']/scale, 'b-', label='with second order corrections')
+    # plt.errorbar(stats.index, stats['numerical mean']/scale, yerr=stats['numerical mean std']/scale, linestyle='none', label='__nolegend__')
+
+    if latex:
+        plt.xlabel(r'$\Omega_{\Lambda}$')
+        plt.ylabel(r'Fractional deviation of $\frac{D_S}{D_{LS}}$ / $10^{-5}$')
+    else:
+        plt.xlabel('Omega_Lambda')
+        plt.ylabel('Mean fractional deviation/10^-5')
 
     if plot_ishak:
         plt.plot(stats.index, stats['ishak mean']/scale, 'g-', label='Rindler and Ishak predictions')
@@ -252,6 +409,24 @@ def plot_rs(filename, plot_ishak=True, plot_kantowski=True, latex=False, filenam
 
     if filenames:
         plt.savefig(filenames[0], dpi=400, transparent=True)
+
+
+    plt.figure()
+    scale2 = 1e-6
+    plt.plot(stats.index, -stats['numerical_kantowski mean']/scale2, '.', label='Numerical deviation from Kantowski')
+    plt.errorbar(stats.index, -stats['numerical_kantowski mean']/scale2, yerr=stats['numerical_kantowski mean std']/scale2, label='__nolegend__', linestyle='none')
+    if plot_kantowski:
+        plt.plot(stats.index, stats['kant_higher_order_ratio mean']/scale2, label='Neglected term ratio')
+    
+    if latex:
+        plt.xlabel(r'$\Omega_{\Lambda}$')
+        plt.ylabel(r'Fractional deviation of $\frac{D_S}{D_{LS}}$ / $10^{-6}$')
+    
+    # plt.grid()
+    plt.legend()
+    if filenames:
+        plt.savefig(filenames[1],  dpi=400, transparent=True)
+
 
 def plot_rs_lake(filename, plot_ishak=True, plot_kantowski=True, latex=False, filenames=None):
     if latex:

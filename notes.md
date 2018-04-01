@@ -128,3 +128,6 @@ Calculating projected mass for NFW: https://arxiv.org/pdf/astro-ph/0002395.pdf
 (eq 43, page 7)
 
 When Lambda changes, many things change. What should we keep constant?
+
+thin lens approximation errors pg 3603
+http://vc.bridgew.edu/cgi/viewcontent.cgi?article=1009&context=physics_fac

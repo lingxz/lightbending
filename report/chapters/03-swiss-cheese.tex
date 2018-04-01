@@ -4,11 +4,18 @@
 
 \section{Spacetime patches}
 
-Swiss-Cheese (SC) models model were first introduced by \citet{einstein1945influence} to investigate the gravitational field of a mass well described by the Schwarzschild metric but embedded in a non-Minkowski background spacetime. Such a model is contructed by removing a coming sphere from the homogeneous and replacing it with an inhomogeneous mass distribution. In this case, we use a mass distribution that is vacuum everywhere except for a point mass at the centre. In principle, since the sphere is comoving, multiple spheres can be inserted in the cheese as long as they are initially non-overlapping. In our model, only one hole is needed to model the lens. This stitching of two metrics on the `cheese'-`hole' boundary is of course not arbitrary, and matching conditions will impose restriction on the parameters of the two metrics. This will be discussed in detail in the following sections. 
+Swiss-Cheese (SC) models model were first introduced by \citet{einstein1945influence} to investigate the gravitational field of a mass well described by the Schwarzschild metric but embedded in a non-Minkowski background spacetime. Such a model is contructed by removing a coming sphere from the homogeneous and replacing it with an inhomogeneous mass distribution (see \autoref{fig:swiss-cheese}). In this case, we use a mass distribution that is vacuum everywhere except for a point mass at the centre. In principle, since the sphere is comoving, multiple spheres can be inserted in the cheese as long as they are initially non-overlapping. In our model, only one hole is needed to model the lens. This stitching of two metrics on the `cheese'-`hole' boundary is of course not arbitrary, and matching conditions will impose restriction on the parameters of the two metrics. This will be discussed in detail in the following sections. 
+
+\begin{figure}
+  \centering
+  \includegraphics[height=0.4\linewidth]{images/swiss-cheese.pdf}
+  \caption{Construction of a Swiss-Cheese model}
+  \label{fig:swiss-cheese}
+\end{figure}
 
 There are several reasons why this model was chosen. First, this is an exact solution of Einstein's equations which preserves the global dynamics, and hence it will allow us to properly investigate the higher order corrections that have been oft-debated in literature. Previously some research \citep{simpson2010lensing}[??] has been done using a perturbative approach, but others \citep{ishak2010more} have contested whether the approximations were valid. Secondly, by putting observers in the homogeneously expanding "cheese", it accounts for observers moving with the Hubble flow, which is a common objection to Rindler and Ishak's use of a static metric \citep{simpson2010lensing,butcher2016no,park2008rigorous,khriplovich2008does}. Lastly, this model also takes the finite range of the mass into account by confining the influence of the central mass to the size of the hole. 
 
-Light propagation in SC models has been extensively studied \citep{szybka2011light,vanderveld2008luminosity,fleury2014swiss}, but not particularly so in the subject of Lambda's dependence on gravitational lensing. Some of the areas that Swiss-Cheese models have been commonly used include investigating the effect of local inhomogeneities on luminosity-redshift relations \citep{kantowski1969corrections,fleury2013interpretation} and studying fluctuations in redshift and distance of the cosmic microwave background \citep{bolejko2009szekeres,valkenburg2009swiss,bolejko2011effect}.
+Light propagation in SC models has been extensively studied \citep{szybka2011light,vanderveld2008luminosity,fleury2014swiss}, but not particularly so in the subject of Lambda's dependence on gravitational lensing. Some of the areas that Swiss-Cheese models have been commonly used include investigating the effect of local inhomogeneities on luminosity-redshift relations \citep{kantowski1969corrections,fleury2013interpretation} and studying fluctuations in redshift and distance of the cosmic microwave background \citep{bolejko2009szekeres,valkenburg2009swiss,bolejko2011effect}. 
 
 A significant difference between the Swiss-Cheese model and what is used in conventional gravitational lensing, as described in the previous section, is that in the Swiss-Cheese, the bending happens only inside the hole, whereas in conventional lensing, the mass is superimposed on the FRW background and has infinite range. In the Swiss-Cheese model, due to the boundary conditions, all bending is truncated once the light ray leaves the hole, and outside the hole the light ray travels as if the hole does not exist. Therefore even in the $\Lambda = 0$ case, we would expect a slightly smaller bending angle in the Swiss-Cheese than predicted in conventional lensing, even though this difference is small. 
 
@@ -224,7 +231,7 @@ Combining \autoref{eq:kappa-to-fprime} with \autoref{eq:kottler-kappa}, we can e
 \end{equation}
 where $da/dt$ is given by the Friedmann equation \ref{eq:friedmann-equation}. 
 
-Following through the algebra, we arrive at the somewhat intuitive result that both regions must have the same cosmological constant $\Lambda$ and that the central mass $M$ in the Kottler region must be equal to the original mass inside the homogeneous comoving sphere of radius $r_h$
+Following through the algebra, we arrive at the somewhat intuitive result that both regions must have the same cosmological constant $\Lambda$ and that the Kottler hole has to be mass compensating, meaning the enclosed mass $M$ has to equal the mass excised from the FRW background:
 
 \begin{equation}
   M = \frac{4\pi}{3} a^3 r_h^3. 
@@ -293,6 +300,7 @@ From the angular diameter distance, the radial coordinate is given by
 \begin{equation}
   r_L = (1+z_L)D_L.
 \end{equation}
+
 Therefore, as we vary $\Lambda$, $r_L$ is expected to change as we fix $z_L$. 
 
 We then place the lens at the origin and observer at a radial coordinate of $r = r_L$ and $\phi = \pi$. 
@@ -408,3 +416,5 @@ Applying this formula and remembering that we place the observer at $(r, \phi) =
 \end{subequations}
 
 With this, we now have all the formulation needed to carry out the numerical integration and also to translate the numerical results into observable quantities. 
+
+We also extend this model beyond a Kottler hole to a general static mass distribution, by replacing the Kottler metric by a LTB metric with pressure and deriving the null geodeics again in this spaetime. The quantities and results for the LTB metric are presented in \autoref{appendix:ltb}

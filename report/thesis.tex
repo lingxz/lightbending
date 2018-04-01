@@ -2,6 +2,11 @@
 
 \usepackage{metalogo}
 
+\renewcommand{\floatpagefraction}{.8}%
+
+\usepackage{chngcntr}
+\counterwithout{figure}{chapter}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Some of my favourite personal adjustments
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -16,6 +21,7 @@
 
 \usepackage[binary-units=true]{siunitx}
 \DeclareSIUnit\px{px}
+\DeclareSIUnit\parsec{pc}
 
 \sisetup{%
   detect-all           = true,
@@ -95,8 +101,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title{\texttt{latex-mimosis}}
-\subtitle{A minimal, modern \LaTeX{} package for typesetting your thesis}
-\author{Bastian Rieck}
+\title{The role of the cosmological constant in gravitational lensing}
+% \subtitle{A minimal, modern \LaTeX{} package for typesetting your thesis}
+\author{CID: 00919977}
+
+% \setkomafont{section}{\normalfont\bfseries}
 
 \begin{document}
 
@@ -113,6 +122,9 @@
   \include{chapters/03-swiss-cheese}
   \include{chapters/04-results}
   \include{chapters/05-conclusion}
+
+\appendix
+  \include{chapters/appendix-ltb}
 
 % This ensures that the subsequent sections are being included as root
 % items in the bookmark structure of your PDF reader.

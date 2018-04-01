@@ -6,10 +6,12 @@
            pagesize,
            12pt,
            DIV=10,                % TODO: Make configurable
-           BCOR=10mm,             % TODO: Make configurable
-           cleardoublepage=empty,
+           % BCOR=10mm,             % TODO: Make configurable
+           BCOR=0mm,
+           % cleardoublepage=empty,
            numbers=noenddot,
            titlepage,
+           open=any,
            toc=bibliography,
            toc=index,]{scrbook}
 \setlength\oddsidemargin{\dimexpr(\paperwidth-\textwidth)/2 - 1in\relax}
@@ -82,7 +84,11 @@
 
 % Make sub-references using \subref being typeset with parentheses.
 % Otherwise, only the counter will be printed.
-\captionsetup{subrefformat=parens}
+\captionsetup{
+  subrefformat=parens,
+  format=plain,
+  labelfont=bf,
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Glossaries

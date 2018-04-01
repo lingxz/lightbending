@@ -27,7 +27,8 @@ H_0 = 70*1000/(3.086e22)/299792458 * length_scale # 70km/s/Mpc
 # Omega_Lambda = 0
 # Omega_m = 1 - Omega_Lambda
 # M = 0.5e15 / length_scale
-M = 1474e13 / length_scale
+M = 1474e12 / length_scale
+rho_frw_initial = None
 print("M: ", M)
 
 def frw(eta, w, p):
@@ -88,19 +89,53 @@ def chi2r(k, chi):
 def omk2k(om_k, H0):
     return -H0**2*om_k
 
-def kottler(eta, w, p):
-    E, L, M, Omega_Lambda, Omega_m, H_0, k, rh = p
-    r_h, t, r, rdot, phi = w
+def mass(r):
+    initial_rh = (3*M/(4*np.pi*rho_frw_initial))**(1./3)
+    rlimit = initial_rh*0.5
+    if r > rlimit:
+        return M
+    else:
+        c = 10
+        Rvir = rlimit/100
+        Rs = Rvir/c
+        rho0 = M/(4*np.pi*Rs**3*(np.log((Rs + rlimit)/Rs) - rlimit/(Rs + rlimit)))
+        return 4*np.pi*rho0*Rs**3*(np.log((Rs+r)/Rs) - r/(Rs+r))
+
+        # integral, error = spi.quad(lambda r1: rho(r1)*r1**2, 0, r)
+        # return 4*np.pi*integral
+
+def rho(r):
+    initial_rh = (3*M/(4*np.pi*rho_frw_initial))**(1./3)
+    rlimit = initial_rh*0.5
+    if r > rlimit:
+        return 0
+    else:
+        c = 10
+        Rvir = rlimit/100
+        Rs = Rvir/c
+        rho0 = M/(4*np.pi*Rs**3*(np.log((Rs + rlimit)/Rs) - rlimit/(Rs + rlimit)))
+        return rho0/(r/Rs)/(1 + r/Rs)**2
+
+def ltb(eta, w, p):
+    h, L, M, Omega_Lambda, Omega_m, H_0 = p
+    r_h, t, r, rdot, phi, alpha, P = w
+
+    current_m = mass(r)
+    current_rho = rho(r)
 
     Lambda = 3*Omega_Lambda*H_0**2
-    f = 1 - 2*M/r - Lambda/3*r**2
-    rddot = L**2 * (r - 3*M) / r**4
-    tdot = E / f
+    E = -2*current_m/r - Lambda*r**2/3
+    tdot = h/alpha**2
     phidot = L/r**2
 
-    Ah = 1 - 2*M/r_h - Lambda/3*r_h**2
-    r_h_t = Ah*np.sqrt(1-Ah/(1-k*rh**2))
-    # r_h_t = (1 - 2*M/r_h - Lambda/3*r_h**2) * np.sqrt(2*M/r_h + Lambda/3*r_h**2)
+    P_r = (current_rho + P)/2/(1+E)/r*(Lambda*r**2 - 8*np.pi*P*r**2 + E)
+    alpha_r = -alpha/2/(1+E)/r*(Lambda*r**2 - 8*np.pi*P*r**2 + E)
+    
+    E_r = 2*current_m/r**2 - 8*np.pi*current_rho*r - 2*Lambda*r/3
+    # rddot = -alpha*alpha_r*(1+E)*tdot**2 + r*(1+E)*phidot**2 + E_r/2/(1+E)*r**2
+    rddot = h**2/2*(E_r/alpha**2-2*(1+E)*alpha_r/alpha**3) - L**2/2*(E_r/r**2-2*(1+E)/r**3)
+
+    r_h_t = (1 - 2*M/r_h - Lambda/3*r_h**2) * np.sqrt(2*M/r_h + Lambda/3*r_h**2)
 
     return [
         r_h_t*tdot,
@@ -108,7 +143,31 @@ def kottler(eta, w, p):
         rdot,
         rddot,
         phidot,
+        alpha_r*rdot,
+        P_r*rdot,
     ]
+
+# def kottler(eta, w, p):
+#     E, L, M, Omega_Lambda, Omega_m, H_0, k, rh = p
+#     r_h, t, r, rdot, phi = w
+
+#     Lambda = 3*Omega_Lambda*H_0**2
+#     f = 1 - 2*M/r - Lambda/3*r**2
+#     rddot = L**2 * (r - 3*M) / r**4
+#     tdot = E / f
+#     phidot = L/r**2
+
+#     Ah = 1 - 2*M/r_h - Lambda/3*r_h**2
+#     r_h_t = Ah*np.sqrt(1-Ah/(1-k*rh**2))
+#     # r_h_t = (1 - 2*M/r_h - Lambda/3*r_h**2) * np.sqrt(2*M/r_h + Lambda/3*r_h**2)
+
+#     return [
+#         r_h_t*tdot,
+#         tdot,
+#         rdot,
+#         rddot,
+#         phidot,
+#     ]
 
 
 def solve(angle_to_horizontal, comoving_lens=None, plot=True, Omega_Lambda=None, Omega_m=None, dt=None):
@@ -136,8 +195,10 @@ def solve(angle_to_horizontal, comoving_lens=None, plot=True, Omega_Lambda=None,
     if plot:
         print("initial velocities:", initial_rdot, initial_phidot, initial_tdot)
 
-    rho = Omega_m*3*H_0**2/(8*np.pi)
-    r_h = 1/initial_a*(3*M/(4*np.pi*rho))**(1./3)
+    rho_frw = Omega_m*3*H_0**2/(8*np.pi)
+    r_h = 1/initial_a*(3*M/(4*np.pi*rho_frw))**(1./3)
+    global rho_frw_initial
+    rho_frw_initial = rho_frw
     if plot:
         print('r_h:', r_h, "\n")
     chi_h = r2chi(k, r_h)
@@ -168,7 +229,7 @@ def solve(angle_to_horizontal, comoving_lens=None, plot=True, Omega_Lambda=None,
         print(last)
         print("\n")
 
-    solver_kottler = spi.ode(kottler).set_integrator(INTEGRATOR, **INTEGRATOR_PARAMS)
+    solver_ltb = spi.ode(ltb).set_integrator(INTEGRATOR, **INTEGRATOR_PARAMS)
     # a, r, rdot, t, phi = w
     r_out = last[0] * last[1]
     exit_rh = r_out
@@ -193,63 +254,68 @@ def solve(angle_to_horizontal, comoving_lens=None, plot=True, Omega_Lambda=None,
     # initial_tdot = last[0]/f*(etadot + np.sqrt(1-f)*last[2]/np.sqrt(1-k*initial_r**2))
 
     initial_phidot = L_frw / (last[0]*last[1])**2
-    L_kottler = initial_phidot *initial_r**2
+    L_ltb = initial_phidot *initial_r**2
+    
+    initial_alpha = np.sqrt(f)
+    initial_P = 0
 
-    initial_kottler = [initial_rh, initial_t, initial_r, initial_rdot, initial_phi]
-    E = f*initial_tdot
-    p_kottler = [E, L_kottler, M, Omega_Lambda, Omega_m, H_0, k, r_h]
-
-    solver_kottler.set_initial_value(initial_kottler, 0).set_f_params(p_kottler)
+    initial_ltb = [initial_rh, initial_t, initial_r, initial_rdot, initial_phi, initial_alpha, initial_P]
+    h = f*initial_tdot
+    p_ltb = [h, L_ltb, M, Omega_Lambda, Omega_m, H_0]
 
     if plot:
-        print("kottler initial:")
+        print("ltb initial:")
         print("initial_rh, initial_t, initial_r, initial_rdot, initial_phi")
-        print(initial_kottler)
-        print("p_kottler")
-        print(p_kottler)
+        print(initial_ltb)
+        print("p_ltb")
+        print(p_ltb)
 
     angle_before_entering = get_angle(initial_r, initial_phi, initial_rdot, initial_phidot)
     if plot:
-        print("light ray angle before entering kottler hole: ", angle_before_entering)
-        print("initial conditions on entering kottler hole: ", initial_kottler)
-        print("initial params on entering kottler hole: ", p_kottler)
+        print("light ray angle before entering ltb hole: ", angle_before_entering)
+        print("initial conditions on entering ltb hole: ", initial_ltb)
+        print("initial params on entering ltb hole: ", p_ltb)
     
 
-    initial_kottler[2] -= 1e-10
+    initial_ltb[2] -= 1e-12
     def exit_hole(t, y): return y[2] - y[0]
     def turning_point(t, y): return y[4] - np.pi/2 
     exit_hole.terminal = True
     exit_hole.direction = 1
     turning_point.terminal = False
     turning_point.direction = -1
-    sol_kottler = spi.solve_ivp(lambda t, y: kottler(t, y, p_kottler), [0, 10], initial_kottler, dense_output=True, method='RK45', events=[turning_point, exit_hole], rtol=1e-20, atol=1e-120)
-    last = sol_kottler.y[:,-1]
+    sol_ltb = spi.solve_ivp(lambda t, y: ltb(t, y, p_ltb), [0, 10], initial_ltb, dense_output=True, method='RK45', events=[turning_point, exit_hole], rtol=1e-20, atol=1e-30)
+    last = sol_ltb.y[:,-1]
     if plot:
-        print("sol kottler", sol_kottler.t_events)
-        print("turning point in kottler", sol_kottler.sol(sol_kottler.t_events[0])[2])
+        print("sol ltb", sol_ltb.t_events)
+        print(sol_ltb)
+        print("turning point in ltb", sol_ltb.sol(sol_ltb.t_events[0])[2])
         print()
 
+    # solver_ltb = spi.ode(ltb).set_integrator(INTEGRATOR, **INTEGRATOR_PARAMS)
+    # solver_ltb.set_initial_value(initial_ltb, 0).set_f_params(p_ltb)
+    # # sol_ltb = []
     # first_time = True
     # prev_r = np.inf
-    # while solver_kottler.successful():
-    #     solver_kottler.integrate(solver_kottler.t + dt, step=False)
-    #     if solver_kottler.y[4] < np.pi/2 and first_time:
+    # while solver_ltb.successful():
+    #     solver_ltb.integrate(solver_ltb.t + dt, step=False)
+    #     if solver_ltb.y[4] < np.pi/2 and first_time:
+    #         # dt = 5e-9
     #         if plot:
-    #             print("turning point in kottler metric:", solver_kottler.y[2])
+    #             print("turning point in ltb metric:", solver_ltb.y[2])
     #         first_time = False
-    #     if solver_kottler.y[2] > solver_kottler.y[0]:
-    #         last = solver_kottler.y
+    #     if solver_ltb.y[2] > solver_ltb.y[0]:
+    #         last = solver_ltb.y
     #         break
 
 
 
-
     if plot:
-        print("last in Kottler", last)
-    angle_after_exiting = get_angle(last[2], last[4], last[3], L_kottler/last[2]**2)
+        print("last in ltb", last)
+    angle_after_exiting = get_angle(last[2], last[4], last[3], L_ltb/last[2]**2)
     if plot:
-        print("light ray angle after exiting kottler hole: ", angle_after_exiting)
-        print("bending angle in kottler: ", angle_before_entering - angle_after_exiting)
+        print("light ray angle after exiting ltb hole: ", angle_after_exiting)
+        print("bending angle in ltb: ", angle_before_entering - angle_after_exiting)
         print("\n")
 
     # r_h, t, r, rdot, phi = w
@@ -259,9 +325,9 @@ def solve(angle_to_horizontal, comoving_lens=None, plot=True, Omega_Lambda=None,
 
     if plot:
         print("scale factor on exit:", initial_a)
-    initial_phidot = L_kottler / last[2]**2
+    initial_phidot = L_ltb / last[2]**2
     f = 1-2*M/last[2]-Lambda/3*last[2]**2
-    last_tdot = E/f
+    last_tdot = h/f
 
     # a, r, rdot, t, phi
     frw_r = r_h
@@ -345,15 +411,17 @@ def get_distances(z, Omega_Lambda=None, Omega_m=None):
 from tqdm import tqdm
 def main():
     start = time.time()
-    om_lambdas = np.linspace(0., 0.99, 50)
+    om_lambdas = np.linspace(0.99, 0.999, 1)
     z_lens_all = np.linspace(.5, 1.2, 1)
-    om_m = 0.5
-    # om_k = 0.1
+    # om_m = 0.5
+    om_k = 0
 
-    start_thetas = np.array([1/3600/180*np.pi]*50) # 1 arcsec
-    step_size = 1e-9
+    # start_thetas = np.array([8e-7]*50)
+    start_thetas = np.array([0.5/3600/180*np.pi]*50) # 1 arcsec
+    step_size = 1e-7
     first = True
-    filename = 'data/actuallycurved.csv'
+    filename = 'data/ltb2.csv'
+    to_file = False
     print(filename)
     for theta, z_lens in tqdm(list(zip(start_thetas, z_lens_all))):
         thetas = []
@@ -367,8 +435,8 @@ def main():
 
         raw_rs = []
         for om in tqdm(om_lambdas):
-            om_k = 1-om-om_m
-            # om_m = 1 - om - om_k
+            # om_k = 1-om-om_m
+            om_m = 1 - om
             k = omk2k(om_k, H_0)
             ms.append(M)
 
@@ -376,12 +444,11 @@ def main():
             cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om)
             dang_lens = cosmo.angular_diameter_distance(z_lens).value
             comoving_lens = cosmo.comoving_transverse_distance(z_lens).value
-            # print("comoving_lens", comoving_lens)
 
             dl.append(dang_lens)
             com_lens.append(comoving_lens)
             thetas.append(theta)
-            alpha, exit_rh, enter_phi, raw_r, source_a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, Omega_m=om_m, dt=step_size)
+            alpha, exit_rh, enter_phi, raw_r, source_a = solve(theta, plot=True, comoving_lens=comoving_lens, Omega_Lambda=om, Omega_m=om_m, dt=step_size)
             exit_rhs.append(exit_rh)
             enter_phis.append(enter_phi)
             alphas.append(alpha)
@@ -441,11 +508,12 @@ def main():
             'raw_rs': raw_rs,
         })
 
-        if first:
-            df.to_csv(filename, index=False)
-            first = False
-        else:
-            df.to_csv(filename, index=False, header=False, mode='a')
+        if to_file:
+            if first:
+                df.to_csv(filename, index=False)
+                first = False
+            else:
+                df.to_csv(filename, index=False, header=False, mode='a')
 
     print("Time taken: {}".format(time.time() - start))
 

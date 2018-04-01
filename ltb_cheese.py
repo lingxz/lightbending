@@ -297,19 +297,36 @@ def solve(angle_to_horizontal, comoving_lens=None, plot=True, Omega_Lambda=0, dt
         print("light ray angle before entering ltb hole: ", angle_before_entering)
         print("initial conditions on entering ltb hole: ", initial_ltb)
         print("initial params on entering ltb hole: ", p_ltb)
-    # sol_ltb = []
-    first_time = True
-    prev_r = np.inf
-    while solver_ltb.successful():
-        solver_ltb.integrate(solver_ltb.t + dt, step=False)
-        if solver_ltb.y[4] < np.pi/2 and first_time:
-            # dt = 5e-9
-            if plot:
-                print("turning point in ltb metric:", solver_ltb.y[2])
-            first_time = False
-        if solver_ltb.y[2] > solver_ltb.y[0]:
-            last = solver_ltb.y
-            break
+
+    initial_ltb[2] -= 1e-10
+    def exit_hole(t, y): return y[2] - y[0]
+    def turning_point(t, y): return y[4] - np.pi/2 
+    exit_hole.terminal = True
+    exit_hole.direction = 1
+    turning_point.terminal = False
+    turning_point.direction = -1
+    sol_ltb = spi.solve_ivp(lambda t, y: ltb(t, y, p_ltb), [0, 100], initial_ltb, dense_output=True, method='RK45', events=[turning_point, exit_hole], rtol=1e-20, atol=1e-30)
+    last = sol_ltb.y[:,-1]
+    if plot:
+        print("sol ltb", sol_ltb.t_events)
+        print(sol_ltb)
+        print("turning point in ltb", sol_ltb.sol(sol_ltb.t_events[0])[2])
+        print()
+
+
+    # # sol_ltb = []
+    # first_time = True
+    # prev_r = np.inf
+    # while solver_ltb.successful():
+    #     solver_ltb.integrate(solver_ltb.t + dt, step=False)
+    #     if solver_ltb.y[4] < np.pi/2 and first_time:
+    #         # dt = 5e-9
+    #         if plot:
+    #             print("turning point in ltb metric:", solver_ltb.y[2])
+    #         first_time = False
+    #     if solver_ltb.y[2] > solver_ltb.y[0]:
+    #         last = solver_ltb.y
+    #         break
 
     angle_after_exiting = get_angle(last[2], last[4], last[3], L_ltb/last[2]**2)
     if plot:
@@ -402,16 +419,16 @@ from tqdm import tqdm
 
 def main():
     start = time.time()
-    om_lambdas = np.linspace(0., 0.9, 50)
+    om_lambdas = np.linspace(0., 0.9, 1)
     # om_lambdas = np.array([0.99])
-    z_lens_all = np.linspace(0.1, 0.5, 50)
+    z_lens_all = np.linspace(0.1, 0.5, 1)
     # z_lens = 0.1
     # a_lens = 1/(z_lens+1)
     # start_thetas = np.linspace(0.7e-5, 2e-5, 100)
     start_thetas = np.array([8e-7]*50)
     step_size = 1e-8
     first = True
-    filename = 'data/ltb_cheese2.csv'
+    filename = 'data/ltb_cheese_throwaway.csv'
     print(filename)
     for theta, z_lens in tqdm(list(zip(start_thetas, z_lens_all))):
         rs = []
@@ -429,7 +446,7 @@ def main():
             comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om)
             # print("lens r", comoving_lens, theta)
             com_lens.append(comoving_lens)
-            r, exit_rh = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, dt=step_size)
+            r, exit_rh = solve(theta, plot=True, comoving_lens=comoving_lens, Omega_Lambda=om, dt=step_size)
             exit_rhs.append(exit_rh)
             # print("result", r)
 
