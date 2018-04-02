@@ -14,7 +14,7 @@ def set_typography(latex=False):
     from matplotlib import rc
     font = {'family' : 'sans-serif',
         'weight' : 'bold',
-        'size'   : 15}
+        'size'   : 22}
     rc('font', **font)
     rc('figure', autolayout=True)
     if latex:
@@ -662,14 +662,14 @@ def plot_diff_lambdas(filename, recalculate_distances=False, scale=1e-5, plot_ri
 class LTB:
     M = 4.776409591704472e-08
     rho_frw_initial = 6.49705928222e-09
-    rlimit_ratio = 1/0.7
+    rlimit_ratio = 1/0.5
 
     def initial_rh(self):
         return (3*self.M/(4*np.pi*self.rho_frw_initial))**(1./3)
 
     def rs(self):
         initial_rh = (3*self.M/(4*np.pi*self.rho_frw_initial))**(1./3)
-        return np.linspace(0., initial_rh, 1000)
+        return np.linspace(0., initial_rh, 1000)[1:]
 
     def mass(self, r):
         initial_rh = (3*self.M/(4*np.pi*self.rho_frw_initial))**(1./3)
@@ -700,21 +700,60 @@ class LTB:
             rho0 = self.M/(4*np.pi*Rs**3*(np.log((Rs + rlimit)/Rs) - rlimit/(Rs + rlimit)))
             return rho0/(r/Rs)/(1 + r/Rs)**2
 
-if __name__ == "__main__":
+def ltb_graphs():
+    set_typography(True)
+    solar_mass = 1474 / 3.086e22
     ltb = LTB()
-    rs = ltb.rs()[1:]
-    rhos = [ltb.rho(r) for r in rs]
-    masses = [ltb.mass(r) for r in rs]
-    plt.semilogx(rs, masses)
+    rs = ltb.rs()
+    rhos = np.array([ltb.rho(r) for r in rs])
+    masses = np.array([ltb.mass(r) for r in rs])
+    # plt.semilogx(rs/ltb.initial_rh(), masses/solar_mass)
+    plt.semilogx(rs/ltb.initial_rh(), masses/solar_mass)
 
-    # def f(P, r):
-    #     current_rho = ltb.rho(r)
-    #     current_m = ltb.mass(r)
-    #     Lambda = 0
-    #     E = -2*current_m/r - Lambda*r**2/3
-    #     return (current_rho + P)/2/(1+E)/r*(Lambda*r**2 - 8*np.pi*P*r**2 + E)
-    # from scipy.integrate import odeint
-    # pressure_rs = np.linspace(0.1, ltb.initial_rh(), 1000)[1:][::-1]
-    # pressure = odeint(f, 0, pressure_rs)
+    latex = True
+    plt.ylabel(r'$M / M_{\odot}$')
+    plt.xlabel(r'$R/ R_{h0}$')
+    plt.savefig('report/images/ltb-mass.png', dpi=400, transparent=True)
+    # else:
+    #     plt.xlabel('mass sun')
+    #     plt.ylabel('Fractional deviation')
 
-    plt.show()
+
+    plt.figure()
+    plt.loglog(rs/ltb.initial_rh(), rhos/ltb.rho_frw_initial)
+    plt.xlabel(r'$R/ R_{h0}$')
+    plt.ylabel(r'$\rho / \rho_m$')
+    plt.savefig('report/images/ltb-density.png', dpi=400, transparent=True)
+
+    def f(P, t):
+        P = P[0]
+        r = ltb.initial_rh() - t
+        current_rho = ltb.rho(r)
+        current_m = ltb.mass(r)
+        Lambda = 0
+        E = -2*current_m/r - Lambda*r**2/3
+        return [(current_rho + P)/2/(1+E)/r*(Lambda*r**2 - 8*np.pi*P*r**2 + E)]
+    from scipy.integrate import odeint, solve_ivp, ode
+    # pressure_rs = np.linspace(0., 0.6*ltb.initial_rh(), num=5000, endpoint=True)[1:]
+    r = ode(lambda r, p: f(p, r)).set_initial_value(0).set_integrator('vode')
+
+    pressure_rs = []
+    pressure = []
+    dt = 1/5000
+    while r.successful() and r.t < 0.999*ltb.initial_rh():
+        pressure.append(r.integrate(r.t+dt)[0])
+        pressure_rs.append(r.t+dt)
+
+    pressure = np.array(pressure)
+    pressure_rs = np.array(pressure_rs)
+    pressure_rs = ltb.initial_rh() - pressure_rs
+    # pressure = odeint(f, [0], pressure_rs, rtol=1e-30, atol=1e-100)[:,0]
+    # print(pressure)
+
+    plt.figure()
+    plt.semilogx(pressure_rs/ltb.initial_rh(), pressure/ltb.rho_frw_initial)
+    plt.xlabel(r'$R/ R_{h0}$')
+    plt.ylabel(r'$P / \rho_m$')
+    plt.savefig('report/images/ltb-pressure.png', dpi=400, transparent=True)
+
+    # plt.show()

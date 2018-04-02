@@ -354,107 +354,99 @@ def main():
     start = time.time()
     om_lambdas = np.linspace(0., 0.99, 1)
     z_lens_all = np.linspace(.5, 1.2, 1)
-    om_m = 0.5
-    # om_k = 0.1
+    om_m = 1
+    om = 0
+    om_k = 0
 
     start_thetas = np.array([1/3600/180*np.pi]*50) # 1 arcsec
     step_size = 1e-9
     first = True
-    filename = 'data/actuallycurved.csv'
-    to_file = False
+    filename = 'data/errors.csv'
+    to_file = True
     print(filename)
-    for theta, z_lens in tqdm(list(zip(start_thetas, z_lens_all))):
-        thetas = []
-        dl = []
-        ms = []
-        com_lens = []
-        exit_rhs = []
-        enter_phis = []
-        alphas = []
-        om_ks = []
+    thetas = []
+    dl = []
+    ms = []
+    com_lens = []
+    exit_rhs = []
+    enter_phis = []
+    alphas = []
+    om_ks = []
 
-        raw_rs = []
-        for om in tqdm(om_lambdas):
-            om_k = 1-om-om_m
-            # om_m = 1 - om - om_k
-            k = omk2k(om_k, H_0)
-            ms.append(M)
+    raw_rs = []
+    z_lens = 0.5
+    theta = 1/3600/180*np.pi
+    tolerances = np.linspace(1e-14, 1e-12, 1000)
+    for t in tqdm(tolerances):
+        global tols
+        tols['rtol'] = t
+        k = omk2k(om_k, H_0)
+        ms.append(M)
 
-            # comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om, Omega_m=om_m)
-            cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om)
-            dang_lens = cosmo.angular_diameter_distance(z_lens).value
-            comoving_lens = cosmo.comoving_transverse_distance(z_lens).value
-            # print("comoving_lens", comoving_lens)
+        # comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om, Omega_m=om_m)
+        cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om)
+        dang_lens = cosmo.angular_diameter_distance(z_lens).value
+        comoving_lens = cosmo.comoving_transverse_distance(z_lens).value
+        # print("comoving_lens", comoving_lens)
 
-            dl.append(dang_lens)
-            com_lens.append(comoving_lens)
-            thetas.append(theta)
-            alpha, exit_rh, enter_phi, raw_r, source_a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, Omega_m=om_m, dt=step_size)
-            exit_rhs.append(exit_rh)
-            enter_phis.append(enter_phi)
-            alphas.append(alpha)
-            om_ks.append(om_k)
-            raw_rs.append(raw_r)
-            print(raw_r)
+        dl.append(dang_lens)
+        com_lens.append(comoving_lens)
+        thetas.append(theta)
+        alpha, exit_rh, enter_phi, raw_r, source_a = solve(theta, plot=False, comoving_lens=comoving_lens, Omega_Lambda=om, Omega_m=om_m, dt=step_size)
+        exit_rhs.append(exit_rh)
+        enter_phis.append(enter_phi)
+        alphas.append(alpha)
+        om_ks.append(om_k)
+        raw_rs.append(raw_r)
 
-            # R = dang_lens*theta
-            # dls = cosmo.angular_diameter_distance_z1z2(z_lens, 1/source_a-1)
-            # ds = cosmo.angular_diameter_distance_z1z2(0, 1/source_a-1)
-            # print(dls, ds)
-            # print("dang_s", get_distances(1./source_a-1, Omega_Lambda=om, Omega_m=om_m))
-            # dang_s = source_a*chi2r(k, r2chi(k, raw_r) + r2chi(k, comoving_lens))
-            # print("dang_s from numerical", dang_s, source_a*raw_r)
-            # print("raw_rs", raw_r)
+        # R = dang_lens*theta
+        # dls = cosmo.angular_diameter_distance_z1z2(z_lens, 1/source_a-1)
+        # ds = cosmo.angular_diameter_distance_z1z2(0, 1/source_a-1)
+        # print(dls, ds)
+        # print("dang_s", get_distances(1./source_a-1, Omega_Lambda=om, Omega_m=om_m))
+        # dang_s = source_a*chi2r(k, r2chi(k, raw_r) + r2chi(k, comoving_lens))
+        # print("dang_s from numerical", dang_s, source_a*raw_r)
+        # print("raw_rs", raw_r)
 
-            # r0 = 1/(1/R + M/R**2 + 3/16*M**2/R**3)
-            # print("r0", r0)
-            # A_frw = 4*M/R + 15*np.pi*M**2/4/R**2 + 401/12*M**3/R**3
-            # frw = comoving_lens/(A_frw/theta -1)
-            # print("R", dang_lens*theta)
-            # # alpha2 = (comoving_lens + raw_r)/raw_r*theta
-            # # alpha2 = np.arctan(np.tan(theta)*chi2r(k, r2chi(k, raw_r)+r2chi(k, comoving_lens))/raw_r) + theta
-            # alpha2 = chi2r(k, r2chi(k, raw_r)+r2chi(k, comoving_lens))/raw_r*theta
-            # print("A_frw", A_frw, alpha)
-            # print("compare", alpha/A_frw-1)
-            # print(dang_s*theta/raw_r/6.62068423e-01)
+        # r0 = 1/(1/R + M/R**2 + 3/16*M**2/R**3)
+        # print("r0", r0)
+        # A_frw = 4*M/R + 15*np.pi*M**2/4/R**2 + 401/12*M**3/R**3
+        # frw = comoving_lens/(A_frw/theta -1)
+        # print("R", dang_lens*theta)
+        # # alpha2 = (comoving_lens + raw_r)/raw_r*theta
+        # # alpha2 = np.arctan(np.tan(theta)*chi2r(k, r2chi(k, raw_r)+r2chi(k, comoving_lens))/raw_r) + theta
+        # alpha2 = chi2r(k, r2chi(k, raw_r)+r2chi(k, comoving_lens))/raw_r*theta
+        # print("A_frw", A_frw, alpha)
+        # print("compare", alpha/A_frw-1)
+        # print(dang_s*theta/raw_r/6.62068423e-01)
 
-            # chi_s = r2chi(k, r) + r2chi(k, comoving_lens)
-            # d_s = a*chi2r(k, chi_s)
-            # d_ls = a * r
-            # ds.append(d_s)
-            # dls.append(d_ls)
+        # chi_s = r2chi(k, r) + r2chi(k, comoving_lens)
+        # d_s = a*chi2r(k, chi_s)
+        # d_ls = a * r
+        # ds.append(d_s)
+        # dls.append(d_ls)
 
-        thetas = np.array(thetas)
-        dl = np.array(dl)
-        ms = np.array(ms)
-        com_lens = np.array(com_lens)
-        exit_rhs = np.array(exit_rhs)
-        enter_phis = np.array(enter_phis)
-        alphas = np.array(alphas)
-        om_ks = np.array(om_ks)
-        raw_rs = np.array(raw_rs)
+    thetas = np.array(thetas)
+    dl = np.array(dl)
+    ms = np.array(ms)
+    com_lens = np.array(com_lens)
+    exit_rhs = np.array(exit_rhs)
+    enter_phis = np.array(enter_phis)
+    alphas = np.array(alphas)
+    om_ks = np.array(om_ks)
+    raw_rs = np.array(raw_rs)
 
-        # print("lengths", len(thetas), len(dl), len(ms), len(com_lens), len(exit_rhs), len(enter_phis), len(alphas))
-        df = pd.DataFrame({
-            'DL': dl,
-            'M': ms, 
-            'om_lambdas': om_lambdas, 
-            'step': [step_size]*len(thetas),
-            'theta': thetas, 
-            'z_lens': [z_lens]*len(thetas),
-            'comoving_lens': com_lens,
-            'exit_rhs': exit_rhs,
-            'enter_phis': enter_phis,
-            'alphas': alphas,
-            'om_ks': om_ks,
-            'raw_rs': raw_rs,
-        })
-        if to_file:
-            if first:
-                df.to_csv(filename, index=False)
-                first = False
-            else:
-                df.to_csv(filename, index=False, header=False, mode='a')
+    # print("lengths", len(thetas), len(dl), len(ms), len(com_lens), len(exit_rhs), len(enter_phis), len(alphas))
+    df = pd.DataFrame({
+        'raw_rs': raw_rs,
+        'tols': tolerances
+    })
+    if to_file:
+        if first:
+            df.to_csv(filename, index=False)
+            first = False
+        else:
+            df.to_csv(filename, index=False, header=False, mode='a')
 
     print("Time taken: {}".format(time.time() - start))
 

@@ -87,7 +87,8 @@
 \captionsetup{
   subrefformat=parens,
   format=plain,
-  labelfont=bf,
+  % labelfont=bf,
+  figurename=Fig.,
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -244,7 +245,8 @@
 \setkomafont{descriptionlabel}{\normalfont\bfseries}
 
 \setkomafont{caption}{\small}
-\setkomafont{captionlabel}{\usekomafont{caption}}
+% \setkomafont{captionlabel}{\usekomafont{caption}}
+\setkomafont{captionlabel}{\small\bfseries}
 
 % Large number for chapter
 \renewcommand*{\chapterformat}{%

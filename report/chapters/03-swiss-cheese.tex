@@ -4,18 +4,18 @@
 
 \section{Spacetime patches}
 
-Swiss-Cheese (SC) models model were first introduced by \citet{einstein1945influence} to investigate the gravitational field of a mass well described by the Schwarzschild metric but embedded in a non-Minkowski background spacetime. Such a model is contructed by removing a coming sphere from the homogeneous and replacing it with an inhomogeneous mass distribution (see \autoref{fig:swiss-cheese}). In this case, we use a mass distribution that is vacuum everywhere except for a point mass at the centre. In principle, since the sphere is comoving, multiple spheres can be inserted in the cheese as long as they are initially non-overlapping. In our model, only one hole is needed to model the lens. This stitching of two metrics on the `cheese'-`hole' boundary is of course not arbitrary, and matching conditions will impose restriction on the parameters of the two metrics. This will be discussed in detail in the following sections. 
+Swiss-Cheese (SC) models model were first introduced by \citet{einstein1945influence} to investigate the gravitational field of a mass well described by the Schwarzschild metric but embedded in a non-Minkowski background spacetime. Such a model is contructed by removing a coming sphere from the homogeneous and replacing it with an inhomogeneous mass distribution (see \autoref{fig:swiss-cheese}). In this case, we use a mass distribution that is vacuum everywhere except for a point mass at the centre. In principle, since the sphere is comoving, multiple spheres can be inserted in the cheese as long as they are initially non-overlapping. In our model, only one hole is needed to model the lens. This stitching of two metrics on the cheese-hole boundary is of course not arbitrary, and matching conditions will impose restriction on the parameters of the two metrics. This will be discussed in detail in the following sections. 
 
 \begin{figure}
   \centering
-  \includegraphics[height=0.4\linewidth]{images/swiss-cheese.pdf}
+  \includegraphics[height=0.3\linewidth]{images/swiss-cheese.pdf}
   \caption{Construction of a Swiss-Cheese model}
   \label{fig:swiss-cheese}
 \end{figure}
 
-There are several reasons why this model was chosen. First, this is an exact solution of Einstein's equations which preserves the global dynamics, and hence it will allow us to properly investigate the higher order corrections that have been oft-debated in literature. Previously some research \citep{simpson2010lensing}[??] has been done using a perturbative approach, but others \citep{ishak2010more} have contested whether the approximations were valid. Secondly, by putting observers in the homogeneously expanding "cheese", it accounts for observers moving with the Hubble flow, which is a common objection to Rindler and Ishak's use of a static metric \citep{simpson2010lensing,butcher2016no,park2008rigorous,khriplovich2008does}. Lastly, this model also takes the finite range of the mass into account by confining the influence of the central mass to the size of the hole. 
+There are several reasons why this model was chosen. First, this is an exact solution of Einstein's equations which preserves the global dynamics, and hence it will allow us to properly investigate the higher order corrections that have been oft-debated in literature. Secondly, by putting observers in the homogeneously expanding "cheese", it accounts for observers moving with the Hubble flow, which is a common objection to Rindler and Ishak's use of a static metric \citep{park2008rigorous,khriplovich2008does,simpson2010lensing,butcher2016no}. Lastly, this model also takes the finite range of the mass into account by confining the influence of the central mass to the size of the hole. 
 
-Light propagation in SC models has been extensively studied \citep{szybka2011light,vanderveld2008luminosity,fleury2014swiss}, but not particularly so in the subject of Lambda's dependence on gravitational lensing. Some of the areas that Swiss-Cheese models have been commonly used include investigating the effect of local inhomogeneities on luminosity-redshift relations \citep{kantowski1969corrections,fleury2013interpretation} and studying fluctuations in redshift and distance of the cosmic microwave background \citep{bolejko2009szekeres,valkenburg2009swiss,bolejko2011effect}. 
+Light propagation in SC models has been extensively studied \citep{szybka2011light,vanderveld2008luminosity,fleury2014swiss}, but not particularly so in the subject of the $\Lambda$ dependence on gravitational lensing. Some of the areas that Swiss-Cheese models have been commonly used include investigating the effect of local inhomogeneities on luminosity-redshift relations \citep{kantowski1969corrections,fleury2013interpretation} and studying fluctuations in redshift and distance of the cosmic microwave background \citep{bolejko2009szekeres,valkenburg2009swiss,bolejko2011effect}. 
 
 A significant difference between the Swiss-Cheese model and what is used in conventional gravitational lensing, as described in the previous section, is that in the Swiss-Cheese, the bending happens only inside the hole, whereas in conventional lensing, the mass is superimposed on the FRW background and has infinite range. In the Swiss-Cheese model, due to the boundary conditions, all bending is truncated once the light ray leaves the hole, and outside the hole the light ray travels as if the hole does not exist. Therefore even in the $\Lambda = 0$ case, we would expect a slightly smaller bending angle in the Swiss-Cheese than predicted in conventional lensing, even though this difference is small. 
 
@@ -31,7 +31,7 @@ Outside the hole, geometry is described by the Friedmann-Robertson-Walker (FRW) 
   ds^2 = -dt^2 + a(t)^2 \left ( \frac{dr^2}{1-kr^2} + r^2 d \Omega^2 \right )
   \label{eq:frw-metric}
 \end{equation}
-where $d \Omega^2 = d\theta^2 + \sin^2\theta d\phi^2$ is the metric on a 2-sphere, $a(t)$ is the varying scale factor of the universe, and $k$ represents the curvature of space. This is the line element for a homogeneous and expanding universe, with general spatial curvature. There are 3 possibilities for the value of $k$, each implying a different geometry of the universe:
+where $d \Omega^2 = d\theta^2 + \sin^2\theta d\phi^2$ is the metric on a 2-sphere, $a(t)$ is the varying scale factor of the universe, and $k$ represents the curvature of space. This is the line element for a homogeneous and expanding universe with general spatial curvature. There are 3 possibilities for the value of $k$, each implying a different geometry of the universe:
 
 \begin{itemize}
   \item $k = 0$: The universe is flat and Euclidean.
@@ -74,7 +74,9 @@ where the $\Omega$ terms are commonly known as density parameters, evaluated at 
   \label{eq:density-parameters-1}   
 \end{equation} 
 
-In a flat universe, space is Euclidean and $\Omega_k = 0$. Subsequently in this report instead of working directly with $\Lambda$ I will work with $\Omega_{\Lambda}$ instead. 
+In a flat universe, space is Euclidean and $\Omega_k = 0$. 
+
+% Subsequently in this report instead of working directly with $\Lambda$ I will work with $\Omega_{\Lambda}$ instead. 
 
 \subsection{Kottler geometry}
 
@@ -93,7 +95,7 @@ where M is the mass of the central object. Unlike the FRW, this metric describes
 
 \section{Matching conditions}
 
-Two geometries can be matched across the boundary to form a well defined spacetime only if and only if they satisfy the Darmois-Israel junction conditions \citep{darmois1927equations,israel1966singular}. These conditions dictate that the first and second fundamental forms of the two metrics must match on the matching hypersurface $\Sigma$, that is, both metrics must induce 
+Two geometries can be matched across the boundary to form a well defined spacetime if and only if they satisfy the Darmois-Israel junction conditions \citep{darmois1927equations,israel1966singular}. These conditions dictate that the first and second fundamental forms of the two metrics must match on the matching hypersurface $\Sigma$, that is, both metrics must induce 
 \begin{inparaenum}[(i)]
   \item the same metric, and 
   \item the same extrinsic curvature.
@@ -183,7 +185,7 @@ The second condition equates extrinsic curvature of the two geometries. By defin
   K_{ab} = n_{\alpha;\beta} j^{\alpha}_{a} j^{\beta}_{a}
   \label{eq:extrinsic-curvature-defn}
 \end{equation}
-where $n_{\mu}$ is the unit vector normal to $\Sigma$, $j$ is as defined previously in \autoref{eq:j-defn},and the semicolon notation ``;'' denotes a covariant derivative, for example, $n_{\alpha;\beta} = \nabla_{\beta}\, n_{\alpha}$. For any vector $V^{\nu}$, the covariant derivative is defined as
+where $n_{\mu}$ is the unit vector normal to $\Sigma$, $j$ is as defined previously in \autoref{eq:j-defn}, and the semicolon notation `;' denotes a covariant derivative, for example, $n_{\alpha;\beta} = \nabla_{\beta}\, n_{\alpha}$. For any vector $V^{\nu}$, the covariant derivative is defined as
 
 \begin{equation}
   \nabla_{\mu}V^{\nu} = \partial_{\mu}V^{\nu} + \Gamma^{\nu}_{\mu \rho} V^{\rho}.
@@ -254,7 +256,7 @@ The last thing we need from the boundary conditions is the relate the tangent ve
     \dot{\phi} &= \dot{\phi}\\
     \dot{\theta} &= \dot{\theta}
   \end{align}
-  \label{eq:kottler-to-frw-transform-jacobian}
+  \label{eq:kottler-to-frw-transform-jacobian}%
 \end{subequations}
 where for completeness I have also given the trivial relations between the angular tangent vectors. The quantities above are all evaluated at the boundary of the hole. This result is given for flat space in \citet{schucker2009strong} and \citet{fleury2013interpretation}, but here it has been extended to allow for arbitrary spatial curvature. The reverse transformation is easily obtained by inverting the Jacobian from above. 
 
@@ -262,7 +264,14 @@ In summary, given a FRW spacetime with pressureless matter and a cosmological co
 
 \section{Light propagation}
 
-We propagate a light ray backwards from observer to source by solving the geodesic equation (\autoref{eq:geodesic-eqn}). In reality, the light ray travels from source to observer, but our calculations proceed in the opposite direction since we want to take the current observer position and observation event, where the light ray has a certain Einstein angle, as the initial condition. The observer is placed in the FRW region, where we start propagating the light ray. The mass of the lensing object is fixed and consequently so is the size of the hole. The light ray is started off with an Einstein angle $\theta_{E}$, travels through the FRW region, encounters the Kottler hole which deflects its trajectory, and returns to the FRW region again. In the Swiss-Cheese model, all the bending occurs only in the Kottler hole and is truncated once light leaves the hole. 
+We propagate a light ray backwards from observer to source by solving the geodesic equation (\autoref{eq:geodesic-eqn}). In reality, the light ray travels from source to observer, but our calculations proceed in the opposite direction since we want to take the current observer position and observation event as the initial condition. The observer is placed in the FRW region, where we start propagating the light ray. The mass of the lensing object is fixed and consequently so is the size of the hole. The light ray is started off with an Einstein angle $\theta_{E}$, travels through the FRW region, encounters the Kottler hole which deflects its trajectory, and returns to the FRW region again. In the Swiss-Cheese model, all the bending occurs only in the Kottler hole and is truncated once light leaves the hole. 
+
+\begin{figure}
+  \centering
+  \includegraphics[height=0.5\linewidth]{images/swiss-cheese-ray2-cropped.pdf}
+  \caption{A diagram of how a light ray propagates through the Swiss-Cheese. Our calculations are done in the opposite direction of propagation. Due to the expansion of the universe, the physical size of the hole will be larger when the light exits the hole compared to when it entered.}
+  \label{fig:swiss-cheese-ray}
+\end{figure}
 
 We begin by fixing the lens redshift, since it is the redshift that is directly observable and not the radial coordinate $r$. From the lens redshift, we can then calculate the radial coordinate and angular diameter distance to the lens. 
 
@@ -301,17 +310,15 @@ From the angular diameter distance, the radial coordinate is given by
   r_L = (1+z_L)D_L.
 \end{equation}
 
-Therefore, as we vary $\Lambda$, $r_L$ is expected to change as we fix $z_L$. 
-
-We then place the lens at the origin and observer at a radial coordinate of $r = r_L$ and $\phi = \pi$. 
+Therefore, as we vary $\Lambda$, $r_L$ is expected to change since we fix $z_L$. We then place the lens at the origin and observer at a radial coordinate of $r = r_L$ and $\phi = \pi$. 
 
 Numerical integration is done with the \texttt{scipy.integrate.solve\_ivp} function in Python \citep{jones2014scipy}, which uses an explict Runge-Kutte method of order 5 \citep{dormand1980family}. The solver uses an adaptive step size, and intersection between the light ray and the point of enter and exit of the hole are found with the classic Brent's method \citep{brent2013algorithms}, a root-finding algorithm. 
 
 \subsection{FRW region}
 
-The light ray begins in the FRW region from the observer. The starting velocity angle $\theta_E$ is fixed, and the initial tangent vectors are set such that $\theta_E = \tan^{-1}(\sqrt{1-kr^2}r\dot{\phi}/\dot{r})$. We place the lens at the origin and take the observer to be at an azimuthal angle of $\phi = \pi$. 
+The light ray begins from the observer in the FRW region. The starting tangent angle $\theta_E$ is fixed, and the initial tangent vectors are set such that $\theta_E = \tan^{-1}(\sqrt{1-kr^2}r\dot{\phi}/\dot{r})$. We place the lens at the origin and take the observer to be at an azimuthal angle of $\phi = \pi$. 
 
-Null geodesics govern the subsequent trajectory of the light ray. Without loss of generality, we can take $\theta = \pi/2$ to simplify the geodesic equations. Due to spherical symmetry, the FRW has a conserved quantity $L = a^2 r^2 \dot{\phi}$ that corresponds to the angular momentum of the photon. Thus, in terms of the conserved quantity, the null geodesic equations are
+Null geodesics govern the trajectory of the light ray. Without loss of generality, we can take $\theta = \pi/2$ to simplify the geodesic equations. Due to spherical symmetry, the FRW has a conserved quantity $L = a^2 r^2 \dot{\phi}$ that corresponds to the angular momentum of the photon. In terms of the conserved quantity, the null geodesic equations are
 
 \begin{subequations}
   \begin{align}
@@ -319,11 +326,11 @@ Null geodesics govern the subsequent trajectory of the light ray. Without loss o
     \ddot{r}  &= (1-kr^2)r\dot{\phi}^2 - \frac{k\dot{r}^2}{1-kr^2} - \frac{2a_{,t}}{a}\dot{r}\dot{t}\\
     \dot{\phi} &= \frac{L}{a^2 r^2}
   \end{align}
-  \label{eq:frw-null-geodesics}
+  \label{eq:frw-null-geodesics}%
 \end{subequations}
-which, combined with the Friedmann equation (\autoref{eq:friedmann-eqn-version2}) fully determine the light ray's path. The negative sign on $\dot{t}$ is due to the fact that we're propagating the light ray backwards in time. We can then solve these differential equations numerically to propagate the light ray and stop the integration once the light ray reaches the boundary of the hole, which is defined by $r_h = \text{constant}$. We call this intersection event $\mathcal{E}_{\text{out}}$, since this is where the light, traveling from the source to observer in the opposite direction of our numerical calculations, \emph{leaves} the hole. 
+which, when combined with the Friedmann equation (\autoref{eq:friedmann-eqn-version2}), fully determine the light's path. The negative sign on $\dot{t}$ is due to the fact that we are propagating the light backwards in time. We can then solve these differential equations numerically and stop the integration once the light ray reaches the boundary of the hole, which is defined by $r_h = \text{constant}$. We call this intersection event $\mathcal{E}_{\text{out}}$, since this is where the light, traveling from the source to observer in the opposite direction of our numerical calculations, \emph{leaves} the hole. 
 
-In the particular case of Euclidean geometry ($k = 0$), the coordinates of the event $\mathcal{E}_{\text{out}}$ can be calculated analytically \citep{fleury2013interpretation}. To do that, we first rewrite the flat metric in terms of the conformal time $\eta$, as
+In the particular case of Euclidean geometry ($k = 0$), the coordinates of the event $\mathcal{E}_{\text{out}}$ can be calculated analytically. To do that, we first rewrite the flat metric in terms of the conformal time $\eta$, defined by $d\eta = dt/a(t)$, as
 
 \begin{equation}
   ds^2 = a^2(\eta) \left ( -d \eta^2 + dr^2 + r^2 d \Omega^2 \right ).
@@ -337,9 +344,9 @@ We can then write down the following system of equations in Cartesian coordinate
   \delta_{ij} (x^i_{\text{out}} - x^i_h)(x^j_{\text{out}} - x^j_h) = r_h^2\\
   x^i_{\text{out}} = x^i_0 + (\eta_0 - \eta_{\text{out}})d^i    
   \end{align}
-  \label{eq:flat-cartesian-frw}
+  \label{eq:flat-cartesian-frw}%
 \end{subequations}
-where $d^i$ is the unit vector representing direction of travel. For a given Einstein angle $\theta_E$, if the observer is placed at given , then in Cartesian coordinates, we have 
+where $d^i$ is the unit vector representing direction of travel. For a given Einstein angle $\theta_E$, in Cartesian coordinates we have 
 
 \begin{align}
     d &= \frac{1}{\sqrt{(\dot{r}\cos\phi - r\sin\phi\dot{\phi})^2 + (\dot{r}\sin\phi + r\cos\phi\dot{\phi})^2}}
@@ -355,7 +362,7 @@ The final thing we need is to recover the scale factor from the conformal time. 
   \eta_{\text{out}} = \frac{1}{H_0} \int_1^{a_{\text{out}}} \frac{1}{a^2 \sqrt{\Omega_m/a^3 + \Omega_{\Lambda}}}.
   \label{eq:conformal-time-eta-to-a-integral}
 \end{equation}
-where $H_0$ is the current value of the Hubble parmeter. Since $\eta$ increases monotonically with $a$, we did a simple binary search to find the value of $a_{\text{out}}$ that produced $\eta_{text{out}}$ to the required level of accuracy. 
+where $H_0$ is the current value of the Hubble parmeter. Since $\eta$ increases monotonically with $a$, we did a simple binary search to find the value of $a_{\text{out}}$ that produced $\eta_{\text{out}}$ to the required level of accuracy. 
 
 The above calculation only applies for flat space, and in arbitrarily curved space, we do the full numerical integration to obtain the conditions at $\mathcal{E}_{\text{out}}$.
 
@@ -368,7 +375,7 @@ The initial tangent vectors to start off the Kottler integration can be obtained
 
 \subsection{Kottler region}
 
-Inside the hole, the staticity and spherical symmetry of the Kottler metric imply the existence of two conserved quantities, $E = f(R) \dot{t}$ and $L = R^2 \dot{\phi}$, which correspond to the the energy and angular momentum of the photon respectively. For this metric, the null condition, after rearranging to make $\dot{r}$ the subject, reads
+Inside the hole, the staticity and spherical symmetry of the Kottler metric imply the existence of two conserved quantities, $E = f(R) \dot{t}$ and $L = R^2 \dot{\phi}$, which correspond to the the energy and angular momentum of the photon respectively. The null condition, after rearranging to make $\dot{R}$ the subject, reads
 
 \begin{equation}
   \dot{R} = \pm \sqrt{E^2 - \frac{L^2}{R^2} \left ( 1 - \frac{2M}{R} - \frac{\Lambda R^2}{3}\right )}.
@@ -382,11 +389,11 @@ The $\pm$ before square root on the right hand side is troublesome for numerical
     \ddot{R}  &= \frac{L^2 (R-3M)}{R^4}\\
     \dot{\phi} &= \frac{L}{R^2}.
   \end{align}
-  \label{eq:kottler-null-geodesics}
+  \label{eq:kottler-null-geodesics}%
 \end{subequations}
 Note that the second order differential equation in $R$ now has no dependence on $\Lambda$, which is the aforementioned conventional argument pioneered by \citet{islam1983cosmological} for why $\Lambda$ does not directly contribute to lensing. 
 
-At the same time that the light ray is moving through the Kottler hole, the hole boundary is also changing in the static coordinates, with an expansion rate governed by \autoref{eq:hole-expansion-in-kottler-dR-dT}. This equation needs to be integrated simulataneously with the null geodesic equations in order to find the point that the light ray intersects with the hole again. We call this event $\mathcal{E}_{\text{in}}$, again to emphasize the fact that this is where light enters the hole, although the propagation is done backwards. 
+At the same time that the light ray is moving through the Kottler hole, the hole boundary is also changing in the static coordinates, with an expansion rate governed by \autoref{eq:hole-expansion-in-kottler-dR-dT}. This equation needs to be integrated simulataneously with the null geodesic equations in order to find the point that the light ray intersects with the hole again. We call this event $\mathcal{E}_{\text{in}}$, again to emphasize the fact that this is where light enters the hole, although the propagation is done in the opposite direction. 
 
 \subsection{Conversion from Kottler region to FRW region at $\mathcal{E}_{\text{in}}$}
 
@@ -400,7 +407,7 @@ In flat space, numerical integration here is no longer necessary, since there wi
 
 \subsection{Converting raw radial coordinates to angular diameter distances}
 
-Our aim is to compare our results against the cosmological lens equation (\autoref{eq:lens-eqn}), using strictly observable quantities. Gravitational lensing analysis is usually done with the observer at the origin, but in our model we have placed the lens at the origin instead out of convenience. Therefore we take extra care when converting from raw radial coordinates back into observable angular distances. By an extension of the redshift formula (\autoref{eq:angular-diameter-distance-redshit-z}), we can get the angular diameter distance between two arbitrary points given their respective radial coordinates \citep{peacock1999cosmological}
+Our aim is to compare our results against the cosmological lens equation (\autoref{eq:lens-eqn}), using strictly observable quantities. Gravitational lensing analysis is usually done with us (the observer) at the origin, but in our model we have placed the lens at the origin instead out of convenience. Therefore we take extra care when converting from raw radial coordinates back into observable angular distances. By an extension of the redshift formula (\autoref{eq:angular-diameter-distance-redshit-z}), we can get the angular diameter distance between two arbitrary points given their respective radial coordinates \citep{peacock1999cosmological}
 
 \begin{equation}
   D_{AB} = \frac{a_0  S_k(S_k^{-1}(r_B) - S_k^{-1}(r_A))}{1+z_B}
@@ -417,4 +424,4 @@ Applying this formula and remembering that we place the observer at $(r, \phi) =
 
 With this, we now have all the formulation needed to carry out the numerical integration and also to translate the numerical results into observable quantities. 
 
-We also extend this model beyond a Kottler hole to a general static mass distribution, by replacing the Kottler metric by a LTB metric with pressure and deriving the null geodeics again in this spaetime. The quantities and results for the LTB metric are presented in \autoref{appendix:ltb}
+We also extend this model beyond a Kottler hole to a general static mass distribution, by replacing the Kottler metric by a LTB metric with pressure and deriving the null geodeics again in this spaetime. The quantities and results for the LTB metric are presented in \autoref{appendix:ltb}.

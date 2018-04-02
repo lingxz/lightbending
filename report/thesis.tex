@@ -43,6 +43,14 @@
   urlcolor   = RoyalBlue,
   ]{hyperref}
 
+\addto\extrasenglish{%
+  \renewcommand{\chapterautorefname}{Chapter}%
+  \renewcommand{\figureautorefname}{Fig.}%
+  \renewcommand{\equationautorefname}{Eq.}%
+  \renewcommand{\sectionautorefname}{Section}%
+  \renewcommand{\subsectionautorefname}{Section}%
+}
+
 \usepackage{bookmark}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -70,17 +78,42 @@
 %   natbib       = true,
 %   ]{biblatex}
 
+\usepackage[utf8]{inputenc}
+
 \usepackage[
     backend      = biber,
     style        = authoryear,
     hyperref     = true,
     natbib       = true,
     maxcitenames = 2,
+    bibencoding  = utf8,
+    dashed       = false,
+    doi         = false,
+    % eprint      = false,
 ]{biblatex}
+
+\renewbibmacro{in:}{}
+\def\apj{ApJ}  
+\def\apjl{Astrophys. J. Lett.}
+\def\apjs{Astrophys. J. Supp.}
+\def\mnras{Mon.Not.Roy.As.Soc.}
+\def\araa{Annu. Rev. Astron. Astrophys.}
+\def\aj{Astron. J.}
+\def\asap{Astron. Astrophys.}
+\def\aap{Astron. \& Astrophys.}
+\def\prd{Phys.~Rev.~D}
+\def\nat{Nature}
+\def\jcap{J. Cosmology Astropart. Phys.}
 
 % \input{bibliography-mimosis}
 % \bibliographystyle{ieeetr}
-\bibliography{library}
+% \bibliographystyle{kp}
+
+% llibrary: nasa ads
+% library2: google scholar cites with authors from nasa ads
+% library3: google scholar cites
+\bibliography{library2}
+% \addbibresource{library.bib}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Fonts
@@ -90,6 +123,7 @@
   \setmainfont{Minion Pro}
 \else
   \usepackage[lf]{ebgaramond}
+  % \usepackage{ebgaramond}
   \usepackage[oldstyle,scale=0.7]{sourcecodepro}
   \singlespacing
 \fi
@@ -106,11 +140,12 @@
 \author{CID: 00919977}
 
 % \setkomafont{section}{\normalfont\bfseries}
-
+\linespread{1.15}
 \begin{document}
 
 \frontmatter
   \include{chapters/title}
+  \include{chapters/acknowledgements}
   \include{chapters/abstract}
 
   \tableofcontents

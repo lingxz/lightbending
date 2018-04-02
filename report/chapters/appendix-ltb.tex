@@ -40,9 +40,9 @@ The null geodesic equations expressed in terms of these quantities are
 
 \begin{subequations}
   \begin{align}
-    \dot{T} = \frac{E}{A(R)^2}
-    \ddot{R} = \frac{E^2}{2}\left ( \frac{f_{,R}}{\alpha^2} - \frac{2f\alpha_{,R}}{\alpha^3} \right ) - \frac{L^2}{2} \left ( \frac{f_{,R}}{R^2} - \frac{2f}{R^3} \right )
-    \dot{\phi} = \frac{L}{R^2}
+    \dot{T} &= \frac{E}{A(R)^2}\\
+    \ddot{R} &= \frac{E^2}{2}\left ( \frac{f_{,R}}{\alpha^2} - \frac{2f\alpha_{,R}}{\alpha^3} \right ) - \frac{L^2}{2} \left ( \frac{f_{,R}}{R^2} - \frac{2f}{R^3} \right )\\
+    \dot{\phi} &= \frac{L}{R^2}
   \end{align}
   \label{eq:ltb-null-geodesics}
 \end{subequations}
@@ -66,23 +66,23 @@ where $R_s$ is the scale radius. Given a radius $R_{\text{max}}$, the total mass
   M_{\text{total}} = 4\pi \rho_0 \left [  \ln \left ( \frac{R_s + R_{\text{max}}}{R_s} \right ) - \frac{R_{\text{max}}}{R_s + R_{\text{max}}} \right ]
   \label{eq:nfw-total-mass}
 \end{equation}
-and if the mass is fixed then we can find $\rho_0$. $R_s$ can also be expressed in terms of the virial radius $R_{\text{vir}}$ and the halo concentration parameter $c$
+and since total mass is fixed then we can find $\rho_0$. $R_s$ can also be expressed in terms of the virial radius $R_{\text{vir}}$ and the halo concentration parameter $c$
 
 \begin{equation}
   R_s = \frac{R_{\text{vir}}}{c}.
 \end{equation}
 
-If we assume that the extent of the mass distribution is very small compared to the distances between the source, len, ad observer, then this justifies the thin-screen approximation, which states that the mass distribution of the lens can be treated as if it were an infinitely thin mass sheet perpendicular to the line-of-sight. Since we have a spherically symmetric mass distribution, the lensing mass is given by
+If we assume that the extent of the mass distribution is very small compared to the distances between the source, lens, and observer, then this justifies the thin-screen approximation, which states that the mass distribution of the lens can be treated as if it were an infinitely thin mass sheet perpendicular to the line-of-sight. Since we have a spherically symmetric mass distribution, the lensing mass is given by
 \begin{equation}
-  M(\xi) = 2\pi \int_0^{R_u} \Sigma(R) R dR
+  M(R_u) = 2\pi \int_0^{R_u} \Sigma(R) R dR
   \label{eq:ltb-projected-mass}
 \end{equation}
 where $R_u$ is as defined in \autoref{chapter:swiss-cheese} and $\Sigma(R)$ is the projected surface density
 \begin{equation}
-  \Sigma{R} = \int \rho(R, z) dz 
+  \Sigma(R) = \int \rho(R, z) dz 
   \label{eq:ltb-projected-surface-density}
 \end{equation}
-where $z$ is in the direction connecting the lens, observer, and source. 
+where $z$ is in the direction connecting the lens, observer, and source. \autoref{eq:ltb-projected-mass} represents the mass contained within a cylinder of radius $R_u$, with an axis parallel to the ray and passing through th centre of the lens. 
 
 Substituting in the density for a NFW mass profile, the lensing mass $M_p$ for a given $R_u$ is given by (Eq. 43 of \citet{lokas2001properties})
 
@@ -99,7 +99,47 @@ where $C^{-1}$ is the function
 \end{equation}
 If the light ray does not pass through the mass at all, or if we supply a point mass for the mass distribution, then the result reduces to that of a Kottler Swiss-Cheese. This was used to check the robustness of the code. 
 
-We use $c = 10$ which roughly corresponds to the masses of bright galaxies \citep{lokas2001properties}. Density was truncated at $R_{\text{max}} = r_h/2$ to take into account the volume change of the hole in static coordinates as the universe expands. We set $R_{\text{vir}} = r_h/100$. \autoref{fig:ltb-results} shows the results of the numerical simulations in flat space when compared with the conventional, Rindler \& Ishak, and Kantowski's predictions. 
+\begin{figure}
+\centering
+\subcaptionbox[Short Subcaption]{%
+    Density%
+}
+[%
+    0.5\textwidth % width of caption
+]%
+{%
+    \includegraphics[width=0.5\textwidth]%
+    {images/ltb-density.png}%
+}%
+% \hspace{0.1\textwidth} % seperation
+\subcaptionbox[Short Subcaption]{%
+    Mass%
+}
+[%
+    0.5\textwidth % width of caption
+]%
+{%
+    \includegraphics[width=0.5\textwidth]%
+    {images/ltb-mass.png}%
+}%
+
+\subcaptionbox[Short Subcaption]{%
+    Pressure%
+}
+[%
+    0.8\textwidth % width of caption
+]%
+{%
+    \includegraphics[width=0.5\textwidth]%
+    {images/ltb-pressure.png}%
+}%
+\caption[Short Caption]{Plot of the mass, density, and pressure functions for $\Omega_{\Lambda} = 0$. The radial coordinate is expressed in terms of $R_{h0} = r_h$, the initial size of the Kottler hole. The density and pressure are expressed in terms of the density of the initial FRW density $\rho_m$. Density is truncated at $R = r_h/2$. We use $c = 10$ and $R_{\text{vir}} = r_h/100$}.
+\label{fig:ltb-quantities}
+\end{figure}
+
+We use $c = 10$ which roughly corresponds to the masses of bright galaxies \citep{lokas2001properties}. Density was truncated at $R_{\text{max}} = r_h/2$ to take into account the volume change of the hole in static coordinates as the universe expands. We set $R_{\text{vir}} = r_h/100$. For these parameters, the density, mass, and pressure functions are plotted in \autoref{fig:ltb-quantities}. 
+
+\autoref{fig:ltb-results} shows the results of the numerical simulations in flat space when compared with the conventional, Rindler \& Ishak, and Kantowski's predictions. 
 
 \begin{figure}
   \centering

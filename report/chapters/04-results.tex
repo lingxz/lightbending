@@ -2,9 +2,9 @@
 \chapter{Results and discussion}
 \label{chapter:results}
 
-In order to test the robustness of the numerical integration routine, we checked that the results agreed with the FRW bending angle \autoref{eq:series-expansion-R} to at least within $0.1\%$. We were also able to reproduce the results presents in \citet{schucker2009strong} to the stated precision. 
+In order to test the robustness of the numerical integration routine, we checked that the results agreed with the FRW bending angle \autoref{eq:series-expansion-R} to at least within $0.1\%$. We were also able to reproduce the results presented in \citet{schucker2009strong} to the stated precision. 
 
-A graph of results when we keep the lensing mass $M$ constant and vary $\Omega_{\Lambda}$ can be seen in \autoref{fig:flat-const-m}. On the $y$-axis, we have plotted the the deviation of $D_{S}/D_{LS}$ as a fraction of the standard FRW lensing case (given by substituting \autoref{eq:series-expansion-R} into the lens equation \ref{eq:lens-eqn}), in order to put them on the same scale. We plot the fractional deviation of $D_{S}/D_{LS}$ instead of $D_S$ or $D_{LS}$ alone since they both depend on the numerical result. 
+A graph of results when we keep the lensing mass $M$ constant and vary $\Omega_{\Lambda}$ can be seen in \autoref{fig:flat-const-m}. On the $y$-axis, we have plotted the the deviation of $D_{S}/D_{LS}$ as a fraction of the standard FRW lensing case (found by substituting \autoref{eq:series-expansion-R} into the lens equation \ref{eq:lens-eqn}), in order to put them on the same scale. We plot the fractional deviation of $D_{S}/D_{LS}$ instead of $D_S$ or $D_{LS}$ alone since they both depend on the numerical result. 
 
 \begin{figure}
   \centering
@@ -14,10 +14,16 @@ A graph of results when we keep the lensing mass $M$ constant and vary $\Omega_{
   \label{fig:flat-const-m}
 \end{figure}
 
+Numerical errors are estimated by varying the tolerance of the integrator. For a certain tolerance level, we group the results obtained from the vicinity of tolerance levels together and find the variance in the numerical result in that range to get a crude estimation of the numerical error. \autoref{fig:errors} shows how the raw $r_{LS}$ coordinate obtained from the integration varies with the relative tolerance level. As is expected, the precision increaes as the tolerance level is reduced. For a relative tolerance of $2 \times 10^{-14}$ which was used, a conservative estimate obtained by grouping results between $r_{\text{tol}} = 2 \times 10^{-14}$ and $2 \times 10^{-13}$ yields a fractional error of $10^{-8}$. 
 
-% By varying the integration step size, we are able to estimate numerical errors on the integration. For a certain step size, we group the results obtained from the vicinity of step sizes together and find the variance in bending angles in that range. Fig [??] shows how the $\alpha$ obtained varies with step size. As is expected, the precision increases as we reduce the step size. 
+\begin{figure}
+  \centering
+  \includegraphics[height=0.5\linewidth]{images/errors.png}
+  \caption{Plot of how the numerical result $r_{LS}$ varies with the relative tolerance for $\Omega_{\Lambda} = 0$. }
+  \label{fig:errors}
+\end{figure}
 
-Our results seem to follow the trend of Kantowski's predictions most closely, with a gap that reduces towards higher $\Lambda$. A possible explanation of this gap can be found by examining the neglected higher order term in Kantowski's predicted bending angle [eq??], $\mathcal{O}\left ( 2M/r_0 + \Lambda r_0^2 \right )^{5/2}$. When $\Lambda = 0$, the ratio of this term to the leading order $(4M/r_0^2) \cos^3 \tilde{\phi_1}$ term is of the same order of magnitude as the fractional deviation of our numerical results from Kantowski's predictions. As is expected, this ratio decreases as $\Lambda$ when mass is kept constant, as can be seen from \autoref{fig:flat-const-m-neglected}. 
+Our results seem to follow the trend of Kantowski's predictions most closely, with a gap that reduces towards higher $\Lambda$. A possible explanation of this gap can be found by examining the neglected higher order term in Kantowski's predicted bending angle, $\mathcal{O}\left ( 2M/r_0 + \Lambda r_0^2 \right )^{5/2}$. When $\Lambda = 0$, the ratio of this term to the leading order $(4M/r_0^2) \cos^3 \tilde{\phi_1}$ term is of the same order of magnitude as the fractional deviation of our numerical results from Kantowski's predictions. As is expected, this ratio decreases as $\Lambda$ when mass is kept constant, as shown in \autoref{fig:flat-const-m-neglected}. 
 
 \begin{figure}
   \centering
@@ -41,48 +47,54 @@ The first effect does not seem to be a truly direct $\Lambda$ effect, merely a s
 
 Therefore we look into keeping the hole size constant while varying $\Lambda$. The results for this is shown in \autoref{fig:flat-const-rh}, for the case of flat space. If the hole size is kept constant, then the mass will have to change with $\Omega_{\Lambda}$. In this case, the comoving size of the hole was fixed at $\SI{2.60}{\mega\parsec}$, which corresponds to a mass of $10^{13}M_{\odot}$ at $\Omega_{\Lambda} = 0$. The lens redshit was kept at $z_L = 0.5$ and the Einstein angle was set to be $1^{\prime\prime}$.
 
-There is a difference between numerical results and Kantowski's predictions similar to the previous result that decreases with increasing $\Omega_{\Lambda}$. This was plotted in \autoref{fig:flat-const-rh-neglected} and indeed as we expect, the magnitude of the neglected higher-order term in his calculation follow the same trend.
-
-% \begin{figure}
-%   \centering
-%   \begin{subfigure}{0.5\textwidth}
-%     \includegraphics[width=\textwidth]{images/flat_const_rh.png}
-%   \end{subfigure}%
-%   \begin{subfigure}{0.5\textwidth}
-%     \includegraphics[width=\textwidth]{images/flat_const_rh2.png}
-%   \end{subfigure}%
-%   \caption{Results of the numerical simulation in flat space when $r_h$ is kept constant instead of $M$. The comoving size of the hole was fixed at $\SI{2.60}{\mega\parsec}$. This is the size such that at $\Omega_{\Lambda} = 0$, $M = 10^{13}M_{\odot}$. The left figure contains the full range from $\Omega_{\Lambda} = 0$ to 0.99, whereas the right figure is the slightly zoomed in version after removing two of the rightmost points, to make the differences at lower $\Omega_{\Lambda}$ more apparent.}
-%   \label{fig:flat-const-rh}
-% \end{figure}
+There is a difference between numerical results and Kantowski's predictions similar to the previous result that decreases with increasing $\Omega_{\Lambda}$. This was plotted in \autoref{fig:flat-const-rh-neglected} and indeed as we expect, the magnitude of the neglected higher-order term in his calculation follow the same general trend.
 
 \begin{figure}
-\centering
-\subcaptionbox[Short Subcaption]{%
-    $\Omega_{\Lambda} = 0\textup{---}0.99$%
-    \label{subfig:sublabel1}%
-}
-[%
-    0.5\textwidth % width of caption
-]%
-{%
-    \includegraphics[width=0.5\textwidth]%
-    {images/flat_const_rh.png}%
-}%
-% \hspace{0.1\textwidth} % seperation
-\subcaptionbox[Short Subcaption]{%
-    $\Omega_{\Lambda} = 0 \textup{---} 0.95$%
-    \label{subfig:sublabel2}%
-}
-[%
-    0.5\textwidth % width of caption
-]%
-{%
-    \includegraphics[width=0.5\textwidth]%
-    {images/flat_const_rh2.png}%
-}%
-\caption[Short Caption]{Results of the numerical simulation in flat space when $r_h$ is kept constant instead of $M$. The comoving size of the hole was fixed at $\SI{2.60}{\mega\parsec}$. This is the size such that at $\Omega_{\Lambda} = 0$, $M = 10^{13}M_{\odot}$. The left figure contains the full range from $\Omega_{\Lambda} = 0$ to 0.99, whereas the right figure is the slightly zoomed in version after removing two of the rightmost points, to make the differences at lower $\Omega_{\Lambda}$ more apparent.}
-\label{fig:flat-const-rh}
+  \centering
+  % \makebox[\linewidth][c]{%
+  \begin{subfigure}{0.8\textwidth}
+    \includegraphics[width=\textwidth]{images/flat_const_rh.png}
+    \caption{$\Omega_{\Lambda} = 0$ to $0.99$}
+  \end{subfigure}%
+
+  \begin{subfigure}{0.8\textwidth}
+    \includegraphics[width=\textwidth]{images/flat_const_rh2.png}
+    \caption{$\Omega_{\Lambda} = 0$ to $0.95$}
+  \end{subfigure}%
+  % }%
+  \caption{Results of the numerical simulation in flat space when $r_h$ is kept constant instead of $M$. The comoving size of the hole was fixed at $\SI{2.60}{\mega\parsec}$. This is the size such that at $\Omega_{\Lambda} = 0$, $M = 10^{13}M_{\odot}$. The left figure contains the full range from $\Omega_{\Lambda} = 0$ to 0.99, whereas the right figure is the slightly zoomed in version after removing two of the rightmost points, to make the differences at lower $\Omega_{\Lambda}$ more apparent.}
+  \label{fig:flat-const-rh}
 \end{figure}
+
+
+% \begin{figure}
+% \centering
+% \subcaptionbox[Short Subcaption]{%
+%     $\Omega_{\Lambda} = 0$ to $0.99$%
+%     \label{subfig:sublabel1}%
+% }
+% [%
+%     0.8\textwidth % width of caption
+% ]%
+% {%
+%     \includegraphics[width=0.8\textwidth]%
+%     {images/flat_const_rh.png}%
+% }%
+% % \hspace{0.1\textwidth} % seperation
+% \subcaptionbox[Short Subcaption]{%
+%     $\Omega_{\Lambda} = 0$ to $0.95$%
+% }
+% [%
+%     0.8\textwidth % width of caption
+% ]%
+% {%
+%     \includegraphics[width=0.8\textwidth]%
+%     {images/flat_const_rh2.png}%
+% }%
+% \caption[Short Caption]{Results of the numerical simulation in flat space when $r_h$ is kept constant instead of $M$. The comoving size of the hole was fixed at $\SI{2.60}{\mega\parsec}$. This is the size such that at $\Omega_{\Lambda} = 0$, $M = 10^{13}M_{\odot}$. The left figure contains the full range from $\Omega_{\Lambda} = 0$ to 0.99, whereas the right figure is the slightly zoomed in version after removing two of the rightmost points, to make the differences at lower $\Omega_{\Lambda}$ more apparent.}
+% \label{fig:flat-const-rh}
+% \end{figure}
+
 
 
 \begin{figure}
@@ -92,14 +104,14 @@ There is a difference between numerical results and Kantowski's predictions simi
   \label{fig:flat-const-rh-neglected}
 \end{figure}
 
-If we extend the integration for a universe with arbitrary curvature, then it is possible to fix both mass and $r_h$, but it would involve changing the curvature to compensate for the change in $\Lambda$. However, we can see in the previous chapter, the curvature $k$ affects the rate of expansion of the Kottler hole and also enters into the Jacobian at the boundary, so intuitively one would expect $k$ to have an effect on the bending angle in a Swiss-Cheese model as well, though this effect has not been explored in literature (Kantowski's calculation \citet{kantowski2010gravitational} only applies for flat space). 
+If we extend the integration for a universe with arbitrary curvature, then it is possible to fix both mass and $r_h$, but it would involve changing the curvature to compensate for the change in $\Lambda$. However, we can see in the previous chapter, the curvature $k$ affects the rate of expansion of the Kottler hole and also enters into the Jacobian at the boundary as well, so intuitively one would expect $k$ to also have an effect on the bending angle in a Swiss-Cheese model, though this effect has not been explored in fully literature (Kantowski's calculation \citet{kantowski2010gravitational} only applies for flat space). We have plotted the result of varying curvature to account for the change in $\Lambda$ in \autoref{fig:curved}, it implies that the correction from curvature are even bigger than the $\Lambda$-effect. 
 
-Unfortunately, there is no way to keep both curvature and matter density constant while varying $\Lambda$, so we cannot truly isolate the effect of $\Lambda$. Ultmately, to compensate for a change in $\Lambda$, one has to either vary either matter density or curvature, or both. In a Swiss-Cheese model, both factors are expected to affect the lensing observables to some extent. Given the limited literature on the effect of curvature on lensing in the Swiss-Cheese model, and the much larger deviations resulting from curvature based on our numerical simulations (\autoref{fig:curved}), I would postulate that the variation of matter density has a smaller and better studied effect on lensing, and it is this we should vary such that the influence of $\Lambda$ becomes most apparent. Moreover, current cosmological observations \citep{ade2016planck,hinshaw2013nine,de2000flat} suggest quite convincingly that the Universe is spatially flat, and therefore looking at the case of $\Omega_k = 0$ seems most appropriate. 
+Unfortunately, there is no way to keep both curvature and matter density constant while varying $\Lambda$, so we cannot truly isolate the effect of $\Lambda$. Ultimately, to compensate for a change in $\Lambda$, one has to either vary either matter density or curvature, or both. In a Swiss-Cheese model, both factors are expected to affect the lensing observables to some extent. Given the limited literature on the effect of curvature on lensing in the Swiss-Cheese model, and the much larger deviations resulting from curvature based on our numerical simulations (\autoref{fig:curved}), I would postulate that the variation of matter density has a smaller and better studied effect on lensing, and it is this we should vary such that the influence of $\Lambda$ becomes most apparent. Moreover, current cosmological observations \citep{ade2016planck,hinshaw2013nine,de2000flat} suggest quite convincingly that the Universe is spatially flat, and therefore looking at the case of $\Omega_k = 0$ seems most appropriate. 
 
 \begin{figure}
   \centering
   \includegraphics[height=0.5\linewidth]{images/curved.png}
-  \caption{Plot of the results when $\Omega_{m}$ was kept constant at 0.5, $\Omega_{\Lambda} = 0\textup{---}0.99$ and $\Omega_k$ was used to compensate for the change in $\Omega_{\Lambda}$. The parameters used are $z = 0.5$, $M = 10^{13} M_{\odot}$. The numerical deviation is much bigger than the Rindler \& Ishak prediction and Kantowski prediction.}
+  \caption{Plot of the results when $\Omega_{m}$ was kept constant at 0.5, $\Omega_{\Lambda} = 0$ to $0.99$ and $\Omega_k$ was used to compensate for the change in $\Omega_{\Lambda}$. The parameters used are $z = 0.5$, $M = 10^{13} M_{\odot}$. The numerical deviation is much bigger than the Rindler \& Ishak prediction and Kantowski prediction.}
   \label{fig:curved}
 \end{figure}
 
@@ -107,12 +119,12 @@ Hence \autoref{fig:flat-const-rh} is the graph of most significance. From the gr
 
 Instead of comparing against the conventional FRW results, it is instructive to compare the numerical results against the $\Lambda = 0$ point also obtained from numerical simulations, in a crude attempt to eliminate the effect at $\Lambda = 0$. These fractional deviations are even smaller than the deviations from the FRW result, at the order of $10^{-6}$. These are 10 to 100 times smaller than second order mass terms, which are routinely neglected. 
 
-It was also pointed out by \citet{butcher2016no} that there is an unavoidable ambiguity when determining the distances $D_L$, $D_LS$, and $D_S$. In this work we have used \emph{unlensed} distances, that is, the distances were calculated as if the lens did not exist, when in reality the angular diameter distances are necessarily modified by the existence of the lens. According to Butcher's calculations, the fractional uncertainty arising from using unlensed distances is given by
+It was also pointed out by \citet{butcher2016no} that there is an unavoidable ambiguity when determining the distances $D_L$, $D_{LS}$, and $D_S$. In this work we have used \emph{unlensed} distances, that is, the distances were calculated as if the lens did not exist, when in reality the angular diameter distances are necessarily modified by the existence of the lens. According to Butcher's calculations, the fractional uncertainty arising from using unlensed distances is given by
 
 \begin{equation}
   \frac{\delta D}{D} = \mathcal{O}\left (\frac{M}{\Lambda r^2} \right )
 \end{equation}
 
-For we are using $z_L = 0.5$ and $M = 10^{13} M_{\odot}$ and $\Omega_{\Lambda} = 0.7$, this gives a value of about $10^{-9}$, which is much smaller than the magnitude that we are considering. 
+For the parameters we are using, $z_L = 0.5$ and $M = 10^{13} M_{\odot}$ and $\Omega_{\Lambda} = 0.7$, we obtain a fractional uncertainty of about $10^{-9}$, which is much smaller than the magnitude that we are considering. 
 
 % error estimation
