@@ -28,10 +28,11 @@
 \usepackage{footnote}
 \captionsetup[subfigure]{width=0.9\textwidth}
 
+\usepackage[utf8]{inputenc}
 \usepackage[backend=bibtex,style=authoryear,maxcitenames=2,natbib=true]{biblatex} % Use the bibtex backend with the authoryear citation style (which resembles APA)
 
 
-\addbibresource{library.bib}
+\addbibresource{library2.bib}
 
 % This is great for drafts as it will show all the labels you have defined.
 % DON'T forget to comment it out before submission
@@ -49,3 +50,33 @@
 \setlength{\topskip}{0pt}  %see pp155 also about baselineskip
 \setlength{\textheight}{23.0cm} % 25cm for A4, 23cm for Letter or DJ
 \setlength{\footskip}{0.7cm}
+
+
+
+\renewcommand{\floatpagefraction}{.8}%
+
+\usepackage[english]{babel}
+\usepackage{chngcntr}
+\counterwithout{figure}{chapter}
+\addto\extrasenglish{%
+  \renewcommand{\chapterautorefname}{Chapter}%
+  \renewcommand{\figureautorefname}{Fig.}%
+  \renewcommand{\equationautorefname}{Eq.}%
+  \renewcommand{\sectionautorefname}{Section}%
+  \renewcommand{\subsectionautorefname}{Section}%
+}
+
+\renewbibmacro{in:}{}
+
+\usepackage[binary-units=true]{siunitx}
+\DeclareSIUnit\px{px}
+\DeclareSIUnit\parsec{pc}
+
+\sisetup{%
+  detect-all           = true,
+  detect-family        = true,
+  detect-mode          = true,
+  detect-shape         = true,
+  detect-weight        = true,
+  detect-inline-weight = math,
+}
