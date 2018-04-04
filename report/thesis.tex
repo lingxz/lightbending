@@ -1,11 +1,12 @@
 \documentclass{mimosis}
 
-\usepackage{metalogo}
+% \usepackage{metalogo}
 
 \renewcommand{\floatpagefraction}{.8}%
 
 \usepackage{chngcntr}
 \counterwithout{figure}{chapter}
+% \setcounter{tocdepth}{2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Some of my favourite personal adjustments
@@ -20,7 +21,7 @@
 \usepackage{etoolbox}
 
 \usepackage[binary-units=true]{siunitx}
-\DeclareSIUnit\px{px}
+% \DeclareSIUnit\px{px}
 \DeclareSIUnit\parsec{pc}
 
 \sisetup{%
@@ -138,11 +139,18 @@
 \title{The role of the cosmological constant in gravitational lensing}
 \author{CID: 00919977}
 
-\linespread{1.15}
+% \linespread{1.15}
+\linespread{1.25}
+% \usepackage{layouts}
+
 \begin{document}
+
+% \printinunitsof{mm}{\pagevalues}
+% \pagediagram
 
 \frontmatter
   \include{chapters/title}
+  \include{chapters/declaration}
   \include{chapters/acknowledgements}
   \include{chapters/abstract}
 

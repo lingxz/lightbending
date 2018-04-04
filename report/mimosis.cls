@@ -2,10 +2,10 @@
 \ProvidesClass{mimosis}[2017/08/01 Minimal modern thesis class]
 
 \LoadClass[paper=a4,
-           twoside,
+           oneside,
            pagesize,
            12pt,
-           DIV=10,                % TODO: Make configurable
+           DIV=12,                % TODO: Make configurable
            % BCOR=10mm,             % TODO: Make configurable
            BCOR=0mm,
            % cleardoublepage=empty,
@@ -14,8 +14,9 @@
            open=any,
            toc=bibliography,
            toc=index,]{scrbook}
-\setlength\oddsidemargin{\dimexpr(\paperwidth-\textwidth)/2 - 1in\relax}
-\setlength\evensidemargin{\oddsidemargin}
+% \KOMAoptions{fontsize=13pt}
+% \setlength\oddsidemargin{\dimexpr(\paperwidth-\textwidth)/2 - 1in\relax}
+% \setlength\evensidemargin{\oddsidemargin}
 
 \RequirePackage{ifpdf}
 \RequirePackage{ifxetex}
@@ -87,7 +88,8 @@
 \captionsetup{
   subrefformat=parens,
   format=plain,
-  % labelfont=bf,
+  labelfont=bf,
+  % font={stretch=1.25},
   figurename=Fig.,
 }
 
@@ -106,6 +108,7 @@
 
 \RequirePackage{setspace}
 \onehalfspacing
+% \doublespacing
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Tables
@@ -193,7 +196,7 @@
 
 \setkomafont{caption}{\small}
 % \setkomafont{captionlabel}{\usekomafont{caption}}
-\setkomafont{captionlabel}{\small\bfseries}
+% \setkomafont{captionlabel}{\small\bfseries}
 
 % Large number for chapter
 \renewcommand*{\chapterformat}{%

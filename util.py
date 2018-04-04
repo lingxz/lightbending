@@ -11,6 +11,7 @@ H_0 = 70*1000/(3.086e22)/299792458 * length_scale # 70km/s/Mpc
 
 
 def set_typography(latex=False):
+    # pass
     from matplotlib import rc
     font = {'family' : 'sans-serif',
         'weight' : 'bold',
@@ -223,8 +224,14 @@ def plot_rs(filename, plot_ishak=True, plot_kantowski=True, latex=False, filenam
     df['ishak'] = df.preds_ishak/df.preds_frw - 1
     df['kantowski'] = df.preds_kantowski/df.preds_frw - 1
     df['numerical_kantowski'] = df.numerical_res / df.preds_kantowski - 1
+    df['numerical_zero'] = (df.numerical +1 ) / (df.numerical + 1).head(1).values[0] -1
+    # df['numerical_zero'] = df.numerical_res / df.numerical_res.head(1).values[0] - 1
+    # print((df.numerical + 1).head(1).values[0])
+    # print("===")
+    # print((df.numerical + 1)[0])
+    # print(df['numerical_zero'])
 
-    stats = df[['om_lambdas', 'numerical', 'ishak', 'kantowski', 'numerical_kantowski', 'kant_higher_order_ratio']].groupby('om_lambdas').agg(['mean', 'std', 'count'])
+    stats = df[['om_lambdas', 'numerical', 'ishak', 'kantowski', 'numerical_kantowski', 'kant_higher_order_ratio', 'numerical_zero']].groupby('om_lambdas').agg(['mean', 'std', 'count'])
     # stats = df[['om_lambdas', 'om_ks', 'numerical', 'ishak', 'kantowski', 'numerical_kantowski', 'kant_higher_order_ratio']].groupby('om_ks').agg(['mean', 'std', 'count'])
     stats.columns = [' '.join(col).strip() for col in stats.columns.values]
     stats['numerical mean std'] = stats['numerical std']/np.sqrt(stats['numerical count'])
@@ -276,6 +283,13 @@ def plot_rs(filename, plot_ishak=True, plot_kantowski=True, latex=False, filenam
     plt.legend()
     if filenames:
         plt.savefig(filenames[1],  dpi=400, transparent=True)
+
+    plt.figure()
+    scale3 = 1e-6
+    plt.plot(stats.index, stats['numerical_kantowski mean']/scale3, '.', label='Deviations from Kantowski')
+    plt.plot(stats.index, stats['numerical_zero mean']/scale3, '.', label='Deviations from numerical Schwarzschild case')
+    plt.legend()
+
 
 from nfw import NFW
 def plot_rs_ltb(filename, plot_ishak=True, plot_kantowski=True, latex=False, filenames=None):

@@ -1,25 +1,25 @@
 %!TEX root = ../thesis.tex
-\chapter{Description of the Swiss Cheese model}
+\chapter{Description of the Swiss-cheese model}
 \label{chapter:swiss-cheese}
 
 \section{Spacetime patches}
 
-Swiss-Cheese (SC) models model were first introduced by \citet{einstein1945influence} to investigate the gravitational field of a mass well described by the Schwarzschild metric but embedded in a non-Minkowski background spacetime. Such a model is contructed by removing a coming sphere from the homogeneous and replacing it with an inhomogeneous mass distribution (see \autoref{fig:swiss-cheese}). In this case, we use a mass distribution that is vacuum everywhere except for a point mass at the centre. In principle, since the sphere is comoving, multiple spheres can be inserted in the cheese as long as they are initially non-overlapping. In our model, only one hole is needed to model the lens. This stitching of two metrics on the cheese-hole boundary is of course not arbitrary, and matching conditions will impose restriction on the parameters of the two metrics. This will be discussed in detail in the following sections. 
+Swiss-cheese (SC) models model were first introduced by \citet{einstein1945influence} to investigate the gravitational field of a mass well described by the Schwarzschild metric but embedded in a non-Minkowski background spacetime. Such a model is contructed by removing a coming sphere from the homogeneous and replacing it with an inhomogeneous mass distribution (see \autoref{fig:swiss-cheese}). In this case, we use a mass distribution that is vacuum everywhere except for a point mass at the centre. In principle, since the sphere is comoving, multiple spheres can be inserted in the cheese as long as they are initially non-overlapping. In our model, only one hole is needed to model the lens. This stitching of two metrics on the cheese-hole boundary is of course not arbitrary, and matching conditions will impose restriction on the parameters of the two metrics. This will be discussed in detail in the following sections. 
 
 \begin{figure}
   \centering
   \includegraphics[height=0.3\linewidth]{images/swiss-cheese.pdf}
-  \caption{Construction of a Swiss-Cheese model}
+  \caption{Construction of a Swiss-cheese model}
   \label{fig:swiss-cheese}
 \end{figure}
 
 There are several reasons why this model was chosen. First, this is an exact solution of Einstein's equations which preserves the global dynamics, and hence it will allow us to properly investigate the higher order corrections that have been oft-debated in literature. Secondly, by putting observers in the homogeneously expanding "cheese", it accounts for observers moving with the Hubble flow, which is a common objection to Rindler and Ishak's use of a static metric \citep{park2008rigorous,khriplovich2008does,simpson2010lensing,butcher2016no}. Lastly, this model also takes the finite range of the mass into account by confining the influence of the central mass to the size of the hole. 
 
-Light propagation in SC models has been extensively studied \citep{szybka2011light,vanderveld2008luminosity,fleury2014swiss}, but not particularly so in the subject of the $\Lambda$ dependence on gravitational lensing. Some of the areas that Swiss-Cheese models have been commonly used include investigating the effect of local inhomogeneities on luminosity-redshift relations \citep{kantowski1969corrections,fleury2013interpretation} and studying fluctuations in redshift and distance of the cosmic microwave background \citep{bolejko2009szekeres,valkenburg2009swiss,bolejko2011effect}. 
+Light propagation in SC models has been extensively studied \citep{szybka2011light,vanderveld2008luminosity,fleury2014swiss}, but not particularly so in the subject of the $\Lambda$ dependence on gravitational lensing. Some of the areas that Swiss-cheese models have been commonly used include investigating the effect of local inhomogeneities on luminosity-redshift relations \citep{kantowski1969corrections,fleury2013interpretation} and studying fluctuations in redshift and distance of the cosmic microwave background \citep{bolejko2009szekeres,valkenburg2009swiss,bolejko2011effect}. 
 
-A significant difference between the Swiss-Cheese model and what is used in conventional gravitational lensing, as described in the previous section, is that in the Swiss-Cheese, the bending happens only inside the hole, whereas in conventional lensing, the mass is superimposed on the FRW background and has infinite range. In the Swiss-Cheese model, due to the boundary conditions, all bending is truncated once the light ray leaves the hole, and outside the hole the light ray travels as if the hole does not exist. Therefore even in the $\Lambda = 0$ case, we would expect a slightly smaller bending angle in the Swiss-Cheese than predicted in conventional lensing, even though this difference is small. 
+A significant difference between the Swiss-cheese model and what is used in conventional gravitational lensing, as described in the previous section, is that in the Swiss-cheese, the bending happens only inside the hole, whereas in conventional lensing, the mass is superimposed on the FRW background and has infinite range. In the Swiss-cheese model, due to the boundary conditions, all bending is truncated once the light ray leaves the hole, and outside the hole the light ray travels as if the hole does not exist. Therefore even in the $\Lambda = 0$ case, we would expect a slightly smaller bending angle in the Swiss-cheese than predicted in conventional lensing, even though this difference is small. 
 
-\citet{kantowski2010gravitational} did analytical calculations in estimating the bending angle in the Swiss-Cheese model in flat space (see Eq. 32 of \citet{kantowski2010gravitational}). This prediction, together with the conventional lensing prediction (\autoref{eq:series-expansion-R}) and the Rindler and Ishak prediction (\autoref{eq:rindler-ishak-alpha}), are the theoretical models that we will be comparing our numerical results against. 
+\citet{kantowski2010gravitational} did analytical calculations in estimating the bending angle in the Swiss-cheese model in flat space (see Eq. 32 of \citet{kantowski2010gravitational}). This prediction, together with the conventional lensing prediction (\autoref{eq:series-expansion-R}) and the Rindler and Ishak prediction (\autoref{eq:rindler-ishak-alpha}), are the theoretical models that we will be comparing our numerical results against. 
 
 % In the Swiss-cheese model, in principle multiple holes can be inserted into the cheese. In this project, we use a single hole for the lens. 
 
@@ -80,7 +80,7 @@ In a flat universe, space is Euclidean and $\Omega_k = 0$.
 
 \subsection{Kottler geometry}
 
-In this project we use a Kottler condensation in the Swiss-Cheese for the central lensing mass. This is described by a Kottler metric \citep{kottler1918physikalischen}, which is the extension of the famous Schwarzschild metric to include a cosmological constant, given by
+In this project we use a Kottler condensation in the Swiss-cheese for the central lensing mass. This is described by a Kottler metric \citep{kottler1918physikalischen}, which is the extension of the famous Schwarzschild metric to include a cosmological constant, given by
 
 \begin{equation}
   ds^2 = -f(R)dT^2 + \frac{dR^2}{f(R)} + R^2 d \Omega^2
@@ -264,12 +264,12 @@ In summary, given a FRW spacetime with pressureless matter and a cosmological co
 
 \section{Light propagation}
 
-We propagate a light ray backwards from observer to source by solving the geodesic equation (\autoref{eq:geodesic-eqn}). In reality, the light ray travels from source to observer, but our calculations proceed in the opposite direction since we want to take the current observer position and observation event as the initial condition. The observer is placed in the FRW region, where we start propagating the light ray. The mass of the lensing object is fixed and consequently so is the size of the hole. The light ray is started off with an Einstein angle $\theta_{E}$, travels through the FRW region, encounters the Kottler hole which deflects its trajectory, and returns to the FRW region again. In the Swiss-Cheese model, all the bending occurs only in the Kottler hole and is truncated once light leaves the hole. 
+We propagate a light ray backwards from observer to source by solving the geodesic equation (\autoref{eq:geodesic-eqn}). In reality, the light ray travels from source to observer, but our calculations proceed in the opposite direction since we want to take the current observer position and observation event as the initial condition. The observer is placed in the FRW region, where we start propagating the light ray. The mass of the lensing object is fixed and consequently so is the size of the hole. The light ray is started off with an Einstein angle $\theta_{E}$, travels through the FRW region, encounters the Kottler hole which deflects its trajectory, and returns to the FRW region again. In the Swiss-cheese model, all the bending occurs only in the Kottler hole and is truncated once light leaves the hole. 
 
 \begin{figure}
   \centering
   \includegraphics[height=0.5\linewidth]{images/swiss-cheese-ray2-cropped.pdf}
-  \caption{A diagram of how a light ray propagates through the Swiss-Cheese. Our calculations are done in the opposite direction of propagation. Due to the expansion of the universe, the physical size of the hole will be larger when the light exits the hole compared to when it entered.}
+  \caption{A diagram of how a light ray propagates through the Swiss-cheese. Our calculations are done in the opposite direction of propagation. Due to the expansion of the universe, the physical size of the hole will be larger when the light exits the hole compared to when it entered.}
   \label{fig:swiss-cheese-ray}
 \end{figure}
 
