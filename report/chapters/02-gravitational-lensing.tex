@@ -4,7 +4,7 @@
 
 \section{Mathematical preliminaries}
 
-The essence of General Relativity (GR) is very elegantly summarized by John Wheeler \citep[pg.235]{wheeler2000geons} into two parts: matter tells spacetime how to curve, and spacetime tells matter how to move. 
+The essence of General Relativity (GR) is very elegantly summarized by John Wheeler \citep[pg.235]{wheeler2000geons} in a sentence: matter tells spacetime how to curve, and spacetime tells matter how to move. 
 
 The first half of this statement is quantified by the Einstein Field Equations (EFEs), which is the analogue of Poisson's equation in Newtonian gravity. They are a group of 10 coupled differential equations that describe the interaction between matter and geometry of spacetime, given by (in tensor notation)
 
@@ -58,11 +58,13 @@ A freely moving particle always move along a geodesic, which is a generalisation
   \label{eq:null-condition}
 \end{equation}
 
-The result is a handful of coupled differential equations that need to be solved to find the trajectory of light. Nevertheless, a common problem arising in cosmology stems from the fact that as soon as we depart from the simplest homogeneous models used by observational cosmologists, the task of finding solutions to null geodesics quickly becomes an intractable analytical problem. In our work, we integrate the null geodesics numerically to find the trajectory taken by the photon. 
+The result is a handful of coupled differential equations that need to be solved to find the trajectory of light. Nevertheless, a common problem arising in cosmology stems from the fact that as soon as we depart from the simplest homogeneous models used by observational cosmologists, the task of finding solutions to null geodesics quickly becomes an intractable analytical problem. In our work, we instead use a numerical method to integrate the null geodesics to find the trajectory of the photon. 
 
 \section{Derivation of bending angle in the Schwarzschild metric}
 
-It is useful to first revise gravitational lensing in a universe without $\Lambda$, in a Schwarzschild metric, which is well understood. The Schwarzschild metric, one of the first known solutions to Einstein's field equations, describes the vacuum that lies outside a spherically symmetric distribution of matter. Its line element is given by
+It is useful to first revise gravitational lensing in a universe without $\Lambda$, in a Schwarzschild metric, which is well understood. This will form the basis for our comparison with a universe that includes $\Lambda$. 
+
+Spacetime outside a spherically symmetric distribution of matter and vacuum everywhere else is described by the Schwarzschild metric, one of the first known solutions to Einstein's field equations. Its line element is given by
 
 \begin{equation}
   ds^2 = -\left ( 1- \frac{2M}{r} \right ) dt^2 + \left ( 1 - \frac{2M}{r}\right )^{-1} dr^2 + r^2(d\theta^2 + \sin^2\theta d \phi^2).
@@ -113,7 +115,7 @@ This relation can then be used to rewrite the expansion in terms of $\frac{M}{b}
   \alpha = 4 \frac{M}{b} + \frac{15\pi}{4} \left ( \frac{M}{b} \right )^2 + \frac{128}{3} \left ( \frac{M}{b} \right )^3.
   \label{eq:series-expansion-b}
 \end{equation}
-and indeed many authors use the impact parameter to discuss the bending of light in Schwarzschild spacetime \citep{wald2010general,misner2017gravitation,butcher2016no}. However, it has been pointed out in literature \citep{ishak2008new,hammad2013note,lebedev2013influence} that in the non-zero $\Lambda$ case, the definition of the impact parameter is no longer independent of $\Lambda$ and becomes questionable due to the fact that spacetime is no longer asymptotically flat. 
+and indeed many authors use the impact parameter to discuss the bending of light in Schwarzschild spacetime \citep{wald2010general,misner2017gravitation,butcher2016no}. However, it has been pointed out previously by other authors \citep{ishak2008new,hammad2013note,lebedev2013influence} that in the non-zero $\Lambda$ case, the definition of the impact parameter is no longer independent of $\Lambda$ and becomes questionable due to the fact that spacetime is no longer asymptotically flat. 
 
 In this work we will work with another constant of the motion for the non-zero $\Lambda$ case, and for consistency we will use that parameter here as well so that a fair comparison can be made, even though the Schwarzschild case does not include a cosmological constant.
 
@@ -135,7 +137,7 @@ There are 3 length quantities that are typically used in Schwarzschild lensing: 
 As mentioned previously, \citet{rindler2007contribution} proposed a different expression for $\alpha$. The expression was later refined for a Swiss-cheese universe \citep{ishak2008new}, and I will state it here (in our notation) for easy comparison:
 
 \begin{equation}
-  \alpha_{\text{Ishak}} = 4 \frac{M}{R_u} + \frac{15\pi}{4} \left ( \frac{M}{R_u} \right )^2 + \frac{305}{12} \left ( \frac{M}{R_u} \right )^3 - \frac{\Lambda R R_h}{3},
+  \alpha_{\text{Ishak}} = 4 \frac{M}{R_u} + \frac{15\pi}{4} \left ( \frac{M}{R_u} \right )^2 + \frac{305}{12} \left ( \frac{M}{R_u} \right )^3 - \frac{\Lambda R_u R_h}{3},
   \label{eq:rindler-ishak-alpha}
 \end{equation}
 where $R_h$ is the boundary of the hole in static coordinates in the Swiss-cheese model. The $\Lambda$-term is negative, and they postulate that the cosmological constant attenuates lensing. 
@@ -151,7 +153,7 @@ A significant part of the conflict in literature comes from the question of whic
   \label{fig:lensing}
 \end{figure}
 
-We consider a simple picture where the observer, lens, and source are aligned, as shown in \autoref{fig:lensing}. Bending is assumed to happen at a single point above the lens, since the distance from the observer to the lens and source is assumed to be much larger than the distance of closest approach between the light ray and the lens. From this diagram we can easily obtain the lens equation \citep{schneider1992gravitationallenses} with some trigonometry
+We consider a simple picture where the observer, lens, and source are aligned, as shown in \autoref{fig:lensing}. Bending is assumed to happen at a single point above the lens, since the distance from the observer to the lens and source is assumed to be much larger than the distance of closest approach between the light ray and the lens. From this diagram we can easily, with some trigonometry, obtain the lens equation \citep{schneider1992gravitationallenses}
 
 \begin{equation}
   D_S \theta_E = D_{LS} \alpha

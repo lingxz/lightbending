@@ -90,7 +90,7 @@
   format=plain,
   labelfont=bf,
   % font={stretch=1.25},
-  figurename=Fig.,
+  % figurename=Fig.,
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

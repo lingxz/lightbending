@@ -4,7 +4,7 @@
 
 \section{Spacetime patches}
 
-Swiss-cheese (SC) models model were first introduced by \citet{einstein1945influence} to investigate the gravitational field of a mass well described by the Schwarzschild metric but embedded in a non-Minkowski background spacetime. Such a model is contructed by removing a coming sphere from the homogeneous and replacing it with an inhomogeneous mass distribution (see \autoref{fig:swiss-cheese}). In this case, we use a mass distribution that is vacuum everywhere except for a point mass at the centre. In principle, since the sphere is comoving, multiple spheres can be inserted in the cheese as long as they are initially non-overlapping. In our model, only one hole is needed to model the lens. This stitching of two metrics on the cheese-hole boundary is of course not arbitrary, and matching conditions will impose restriction on the parameters of the two metrics. This will be discussed in detail in the following sections. 
+Swiss-cheese (SC) models model were first introduced by \citet{einstein1945influence} to investigate the gravitational field of a mass well described by the Schwarzschild metric but embedded in a non-Minkowski background spacetime. Such a model is contructed by removing a coming sphere from the homogeneous background and replacing it with an inhomogeneous mass distribution (see \autoref{fig:swiss-cheese}). In this case, we use a mass distribution that is vacuum everywhere except for a point mass at the centre. In principle, since the sphere is comoving, multiple spheres can be inserted in the cheese as long as they are initially non-overlapping. In our model, only one hole is needed to model the lens. This stitching of two metrics on the cheese-hole boundary is of course not arbitrary, and matching conditions will impose restriction on the parameters of the two metrics. This will be discussed in detail in the following sections. 
 
 \begin{figure}
   \centering
@@ -25,7 +25,7 @@ A significant difference between the Swiss-cheese model and what is used in conv
 
 \subsection{Friedmann-Robertson-Walker geometry}
 
-Outside the hole, geometry is described by the Friedmann-Robertson-Walker (FRW) metric \cite{wald2010general}, the simplest homogeneous and isotropic model of the universe. Its line element, in spherical polar coordinates, is given by
+Outside the hole, geometry is described by the Friedmann-Robertson-Walker (FRW) metric, the simplest homogeneous and isotropic model of the universe. Its line element, in spherical polar coordinates, is given by \citep{wald2010general}
 
 \begin{equation}
   ds^2 = -dt^2 + a(t)^2 \left ( \frac{dr^2}{1-kr^2} + r^2 d \Omega^2 \right )
@@ -60,7 +60,6 @@ It is common to introduce the cosmological parameters, where a subscript 0 refer
   \Omega_m = \frac{8\pi G \rho_0}{3H_0^2}, \,\, \Omega_{\Lambda} = \frac{\Lambda}{3H_0^2}, \,\, \Omega_k = - \frac{k}{a_0^2 H_0^2}
   \label{eq:cosmo-params}
 \end{equation}
-
 and rewrite the Friedmann equation as
 
 \begin{equation}
@@ -231,9 +230,7 @@ Combining \autoref{eq:kappa-to-fprime} with \autoref{eq:kottler-kappa}, we can e
 \begin{equation}
   \frac{dR_h}{dT} = \frac{d(ar)}{dT} = \frac{da}{dt}\frac{dt}{dT}r.
 \end{equation}
-where $da/dt$ is given by the Friedmann equation \ref{eq:friedmann-equation}. 
-
-Following through the algebra, we arrive at the somewhat intuitive result that both regions must have the same cosmological constant $\Lambda$ and that the Kottler hole has to be mass compensating, meaning the enclosed mass $M$ has to equal the mass excised from the FRW background:
+where $da/dt$ is given by the Friedmann equation \ref{eq:friedmann-equation}. Following through with the algebra, we arrive at the somewhat intuitive result that both regions must have the same cosmological constant $\Lambda$ and that the Kottler hole has to be mass compensating, meaning the enclosed mass $M$ has to equal the mass excised from the FRW background:
 
 \begin{equation}
   M = \frac{4\pi}{3} a^3 r_h^3. 
@@ -247,12 +244,12 @@ From the junction conditions the rate of expansion of the hole in static coordin
   \label{eq:hole-expansion-in-kottler-dR-dT}
 \end{equation}
 
-The last thing we need from the boundary conditions is the relate the tangent vectors between the two metrics. The continuity of the metric, imposed by the first junction condition, implies that the connection does not diverge across the boundary. Therefore, light is not deflected as it crosses the boundary and we just need to convert the components of the tangent vector between the two coordinate systems. To obtain $\dot{R}$ in terms of FRW tangent vectors $\dot{r}$ and $\dot{t}$, we differentiate \autoref{eq:r-to-ar} and substitute $a_{,t}$ with the Friedmann equation \autoref{eq:friedmann-equation}. Keeping in mind the boundary conditions, we get an expression for $\dot{R}$. The angular coordinates and angular tangent vectors are unchanged moving from Kottler to FRW coordinates, and vice versa. With $\dot{R}$ and $\dot{\phi}$, $\dot{T}$ then can be easily obtained from the null condition \autoref{eq:null-condition}. The result is
+The last thing we need from the boundary conditions is the relate the tangent vectors between the two metrics. The continuity of the metric, imposed by the first junction condition, implies that the connection does not diverge across the boundary. Therefore, light is not deflected as it crosses the boundary and we just need to convert the components of the tangent vector between the two coordinate systems. To obtain $\dot{R}$ in terms of FRW tangent vectors $\dot{r}$ and $\dot{t}$, we differentiate \autoref{eq:r-to-ar} and substitute $a_{,t}$ with the Friedmann equation \autoref{eq:friedmann-equation}. Keeping in mind the boundary conditions, we get an expression for $\dot{R}$. The angular coordinates and angular tangent vectors are unchanged when moving from the Kottler to FRW coordinates, and vice versa. With $\dot{R}$ and $\dot{\phi}$, $\dot{T}$ then can be easily obtained from the null condition \autoref{eq:null-condition}. The result is
 
 \begin{subequations}
   \begin{align}
-    \dot{T} &= \frac{1}{f}\sqrt{1-kr^2} \dot{t} + \frac{a}{f\sqrt{1-kr^2}} \sqrt{\frac{2M}{ar} - kr^2 + \frac{\Lambda}{3}a^2 r^2} \dot{r} \\
-    \dot{R} &= \sqrt{\frac{2M}{ar} - kr^2 + \frac{\Lambda}{3}a^2 r^2} \dot{t} + a\dot{r}\\
+    \dot{T} &= \frac{\dot{t}}{f}\sqrt{1-kr^2} + \frac{a\dot{r}}{f\sqrt{1-kr^2}} \sqrt{\frac{2M}{ar} - kr^2 + \frac{\Lambda}{3}a^2 r^2} \\
+    \dot{R} &= \dot{t}\sqrt{\frac{2M}{ar} - kr^2 + \frac{\Lambda}{3}a^2 r^2} + a\dot{r}\\
     \dot{\phi} &= \dot{\phi}\\
     \dot{\theta} &= \dot{\theta}
   \end{align}
@@ -264,11 +261,11 @@ In summary, given a FRW spacetime with pressureless matter and a cosmological co
 
 \section{Light propagation}
 
-We propagate a light ray backwards from observer to source by solving the geodesic equation (\autoref{eq:geodesic-eqn}). In reality, the light ray travels from source to observer, but our calculations proceed in the opposite direction since we want to take the current observer position and observation event as the initial condition. The observer is placed in the FRW region, where we start propagating the light ray. The mass of the lensing object is fixed and consequently so is the size of the hole. The light ray is started off with an Einstein angle $\theta_{E}$, travels through the FRW region, encounters the Kottler hole which deflects its trajectory, and returns to the FRW region again. In the Swiss-cheese model, all the bending occurs only in the Kottler hole and is truncated once light leaves the hole. 
+We propagate a light ray backwards from observer to source by solving the geodesic equation (\autoref{eq:geodesic-eqn}). In reality, the light ray travels from source to observer, but our calculations proceed in the opposite direction since we want to take the current observer position and observation event as the initial condition. The observer is placed in the FRW region, where we start propagating the light ray. The mass of the lensing object is fixed and consequently so is the size of the hole. The light ray is started off with an Einstein angle $\theta_{E}$, travels through the FRW region, encounters the Kottler hole which deflects its trajectory, and returns to the FRW region again (see \autoref{fig:swiss-cheese-ray}. In the Swiss-cheese model, all the bending occurs only in the Kottler hole and is truncated once light leaves the hole. 
 
 \begin{figure}
   \centering
-  \includegraphics[height=0.5\linewidth]{images/swiss-cheese-ray2-cropped.pdf}
+  \includegraphics[height=0.4\linewidth]{images/swiss-cheese-ray2-cropped.pdf}
   \caption{A diagram of how a light ray propagates through the Swiss-cheese. Our calculations are done in the opposite direction of propagation. Due to the expansion of the universe, the physical size of the hole will be larger when the light exits the hole compared to when it entered.}
   \label{fig:swiss-cheese-ray}
 \end{figure}
@@ -312,7 +309,7 @@ From the angular diameter distance, the radial coordinate is given by
 
 Therefore, as we vary $\Lambda$, $r_L$ is expected to change since we fix $z_L$. We then place the lens at the origin and observer at a radial coordinate of $r = r_L$ and $\phi = \pi$. 
 
-Numerical integration is done with the \texttt{scipy.integrate.solve\_ivp} function in Python \citep{jones2014scipy}, which uses an explict Runge-Kutte method of order 5 \citep{dormand1980family}. The solver uses an adaptive step size, and intersection between the light ray and the point of enter and exit of the hole are found with the classic Brent's method \citep{brent2013algorithms}, a root-finding algorithm. 
+Numerical integration is done with the \texttt{scipy.integrate.solve\_ivp} function in Python \citep{jones2014scipy}, which uses an explict Runge-Kutte method of order $5$ \citep{dormand1980family}. The solver uses an adaptive step size, and intersection between the light ray and the point of enter and exit of the hole are found with the classic Brent's method \citep{brent2013algorithms}, a root-finding algorithm. 
 
 \subsection{FRW region}
 
@@ -369,7 +366,7 @@ The above calculation only applies for flat space, and in arbitrarily curved spa
 \subsection{Conversion from FRW region to Kottler region at $\mathcal{E}_{\text{out}}$}
 \label{subsec:frw-to-kottler}
 
-From the FRW coordinates and tangent vectors, we can first obtain the starting coordinate $R_{\text{out}}$ from \autoref{eq:r-to-ar}. The angular coordinates remain the same in both coordinate systems. We are free to set $T_{\text{out}}$ since we are not concerned with the amount of time taken by the light, only the trajectory. 
+From the FRW coordinates and tangent vectors, we can first obtain the starting coordinate $R_{\text{out}}$ from \autoref{eq:r-to-ar}. The angular coordinates remain the same in both coordinate systems. We are free to set $T_{\text{out}} = 0$ since we are not concerned with the amount of time taken by the light, only the trajectory. 
 
 The initial tangent vectors to start off the Kottler integration can be obtained from the Jacobian derived in the previous section (\autoref{eq:kottler-to-frw-transform-jacobian}).
 
@@ -381,7 +378,7 @@ Inside the hole, the staticity and spherical symmetry of the Kottler metric impl
   \dot{R} = \pm \sqrt{E^2 - \frac{L^2}{R^2} \left ( 1 - \frac{2M}{R} - \frac{\Lambda R^2}{3}\right )}.
   \label{eq:kottler-null-condition}
 \end{equation}
-The $\pm$ before square root on the right hand side is troublesome for numerical computations because it would be necessary to determine a point to switch signs for $\dot{R}$. To circumvent that, we can differentiate the equation obtained from the null condition to get a second order differential equation in $R$. Combining that with the conserved quantities, we have the following equations which fully determine the light trajectory in Kottler space:
+The $\pm$ before square root on the right hand side is troublesome for numerical computations because it would become necessary to determine a point to switch signs for $\dot{R}$. To circumvent that, we can differentiate the equation obtained from the null condition to get a second order differential equation in $R$. Combining that with the conserved quantities, we have the following equations which fully determine the light trajectory in Kottler space:
 
 \begin{subequations}
   \begin{align}
@@ -397,7 +394,7 @@ At the same time that the light ray is moving through the Kottler hole, the hole
 
 \subsection{Conversion from Kottler region to FRW region at $\mathcal{E}_{\text{in}}$}
 
-Conversion from the Kottler to FRW region is simply the reverse of the transformations stated in \autoref{subsec:frw-to-kottler}. We set $t_{\text{in}} = 0$ since we are not concerned in the path time. 
+Conversion from the Kottler to FRW region is simply the reverse of the transformations stated in \autoref{subsec:frw-to-kottler}. We set $t_{\text{in}} = 0$ since we are not concerned with the path time. 
 
 \subsection{Back in the FRW region}
 
