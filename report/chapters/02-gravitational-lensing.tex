@@ -4,7 +4,7 @@
 
 \section{Mathematical preliminaries}
 
-The essence of General Relativity (GR) is very elegantly summarized by John Wheeler \citep[pg.235]{wheeler2000geons} in a sentence: matter tells spacetime how to curve, and spacetime tells matter how to move. 
+The essence of General Relativity (GR) is very elegantly summarised by John Wheeler \citep[pg.235]{wheeler2000geons} in a sentence: matter tells spacetime how to curve, and spacetime tells matter how to move. 
 
 The first half of this statement is quantified by the Einstein Field Equations (EFEs), which is the analogue of Poisson's equation in Newtonian gravity. They are a group of 10 coupled differential equations that describe the interaction between matter and geometry of spacetime, given by (in tensor notation)
 
@@ -34,7 +34,7 @@ Equations of motion of a particle moving in this spacetime can then be derived b
 where $\lambda$ is an affine parameter which increases monotonically along the particle's worldline and $x^{\mu}(\lambda)$ describes the trajectory of the particle. Between two spacetime points $A$ and $B$, we want to maximize $\int^{A}_{B} L(x^{\mu}, \dot{x}^{\mu})\, d \lambda$, so $\mathcal{L}$ satisfies the Euler-Lagrange (E-L) equations
 
 \begin{equation}
-  \frac{\partial \mathcal{L}}{\partial x^{\mu}} - \frac{d}{d \lambda}\left ( \frac{\partial \mathcal{L}}{\partial \dot{x}^{\mu}} \right ).
+  \frac{\partial \mathcal{L}}{\partial x^{\mu}} - \frac{d}{d \lambda}\left ( \frac{\partial \mathcal{L}}{\partial \dot{x}^{\mu}} \right ) = 0.
   \label{eq:euler-lagrange-eqn}
 \end{equation}
 
@@ -51,7 +51,7 @@ where an overdot represents a derivative with respect to the affine parameter $\
   \label{eq:christoffels}
 \end{equation}
 
-A freely moving particle always move along a geodesic, which is a generalisation of the notion of "straight lines" to a curved spacetime. In addition, light, as a massless particle, travels along null geodesic, in contrast to timelike ones for massive particles. Therefore, all light trajectories have to satisfy the null condition
+A freely moving particle always moves along a geodesic, which is a generalisation of the notion of "straight lines" to a curved spacetime. In addition, light, as a massless particle, travels along null geodesics, in contrast to timelike ones for massive particles. Therefore, all light trajectories have to satisfy the null condition
 
 \begin{equation}
   g_{\mu \nu} dx^{\mu} dx^{\nu} = 0.
@@ -102,7 +102,7 @@ where $b = L/E$ is the impact parameter (since $\frac{d\phi}{dr} = \dot{\phi}/\d
   \label{eq:lensing-series-expansion-r0}
 \end{equation}
 
-This can be easily converted to a series in $M/b$ instead of $M/r_0$, which is usually done in literature, since a relation beteen $b$ and $r_0$ can be derived in a series expansion by setting $\dot{r} = 0$, giving \citep{keeton2005formalism}
+This can be easily converted to a series in $M/b$ instead of $M/r_0$, which is usually done in literature, since a relation between $b$ and $r_0$ can be derived in a series expansion by setting $\dot{r} = 0$, giving \citep{keeton2005formalism}
 
 \begin{equation}
   r_0 = b \left [ 1 - \frac{M}{b} - \frac{3}{2} \left ( \frac{M}{b}\right)^2 - 4\left ( \frac{M}{b}\right)^3 \right ].
@@ -117,7 +117,7 @@ This relation can then be used to rewrite the expansion in terms of $\frac{M}{b}
 \end{equation}
 and indeed many authors use the impact parameter to discuss the bending of light in Schwarzschild spacetime \citep{wald2010general,misner2017gravitation,butcher2016no}. However, it has been pointed out previously by other authors \citep{ishak2008new,hammad2013note,lebedev2013influence} that in the non-zero $\Lambda$ case, the definition of the impact parameter is no longer independent of $\Lambda$ and becomes questionable due to the fact that spacetime is no longer asymptotically flat. 
 
-In this work we will work with another constant of the motion for the non-zero $\Lambda$ case, and for consistency we will use that parameter here as well so that a fair comparison can be made, even though the Schwarzschild case does not include a cosmological constant.
+In this work we will use another constant of the motion for the non-zero $\Lambda$ case, and for consistency we will use that parameter here as well so that a fair comparison can be made, even though the Schwarzschild case does not include a cosmological constant.
 
 We can define another constant of the motion $R_u$ which corresponds to the unperturbed trajectory of light (see \autoref{fig:lensing}), which is related to $r_0$ by (see Eq. 6 of \citet{ishak2008new} and Eq. 3 of \citet{butcher2016no}).
 
@@ -132,7 +132,7 @@ where I have added a subscript $u$ to differentiate it from the Kottler coordina
   \label{eq:series-expansion-R}
 \end{equation}
 
-There are 3 length quantities that are typically used in Schwarzschild lensing: the distance of closest approach $r_0$, the impact parameter $b$, and the parameter of the unperturbed trajectory $R_u$. They are related to each other through \autoref{eq:b-r0-relation} and \autoref{eq:r0-R-relation}, and their related series expansions are respectively given by \autoref{eq:lensing-series-expansion-r0}, \autoref{eq:series-expansion-b} and \autoref{eq:series-expansion-R}. The coefficient of the leading order term is the same for all three but they differ on higher order terms in the series expansion. Many gravitational lensing analysis done on the Schwarzschild metric are only concerned with the leading order term, and hence use these three lengths somewhat interchangeably. But in this project we are interested in corrections at the second order or higher, and the distinction becomes important. In the subsequent section of the report, we will be using the series expansion in $M/R_u$ (\autoref{eq:series-expansion-R}). 
+There are 3 length quantities that are typically used in Schwarzschild lensing: the distance of closest approach $r_0$, the impact parameter $b$, and the parameter of the unperturbed trajectory $R_u$. They are related to each other through \autoref{eq:b-r0-relation} and \autoref{eq:r0-R-relation}, and their related series expansions are respectively given by \autoref{eq:lensing-series-expansion-r0}, \autoref{eq:series-expansion-b} and \autoref{eq:series-expansion-R}. The coefficient of the leading order term is the same for all three but they differ on higher order terms in the series expansion. Many gravitational lensing anayses done on the Schwarzschild metric are only concerned with the leading order term, and hence use these three lengths somewhat interchangeably. But in this project we are interested in corrections at the second order or higher, and the distinction becomes important. In the subsequent section of the report, we will be using the series expansion in $M/R_u$ (\autoref{eq:series-expansion-R}). 
 
 As mentioned previously, \citet{rindler2007contribution} proposed a different expression for $\alpha$. The expression was later refined for a Swiss-cheese universe \citep{ishak2008new}, and I will state it here (in our notation) for easy comparison:
 

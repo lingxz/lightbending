@@ -4,7 +4,7 @@
 
 \section{Spacetime patches}
 
-Swiss-cheese (SC) models model were first introduced by \citet{einstein1945influence} to investigate the gravitational field of a mass well described by the Schwarzschild metric but embedded in a non-Minkowski background spacetime. Such a model is contructed by removing a coming sphere from the homogeneous background and replacing it with an inhomogeneous mass distribution (see \autoref{fig:swiss-cheese}). In this case, we use a mass distribution that is vacuum everywhere except for a point mass at the centre. In principle, since the sphere is comoving, multiple spheres can be inserted in the cheese as long as they are initially non-overlapping. In our model, only one hole is needed to model the lens. This stitching of two metrics on the cheese-hole boundary is of course not arbitrary, and matching conditions will impose restriction on the parameters of the two metrics. This will be discussed in detail in the following sections. 
+Swiss-cheese (SC) models were first introduced by \citet{einstein1945influence} to investigate the gravitational field of a mass well described by the Schwarzschild metric but embedded in a non-Minkowski background spacetime. Such a model is contructed by removing a comoving sphere from the homogeneous background and replacing it with an inhomogeneous mass distribution (see \autoref{fig:swiss-cheese}). In this case, we use a mass distribution that is vacuum everywhere except for a point mass at the centre. In principle, since the sphere is comoving, multiple spheres can be inserted in the cheese as long as they are initially non-overlapping. In our model, only one hole is needed to model the lens. This stitching of two metrics on the cheese-hole boundary is of course not arbitrary, and matching conditions will impose restriction on the parameters of the two metrics. This will be discussed in detail in the following sections. 
 
 \begin{figure}
   \centering
@@ -39,7 +39,7 @@ where $d \Omega^2 = d\theta^2 + \sin^2\theta d\phi^2$ is the metric on a 2-spher
   \item $k < 0$: The universe has negative spatial curvature and is open. 
 \end{itemize}
 
-The scale factor $a$ parametrizes the relative expansion of the universe, such that the relationship between physical distance and comoving distance between two points at a certain cosmic time $t$ is given as
+The scale factor $a$ parametrises the relative expansion of the universe, such that the relationship between physical distance and comoving distance between two points at a certain cosmic time $t$ is given as
 
 \begin{equation}
   d_{\text{physical}} = a(t) d_{\text{comoving}}.
@@ -49,7 +49,7 @@ The scale factor $a$ parametrizes the relative expansion of the universe, such t
 The scale factor also satisfies the Friedmann equation
 
 \begin{equation}
-  H^2 \equiv \left ( \frac{a_{,t}}{a} \right ) = \frac{8\pi G \rho}{3} + \frac{\Lambda}{3} - \frac{k}{a^2}
+  H^2 \equiv \left ( \frac{1}{a}\frac{da}{dt} \right )^2 = \frac{8\pi G \rho}{3} + \frac{\Lambda}{3} - \frac{k}{a^2}
   \label{eq:friedmann-equation}
 \end{equation}
 where $\rho$ is the energy density of a pressureless fluid and $H$ is the Hubble parameter. 
@@ -233,7 +233,7 @@ Combining \autoref{eq:kappa-to-fprime} with \autoref{eq:kottler-kappa}, we can e
 where $da/dt$ is given by the Friedmann equation \ref{eq:friedmann-equation}. Following through with the algebra, we arrive at the somewhat intuitive result that both regions must have the same cosmological constant $\Lambda$ and that the Kottler hole has to be mass compensating, meaning the enclosed mass $M$ has to equal the mass excised from the FRW background:
 
 \begin{equation}
-  M = \frac{4\pi}{3} a^3 r_h^3. 
+  M = \frac{4\pi}{3} \rho a^3 r_h^3. 
   \label{eq:junction-conditions-mass-volume}
 \end{equation}
 
@@ -244,7 +244,7 @@ From the junction conditions the rate of expansion of the hole in static coordin
   \label{eq:hole-expansion-in-kottler-dR-dT}
 \end{equation}
 
-The last thing we need from the boundary conditions is the relate the tangent vectors between the two metrics. The continuity of the metric, imposed by the first junction condition, implies that the connection does not diverge across the boundary. Therefore, light is not deflected as it crosses the boundary and we just need to convert the components of the tangent vector between the two coordinate systems. To obtain $\dot{R}$ in terms of FRW tangent vectors $\dot{r}$ and $\dot{t}$, we differentiate \autoref{eq:r-to-ar} and substitute $a_{,t}$ with the Friedmann equation \autoref{eq:friedmann-equation}. Keeping in mind the boundary conditions, we get an expression for $\dot{R}$. The angular coordinates and angular tangent vectors are unchanged when moving from the Kottler to FRW coordinates, and vice versa. With $\dot{R}$ and $\dot{\phi}$, $\dot{T}$ then can be easily obtained from the null condition \autoref{eq:null-condition}. The result is
+The last thing we need from the boundary conditions is to relate the tangent vectors between the two metrics. The continuity of the metric, imposed by the first junction condition, implies that the connection does not diverge across the boundary. Therefore, light is not deflected as it crosses the boundary and we just need to convert the components of the tangent vector between the two coordinate systems. To obtain $\dot{R}$ in terms of FRW tangent vectors $\dot{r}$ and $\dot{t}$, we differentiate \autoref{eq:r-to-ar} and substitute $da/dt$ with the Friedmann equation \autoref{eq:friedmann-equation}. Keeping in mind the boundary conditions, we get an expression for $\dot{R}$. The angular coordinates and angular tangent vectors are unchanged when moving from the Kottler to FRW coordinates, and vice versa. With $\dot{R}$ and $\dot{\phi}$, $\dot{T}$ then can be easily obtained from the null condition \autoref{eq:null-condition}. The result is
 
 \begin{subequations}
   \begin{align}
@@ -301,7 +301,7 @@ and its inverse function
   \label{eq:sk-inverse}
 \end{equation}
 
-From the angular diameter distance, the radial coordinate is given by 
+In terms of the angular diameter distance, the radial coordinate is given by 
 
 \begin{equation}
   r_L = (1+z_L)D_L.
@@ -309,7 +309,7 @@ From the angular diameter distance, the radial coordinate is given by
 
 Therefore, as we vary $\Lambda$, $r_L$ is expected to change since we fix $z_L$. We then place the lens at the origin and observer at a radial coordinate of $r = r_L$ and $\phi = \pi$. 
 
-Numerical integration is done with the \texttt{scipy.integrate.solve\_ivp} function in Python \citep{jones2014scipy}, which uses an explict Runge-Kutte method of order $5$ \citep{dormand1980family}. The solver uses an adaptive step size, and intersection between the light ray and the point of enter and exit of the hole are found with the classic Brent's method \citep{brent2013algorithms}, a root-finding algorithm. 
+Numerical integration is done with the \texttt{scipy.integrate.solve\_ivp} function in Python \citep{jones2014scipy}, which uses an explict Runge-Kutte method of order $5$ \citep{dormand1980family}. The solver uses an adaptive step size, and the intersection between the light ray and the point of entry and exit of the hole are found with the classic Brent's method \citep{brent2013algorithms}, a root-finding algorithm. 
 
 \subsection{FRW region}
 
@@ -327,7 +327,7 @@ Null geodesics govern the trajectory of the light ray. Without loss of generalit
 \end{subequations}
 which, when combined with the Friedmann equation (\autoref{eq:friedmann-eqn-version2}), fully determine the light's path. The negative sign on $\dot{t}$ is due to the fact that we are propagating the light backwards in time. We can then solve these differential equations numerically and stop the integration once the light ray reaches the boundary of the hole, which is defined by $r_h = \text{constant}$. We call this intersection event $\mathcal{E}_{\text{out}}$, since this is where the light, traveling from the source to observer in the opposite direction of our numerical calculations, \emph{leaves} the hole. 
 
-In the particular case of Euclidean geometry ($k = 0$), the coordinates of the event $\mathcal{E}_{\text{out}}$ can be calculated analytically. To do that, we first rewrite the flat metric in terms of the conformal time $\eta$, defined by $d\eta = dt/a(t)$, as
+In the particular case of Euclidean geometry ($k = 0$), the coordinates of the event $\mathcal{E}_{\text{out}}$ can be calculated analytically. To do this, we first rewrite the flat metric in terms of the conformal time $\eta$, defined by $d\eta = dt/a(t)$, as
 
 \begin{equation}
   ds^2 = a^2(\eta) \left ( -d \eta^2 + dr^2 + r^2 d \Omega^2 \right ).
@@ -372,7 +372,7 @@ The initial tangent vectors to start off the Kottler integration can be obtained
 
 \subsection{Kottler region}
 
-Inside the hole, the staticity and spherical symmetry of the Kottler metric imply the existence of two conserved quantities, $E = f(R) \dot{t}$ and $L = R^2 \dot{\phi}$, which correspond to the the energy and angular momentum of the photon respectively. The null condition, after rearranging to make $\dot{R}$ the subject, reads
+Inside the hole, the staticity and spherical symmetry of the Kottler metric imply the existence of two conserved quantities, $E = f(R) \dot{t}$ and $L = R^2 \dot{\phi}$, which correspond to the energy and angular momentum of the photon respectively. The null condition, after rearranging to make $\dot{R}$ the subject, reads
 
 \begin{equation}
   \dot{R} = \pm \sqrt{E^2 - \frac{L^2}{R^2} \left ( 1 - \frac{2M}{R} - \frac{\Lambda R^2}{3}\right )}.
@@ -421,4 +421,4 @@ Applying this formula and remembering that we place the observer at $(r, \phi) =
 
 With this, we now have all the formulation needed to carry out the numerical integration and also to translate the numerical results into observable quantities. 
 
-We also extend this model beyond a Kottler hole to a general static mass distribution, by replacing the Kottler metric by a LTB metric with pressure and deriving the null geodeics again in this spaetime. The quantities and results for the LTB metric are presented in \autoref{appendix:ltb}.
+We also extend this model beyond a Kottler hole to a general static mass distribution, by replacing the Kottler metric by a LTB metric with pressure and deriving the null geodesics again in this spacetime. The quantities and results for the LTB metric are presented in \autoref{appendix:ltb}.
