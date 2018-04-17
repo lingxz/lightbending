@@ -151,7 +151,7 @@ while the induced metric on the Kottler metric is
 \end{equation}
 where
 \begin{equation}
-  \kappa \equiv \sqrt{\frac{f^2[R_h(T)] - R_{h,T}^2(T)}{f[R_h(T)]}}.
+  \kappa \equiv \sqrt{\frac{f^2[R_h(T)] - \left(\frac{dR_h(T)}{dT}\right)^2}{f[R_h(T)]}}.
   \label{eq:kottler-kappa}
 \end{equation}
 
@@ -194,7 +194,7 @@ where $n_{\mu}$ is the unit vector normal to $\Sigma$, $j$ is as defined previou
 For a hypersurface defined by a function $q = 0$, the unit vector normal to it is
 
 \begin{equation}
-  n_{\mu} = \frac{q_{,\mu}}{\sqrt{g^{\alpha \beta} f_{,\alpha} f_{,\beta}}}.
+  n_{\mu} = \frac{q_{,\mu}}{\sqrt{g^{\alpha \beta} q_{,\alpha} q_{,\beta}}}.
   \label{eq:unit-normal-vector}
 \end{equation}
 
@@ -206,7 +206,7 @@ In our case $q = r-r_h$ in FRW coordinates and $q = R - R_h(T)$ in Kottler coord
 \end{equation}
 while the extrinsic curvature induced by the Kottler geometry is
 \begin{equation}
-  K_{ab} dx^a dx^b = \frac{1}{\kappa} \left [ R_{h,tt} + \frac{f^{\prime}}{2f}(f^2 - 3R_{h,t}^2) \right ] dT^2 + \frac{R_h f}{\kappa} d \Omega^2
+  K_{ab} dx^a dx^b = \frac{1}{\kappa} \left [ \frac{d^2R_h}{dT^2} + \frac{f^{\prime}}{2f}\left (f^2 - 3 \left (\frac{dR_h}{dT}\right )^2 \right) \right] dT^2 + \frac{R_h f}{\kappa} d \Omega^2
   \label{eq:extrinsic-curvature-kottler}
 \end{equation}
 where $f^{\prime} = \partial f / \partial R$, and all quantities are evaluated at $R = R_h(T)$.
@@ -219,13 +219,13 @@ Equating the components of \autoref{eq:extrinsic-curvature-frw} and \autoref{eq:
 \end{equation}
 and
 \begin{equation}
-  R_{h,tt} + \frac{f^{\prime}}{2f}(f^2 - 3R_{h,t}^2) = 0.
+  \frac{d^2R_h}{dT^2} + \frac{f^{\prime}}{2f}\left [f^2 - 3 \left (\frac{dR_h}{dT}\right )^2 \right ] = 0.
 \end{equation}
 The second equation is provided for completeness although it is not needed for subsequent derivations. 
 
 \subsection{Consequences on properties of the hole}
 
-Combining \autoref{eq:kappa-to-fprime} with \autoref{eq:kottler-kappa}, we can eliminate $\kappa$. We can also replace $R_{h,T}$ using the relation obtained in \autoref{eq:r-to-ar}, since
+Combining \autoref{eq:kappa-to-fprime} with \autoref{eq:kottler-kappa}, we can eliminate $\kappa$. We can also replace $dR_h/dT$ using the relation obtained in \autoref{eq:r-to-ar}, since
 
 \begin{equation}
   \frac{dR_h}{dT} = \frac{d(ar)}{dT} = \frac{da}{dt}\frac{dt}{dT}r.
@@ -237,7 +237,7 @@ where $da/dt$ is given by the Friedmann equation \ref{eq:friedmann-equation}. Fo
   \label{eq:junction-conditions-mass-volume}
 \end{equation}
 
-From the junction conditions the rate of expansion of the hole in static coordinates can also be obtained. By combining \autoref{eq:kottler-kappa} and \autoref{eq:kappa-to-fprime}, we get an expression for $dR/dT$
+From the junction conditions the rate of expansion of the hole in static coordinates can also be obtained. By combining \autoref{eq:kottler-kappa} and \autoref{eq:kappa-to-fprime}, we get an expression for $dR_h/dT$
 
 \begin{equation}
   \frac{dR_h}{dT} = f(R_h) \sqrt{1- \frac{f(R_h)}{1-k r_h^2}}.
