@@ -261,7 +261,7 @@ In summary, given a FRW spacetime with pressureless matter and a cosmological co
 
 \section{Light propagation}
 
-We propagate a light ray backwards from observer to source by solving the geodesic equation (\autoref{eq:geodesic-eqn}). In reality, the light ray travels from source to observer, but our calculations proceed in the opposite direction since we want to take the current observer position and observation event as the initial condition. The observer is placed in the FRW region, where we start propagating the light ray. The mass of the lensing object is fixed and consequently so is the size of the hole. The light ray is started off with an Einstein angle $\theta_{E}$, travels through the FRW region, encounters the Kottler hole which deflects its trajectory, and returns to the FRW region again (see \autoref{fig:swiss-cheese-ray}. In the Swiss-cheese model, all the bending occurs only in the Kottler hole and is truncated once light leaves the hole. 
+We propagate a light ray backwards from observer to source by solving the geodesic equation (\autoref{eq:geodesic-eqn}). In reality, the light ray travels from source to observer, but our calculations proceed in the opposite direction since we want to take the current observer position and observation event as the initial condition. The observer is placed in the FRW region, where we start propagating the light ray. The mass of the lensing object is fixed and consequently so is the size of the hole. The light ray is started off with an Einstein angle $\theta_{E}$, travels through the FRW region, encounters the Kottler hole which deflects its trajectory, and returns to the FRW region again (see \autoref{fig:swiss-cheese-ray}). In the Swiss-cheese model, all the bending occurs only in the Kottler hole and is truncated once light leaves the hole. 
 
 \begin{figure}
   \centering
@@ -313,7 +313,19 @@ Numerical integration is done with the \texttt{scipy.integrate.solve\_ivp} funct
 
 \subsection{FRW region}
 
-The light ray begins from the observer in the FRW region. The starting tangent angle $\theta_E$ is fixed, and the initial tangent vectors are set such that $\theta_E = \tan^{-1}(\sqrt{1-kr^2}r\dot{\phi}/\dot{r})$. We place the lens at the origin and take the observer to be at an azimuthal angle of $\phi = \pi$. 
+The light ray begins from the observer in the FRW region. The starting tangent angle $\theta_E$ is fixed, from which the initial tangent vectors are obtained. The Einstein angle is treated as the physical angle formed in the curved space that results from fixing $t = \text{constant}$ in the FRW metric. Given that we place the lens at the origin and take the observer to be at an azimuthal angle of $\phi = \pi$, it follows that the tangent vectors relate to $\theta_E$ as (see \ref{fig:angle-to-tangent-vectors})
+
+\begin{figure}
+  \centering
+  \includegraphics[height=0.2\linewidth]{images/angle.pdf}
+  \caption{The physical angle is found by restricting the FRW metric to $t = \text{constant}$. With $\theta = \pi/2$ and $a_0 = 1$, the metric becomes $ds^2 = dr^2 / (1-kr^2) + r^2 d\phi^2$. The light path forms the hypoteneuse of the infinitesimal triangle in the diagram. }
+  \label{fig:angle-to-tangent-vectors}
+\end{figure}
+
+\begin{equation}
+  \theta_E = \tan^{-1}\left (\frac{\sqrt{1-kr^2}r\dot{\phi}}{\dot{r}}\right ).
+  \label{eq:angle-to-tangent-vectors}
+\end{equation}
 
 Null geodesics govern the trajectory of the light ray. Without loss of generality, we can take $\theta = \pi/2$ to simplify the geodesic equations. Due to spherical symmetry, the FRW has a conserved quantity $L = a^2 r^2 \dot{\phi}$ that corresponds to the angular momentum of the photon. In terms of the conserved quantity, the null geodesic equations are
 
