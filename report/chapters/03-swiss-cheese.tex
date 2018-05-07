@@ -151,7 +151,7 @@ while the induced metric on the Kottler metric is
 \end{equation}
 where
 \begin{equation}
-  \kappa \equiv \sqrt{\frac{f^2[R_h(T)] - R_{h,T}^2(T)}{f[R_h(T)]}}.
+  \kappa \equiv \sqrt{\frac{f^2[R_h(T)] - \left(\frac{dR_h(T)}{dT}\right)^2}{f[R_h(T)]}}.
   \label{eq:kottler-kappa}
 \end{equation}
 
@@ -194,7 +194,7 @@ where $n_{\mu}$ is the unit vector normal to $\Sigma$, $j$ is as defined previou
 For a hypersurface defined by a function $q = 0$, the unit vector normal to it is
 
 \begin{equation}
-  n_{\mu} = \frac{q_{,\mu}}{\sqrt{g^{\alpha \beta} f_{,\alpha} f_{,\beta}}}.
+  n_{\mu} = \frac{q_{,\mu}}{\sqrt{g^{\alpha \beta} q_{,\alpha} q_{,\beta}}}.
   \label{eq:unit-normal-vector}
 \end{equation}
 
@@ -206,7 +206,7 @@ In our case $q = r-r_h$ in FRW coordinates and $q = R - R_h(T)$ in Kottler coord
 \end{equation}
 while the extrinsic curvature induced by the Kottler geometry is
 \begin{equation}
-  K_{ab} dx^a dx^b = \frac{1}{\kappa} \left [ R_{h,tt} + \frac{f^{\prime}}{2f}(f^2 - 3R_{h,t}^2) \right ] dT^2 + \frac{R_h f}{\kappa} d \Omega^2
+  K_{ab} dx^a dx^b = \frac{1}{\kappa} \left [ \frac{d^2R_h}{dT^2} + \frac{f^{\prime}}{2f}\left (f^2 - 3 \left (\frac{dR_h}{dT}\right )^2 \right) \right] dT^2 + \frac{R_h f}{\kappa} d \Omega^2
   \label{eq:extrinsic-curvature-kottler}
 \end{equation}
 where $f^{\prime} = \partial f / \partial R$, and all quantities are evaluated at $R = R_h(T)$.
@@ -219,13 +219,13 @@ Equating the components of \autoref{eq:extrinsic-curvature-frw} and \autoref{eq:
 \end{equation}
 and
 \begin{equation}
-  R_{h,tt} + \frac{f^{\prime}}{2f}(f^2 - 3R_{h,t}^2) = 0.
+  \frac{d^2R_h}{dT^2} + \frac{f^{\prime}}{2f}\left [f^2 - 3 \left (\frac{dR_h}{dT}\right )^2 \right ] = 0.
 \end{equation}
 The second equation is provided for completeness although it is not needed for subsequent derivations. 
 
 \subsection{Consequences on properties of the hole}
 
-Combining \autoref{eq:kappa-to-fprime} with \autoref{eq:kottler-kappa}, we can eliminate $\kappa$. We can also replace $R_{h,T}$ using the relation obtained in \autoref{eq:r-to-ar}, since
+Combining \autoref{eq:kappa-to-fprime} with \autoref{eq:kottler-kappa}, we can eliminate $\kappa$. We can also replace $dR_h/dT$ using the relation obtained in \autoref{eq:r-to-ar}, since
 
 \begin{equation}
   \frac{dR_h}{dT} = \frac{d(ar)}{dT} = \frac{da}{dt}\frac{dt}{dT}r.
@@ -237,7 +237,7 @@ where $da/dt$ is given by the Friedmann equation \ref{eq:friedmann-equation}. Fo
   \label{eq:junction-conditions-mass-volume}
 \end{equation}
 
-From the junction conditions the rate of expansion of the hole in static coordinates can also be obtained. By combining \autoref{eq:kottler-kappa} and \autoref{eq:kappa-to-fprime}, we get an expression for $dR/dT$
+From the junction conditions the rate of expansion of the hole in static coordinates can also be obtained. By combining \autoref{eq:kottler-kappa} and \autoref{eq:kappa-to-fprime}, we get an expression for $dR_h/dT$
 
 \begin{equation}
   \frac{dR_h}{dT} = f(R_h) \sqrt{1- \frac{f(R_h)}{1-k r_h^2}}.
@@ -261,7 +261,7 @@ In summary, given a FRW spacetime with pressureless matter and a cosmological co
 
 \section{Light propagation}
 
-We propagate a light ray backwards from observer to source by solving the geodesic equation (\autoref{eq:geodesic-eqn}). In reality, the light ray travels from source to observer, but our calculations proceed in the opposite direction since we want to take the current observer position and observation event as the initial condition. The observer is placed in the FRW region, where we start propagating the light ray. The mass of the lensing object is fixed and consequently so is the size of the hole. The light ray is started off with an Einstein angle $\theta_{E}$, travels through the FRW region, encounters the Kottler hole which deflects its trajectory, and returns to the FRW region again (see \autoref{fig:swiss-cheese-ray}. In the Swiss-cheese model, all the bending occurs only in the Kottler hole and is truncated once light leaves the hole. 
+We propagate a light ray backwards from observer to source by solving the geodesic equation (\autoref{eq:geodesic-eqn}). In reality, the light ray travels from source to observer, but our calculations proceed in the opposite direction since we want to take the current observer position and observation event as the initial condition. The observer is placed in the FRW region, where we start propagating the light ray. The mass of the lensing object is fixed and consequently so is the size of the hole. The light ray is started off with an Einstein angle $\theta_{E}$, travels through the FRW region, encounters the Kottler hole which deflects its trajectory, and returns to the FRW region again (see \autoref{fig:swiss-cheese-ray}). In the Swiss-cheese model, all the bending occurs only in the Kottler hole and is truncated once light leaves the hole. 
 
 \begin{figure}
   \centering
@@ -313,14 +313,26 @@ Numerical integration is done with the \texttt{scipy.integrate.solve\_ivp} funct
 
 \subsection{FRW region}
 
-The light ray begins from the observer in the FRW region. The starting tangent angle $\theta_E$ is fixed, and the initial tangent vectors are set such that $\theta_E = \tan^{-1}(\sqrt{1-kr^2}r\dot{\phi}/\dot{r})$. We place the lens at the origin and take the observer to be at an azimuthal angle of $\phi = \pi$. 
+The light ray begins from the observer in the FRW region. The starting tangent angle $\theta_E$ is fixed, from which the initial tangent vectors are obtained. The Einstein angle is treated as the physical angle formed in the curved space that results from fixing $t = \text{constant}$ in the FRW metric. Given that we place the lens at the origin and take the observer to be at an azimuthal angle of $\phi = \pi$, it follows that the tangent vectors relate to $\theta_E$ as (see \autoref{fig:angle-to-tangent-vectors})
+
+\begin{figure}
+  \centering
+  \includegraphics[height=0.2\linewidth]{images/angle.pdf}
+  \caption{The physical angle is found by restricting the FRW metric to $t = \text{constant}$. With $\theta = \pi/2$ and $a_0 = 1$, the metric becomes $ds^2 = dr^2 / (1-kr^2) + r^2 d\phi^2$. The light path forms the hypoteneuse of the infinitesimal triangle in the diagram. }
+  \label{fig:angle-to-tangent-vectors}
+\end{figure}
+
+\begin{equation}
+  \theta_E = \tan^{-1}\left (\frac{\sqrt{1-kr^2}r\dot{\phi}}{\dot{r}}\right ).
+  \label{eq:angle-to-tangent-vectors}
+\end{equation}
 
 Null geodesics govern the trajectory of the light ray. Without loss of generality, we can take $\theta = \pi/2$ to simplify the geodesic equations. Due to spherical symmetry, the FRW has a conserved quantity $L = a^2 r^2 \dot{\phi}$ that corresponds to the angular momentum of the photon. In terms of the conserved quantity, the null geodesic equations are
 
 \begin{subequations}
   \begin{align}
     \dot{t} &= -\sqrt{\frac{a^2\dot{r}^2}{1-kr^2} + a^2r^2 \dot{\phi}}\\
-    \ddot{r}  &= (1-kr^2)r\dot{\phi}^2 - \frac{k\dot{r}^2}{1-kr^2} - \frac{2a_{,t}}{a}\dot{r}\dot{t}\\
+    \ddot{r}  &= (1-kr^2)r\dot{\phi}^2 - \frac{kr\dot{r}^2}{1-kr^2} - \frac{2a_{,t}}{a}\dot{r}\dot{t}\\
     \dot{\phi} &= \frac{L}{a^2 r^2}
   \end{align}
   \label{eq:frw-null-geodesics}%
