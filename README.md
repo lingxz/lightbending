@@ -4,14 +4,14 @@
 
 Run one of these files to generate data:
 
-- `curved.py`: for fixed z_lens, fixed M, varying hole size rh, varying Lambda(graph 4)
-- `curved_const_rh.py`: for fixed z_lens, fixed hole size rh, varying M, varying Lambda (graph 7)
+- `curved.py`: for fixed z_lens, fixed M, varying hole size rh, varying Lambda(graph 5)
+- `curved_const_rh.py`: for fixed z_lens, fixed hole size rh, varying M, varying Lambda (graph 8)
 
 These two above are the most well written code, I tried to clean them up and add explanations. 
 
 The ones below are more messy, I didn't bother cleaning them up, but they were used for generating other things:
 
-- `calc_errors.py`: used for generating the errors graph (fig 5)
+- `calc_errors.py`: used for generating the errors graph (fig 6)
 - `ltb.py`: used for generating LTB graphs (things in Appendix A)
 
 Modify `main()` for parameters (such as number of datapoints, output filename, etc, as necessary. Flat space is used as default. Change values of `om_k` in `main()` to generate data for curved space. 
