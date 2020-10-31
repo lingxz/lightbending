@@ -198,10 +198,10 @@ For a hypersurface defined by a function $q = 0$, the unit vector normal to it i
   \label{eq:unit-normal-vector}
 \end{equation}
 
-In our case $q = r-r_h$ in FRW coordinates and $q = R - R_h(T)$ in Kottler coordinates. For example, the unit vector in the FRW region is trivial to calculate, and we get $n_{\mu}^{\text{(FRW)}} = \delta^r_{\mu}/a$. Applying this formula, the extrinsic curvature induced by the FRW geometry is
+In our case $q = r-r_h$ in FRW coordinates and $q = R - R_h(T)$ in Kottler coordinates. Using \autoref{eq:unit-normal-vector}, the unit vector in the FRW region is $n_{\mu}^{\text{(FRW)}} = a(t) \delta^r_{\mu}/\sqrt{1-kr^2}$. Applying \autoref{eq:extrinsic-curvature-defn}, the extrinsic curvature induced by the FRW geometry is
 
 \begin{equation}
-  K_{ab} dx^a dx^b = \frac{a(t)r}{\sqrt{1-kr^2}} d \Omega^2
+  K_{ab} dx^a dx^b = a(t)r \sqrt{1-kr^2} d \Omega^2
   \label{eq:extrinsic-curvature-frw}
 \end{equation}
 while the extrinsic curvature induced by the Kottler geometry is
@@ -214,7 +214,7 @@ where $f^{\prime} = \partial f / \partial R$, and all quantities are evaluated a
 Equating the components of \autoref{eq:extrinsic-curvature-frw} and \autoref{eq:extrinsic-curvature-kottler}, we obtain
 
 \begin{equation}
-  \frac{R_h f}{\kappa} = \frac{a(t)r}{\sqrt{1-kr^2}}
+  \frac{R_h f}{\kappa} = a(t)r\sqrt{1-kr^2}
   \label{eq:kappa-to-fprime}
 \end{equation}
 and
