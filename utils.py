@@ -72,6 +72,98 @@ def chi2r(k, chi):
 def omk2k(om_k, H0):
     return H0**2*om_k
 
+
+def plot_rs_multiple_ks(filename, latex=False, filenames=None):
+    set_typography(latex)
+
+    combined = pd.read_csv(filename)
+    grouped = combined.groupby(combined['om_ks'])
+
+
+    count = 0
+    for _, df in grouped:
+        if count == 7:
+            break
+        current_omk = df['om_ks'].values[0]
+        numerical_res =[]
+        preds_frw = []
+        preds_ishak = []
+        preds_kantowski = []
+        kant_higher_order_ratio = []
+
+        for index, row in df.iterrows():
+            M = row.M
+            Lambda = 3*row.om_lambdas*H_0**2
+
+            k = omk2k(row.om_ks, H_0)
+
+            numerical = chi2r(k, r2chi(k, row.raw_rs)+r2chi(k, row.comoving_lens))/row.raw_rs*row.theta
+
+            R = (row.DL*row.theta)
+            A_frw = 4*M/R + 15*np.pi*M**2/4/R**2 + 401/12*M**3/R**3
+
+            A_ishak = 4*M/R + 15*np.pi*M**2/4/R**2 + 305/12*M**3/R**3 - Lambda*R*row.exit_rhs/3
+
+            A_kantowski = -kantowski_alpha(R, M, row.enter_phis, row.om_lambdas)
+
+            r0 = 1/(1/R + M/R**2 + 3/16*M**2/R**3)
+            # for comparing with kantowski predictions
+            extra_term_ratio = np.abs((2*M/r0 + omega_lambda2lambda(row.om_lambdas)*r0**2)**(5/2)/(4*M/r0*(np.cos(row.enter_phis))**3))
+
+            preds_frw.append(A_frw/row.theta)
+            preds_ishak.append(A_ishak/row.theta)
+            preds_kantowski.append(A_kantowski/row.theta)
+            kant_higher_order_ratio.append(extra_term_ratio)
+            numerical_res.append(numerical/row.theta)
+
+        df['preds_frw'] = preds_frw
+        df['preds_ishak'] = preds_ishak
+        df['preds_kantowski'] = preds_kantowski
+        df['kant_higher_order_ratio'] = kant_higher_order_ratio
+        df['numerical_res'] = numerical_res
+
+        df['numerical'] = df.numerical_res/df.preds_frw - 1
+        df['ishak'] = df.preds_ishak/df.preds_frw - 1
+        df['kantowski'] = df.preds_kantowski/df.preds_frw - 1
+        df['numerical_kantowski'] = df.numerical_res / df.preds_kantowski - 1
+        df['numerical_zero'] = (df.numerical +1 ) / (df.numerical + 1).head(1).values[0] -1
+
+        stats = df[['numerical_res', 'om_lambdas', 'numerical', 'ishak', 'kantowski', 'numerical_kantowski', 'kant_higher_order_ratio', 'numerical_zero']].groupby('om_lambdas').agg(['mean', 'std', 'count'])
+        stats.columns = [' '.join(col).strip() for col in stats.columns.values]
+        stats['numerical mean std'] = stats['numerical std']/np.sqrt(stats['numerical count'])
+
+        scale = 1e-5
+        plt.plot(stats.index, stats['numerical mean']/scale, '-', label='Numerical results (Omega_k = {})'.format(current_omk))
+
+        if latex:
+            plt.xlabel(r'$\Omega_{\Lambda}$')
+            plt.ylabel(r'Fractional deviation of $\frac{D_S}{D_{LS}}$ / $10^{-4}$')
+        else:
+            plt.xlabel('Omega_Lambda')
+            plt.ylabel('Mean fractional deviation/10^-5')
+
+        # plt.plot(stats.index, [0/scale]*len(stats.index), 'r-', label='FRW predictions')
+
+        plt.legend(bbox_to_anchor=(1.05, 1))
+        count += 1
+        if filenames:
+            plt.savefig(filenames[0], dpi=400, transparent=True)
+
+
+def calculate_frw():
+    df = pd.read_csv("curvedpyoutput_withk3.csv")
+    for index, row in df.iterrows():
+        M = row.M
+        k = omk2k(row.om_ks, H_0)
+
+        numerical = chi2r(k, r2chi(k, row.raw_rs)+r2chi(k, row.comoving_lens))/row.raw_rs*row.theta
+        R = (row.DL*row.theta)
+        A_frw = 4*M/R + 15*np.pi*M**2/4/R**2 + 401/12*M**3/R**3
+        print(A_frw, numerical, numerical/A_frw - 1)
+    # return theta
+
+calculate_frw()    
+
 def plot_rs(filename, plot_ishak=True, plot_kantowski=True, latex=False, filenames=None):
     set_typography(latex)
 

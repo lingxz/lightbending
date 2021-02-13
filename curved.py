@@ -11,7 +11,7 @@ import time
 import pandas as pd
 from astropy.cosmology import LambdaCDM
 
-length_scale = 3.086e22 # mega parsec
+length_scale = 3.086e22 # 1 mega parsec
 
 tols = {
     'atol': 1e-120,
@@ -34,7 +34,6 @@ def frw(eta, w, p):
     phidot = L / (a*r)**2
     tdot = -np.sqrt(a**2*rdot**2/(1-k*r**2)+a**2*r**2*phidot**2)
     rddot = (1-k*r**2)*r*phidot**2 - k*r*rdot**2/(1-k*r**2) - 2*a_t/a*rdot*tdot
-
     return [
         a_t*tdot,
         rdot,
@@ -319,25 +318,22 @@ def binary_search(start, end, answer, Omega_m, Omega_Lambda):
         return binary_search(start, mid, answer, Omega_m, Omega_Lambda)
 
 
-# just a library to wrap around iterables to show a progress bar 
-# it's a great library!
 from tqdm import tqdm
 
-def main():
+def main(om_k = 0., to_file=True):
     start = time.time()
 
     # change this to edit the number of data points you want
-    om_lambdas = np.linspace(0., 0.99, 50)
+    # om_lambdas = np.linspace(0., 0.8, 50)
+    om_lambdas = [0]
 
     # z of the lens
     z_lens_initial = 0.5
-    # om_k = 0.1
 
     one_arcsec = 1/3600/180*np.pi
     # start_thetas = np.array([1/3600/180*np.pi]*50) # 1 arcsec
-    filename = 'data/curvedpyoutput.csv'
+    filename = 'data/curvedpyoutput_k{}.csv'.format(om_k)
     first = True
-    to_file = True
     print(filename)
 
     ## block A, see below
@@ -349,8 +345,8 @@ def main():
     z_lens = z_lens_initial
     theta = one_arcsec
 
-    thetas = []
-    dl = []
+    thetas = [] # fixed
+    dl = [] # from the z_lens, so fixed
     ms = []
     com_lens = []
     exit_rhs = []
@@ -359,19 +355,19 @@ def main():
     om_ks = []
     raw_rs = []
     for om in tqdm(om_lambdas):
-        om_k = 0
         om_m = 1 - om - om_k
+        assert om_m > 0
         k = omk2k(om_k, H_0)
         ms.append(M)
 
-        comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om, Omega_m=om_m)
+        # comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om, Omega_m=om_m)
         
         ## the block below achieves the same effect as the above line, 
         ## but using astropy function. I checked they are the same,
         ## but you can use the below code if you have more faith in a tested library function (:
-        # cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om)
-        # dang_lens = cosmo.angular_diameter_distance(z_lens).value
-        # comoving_lens = cosmo.comoving_transverse_distance(z_lens).value
+        cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om)
+        dang_lens = cosmo.angular_diameter_distance(z_lens).value
+        comoving_lens = cosmo.comoving_transverse_distance(z_lens).value
 
         ######################################################
 
@@ -424,8 +420,88 @@ def main():
             df.to_csv(filename, index=False, header=False, mode='a')
 
     print("Time taken: {}".format(time.time() - start))
+    return df
 
 
+def main_multiple_omk():
+    current = None
+    filename = "curvedpyoutput_withk3.csv"
+    # omks = np.linspace(0., 0.001, 10)
+    # omks = [0, 0.001, 0.002, 0.003, 0.005, 0.008, 0.01, 0.05]
+    omks = [0.1, 0.3, 0.5, 0.8, 0.9]
+    for om_k in omks:
+        df = main(om_k=om_k, to_file=False)
+        df['om_k'] = om_k
+        if current is None:
+            df.to_csv(filename, index=False)
+        else:
+            df.to_csv(filename, index=False, header=False, mode='a')
+        current = df
+
+
+def compare_with_analytical():
+    # analytical
+    z_lens = 0.5
+    one_arcsec = 1/3600/180*np.pi
+    theta = one_arcsec
+    om_m = 0.1
+    om_lambda = 0.7
+    cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om_lambda)
+    dang_lens = cosmo.angular_diameter_distance(z_lens).value
+    comoving_lens = cosmo.comoving_transverse_distance(z_lens).value
+
+    # numerical
+    # convert variable names
+    Omega_Lambda = om_lambda
+    Omega_m = om_m
+    angle_to_horizontal = theta
+
+    a0 = 1
+    initial_a = a0
+    # initial_r = 10e17
+    initial_r = comoving_lens
+    initial_phi = np.pi
+    initial_t = 0.
+    Omega_k = 1 - Omega_m - Omega_Lambda
+    k = omk2k(Omega_k, H_0)
+
+
+    ######################### frw1 initial conditions ##################################
+    print("initial_r", initial_r)
+    initial_rdot = -initial_r
+    initial_phidot = np.tan(angle_to_horizontal)*initial_rdot/initial_r/np.sqrt(1-k*initial_r**2)
+    # initial_phidot = np.tan(angle_to_horizontal) * initial_rdot / initial_r
+    initial_tdot = -np.sqrt(initial_a**2*initial_rdot**2/(1-k*initial_r**2) + initial_a**2*initial_r**2*initial_phidot**2)
+
+    rho = Omega_m*3*H_0**2/(8*np.pi)
+    r_h = 1/initial_a*(3*M/(4*np.pi*rho))**(1./3)
+    chi_h = r2chi(k, r_h)
+
+    Lambda = 3*Omega_Lambda*H_0**2
+    L_frw = (initial_a*initial_r)**2*initial_phidot
+
+    p_frw = [L_frw, Omega_k, Omega_Lambda, Omega_m, H_0]
+    initial = [initial_a, initial_r, initial_rdot, initial_t, initial_phi]
+
+    ######################### end frw1 initial conditions ##################################
+
+
+    ######################### frw1 integration ##################################
+    def reach_hole(t, y): return y[4] - np.pi/2 # needs to be positive to negative
+    # def reach_hole(t, y): return r2chi(k, y[1]) - chi_h
+    reach_hole.terminal = True
+    reach_hole.direction = -1
+
+    sol = spi.solve_ivp(lambda t, y: frw(t, y, p_frw), [0, 10], initial, events=reach_hole, **tols)
+    print("events", sol.y_events[0])
+    last = sol.y[:,-1]
+    r_final = last[1]
+
+    print(comoving_lens, chi_h, last[1], last[4])
+    print("numerical", last[0] * last[1] / theta) # a*r / theta
+    print("dang_lens", dang_lens)
 
 if __name__ == '__main__':
-    main()
+    # main()
+    # main_multiple_omk()
+    compare_with_analytical()

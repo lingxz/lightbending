@@ -329,11 +329,11 @@ def binary_search(start, end, answer, Omega_m, Omega_Lambda):
 # it's a great library!
 from tqdm import tqdm
 
-def main():
+def main(om_k = 0., to_file=True):
     start = time.time()
 
     # change this to edit the number of data points you want
-    om_lambdas = np.linspace(0., 0.98, 50)
+    om_lambdas = np.linspace(0., 0.8, 50)
 
     # z of the lens
     z_lens_initial = 0.5
@@ -365,7 +365,6 @@ def main():
     om_ks = []
     raw_rs = []
     for om in tqdm(om_lambdas):
-        om_k = 0
         om_m = 1 - om - om_k
 
         global M
@@ -374,14 +373,14 @@ def main():
         ms.append(M)
         k = omk2k(om_k, H_0)
 
-        comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om, Omega_m=om_m)
+        # comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om, Omega_m=om_m)
         
-        ## the block below achieves the same effect as the above line, 
-        ## but using astropy function. I checked they are the same,
-        ## but you can use the below code if you have more faith in a tested library function (:
-        # cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om)
-        # dang_lens = cosmo.angular_diameter_distance(z_lens).value
-        # comoving_lens = cosmo.comoving_transverse_distance(z_lens).value
+        # the block below achieves the same effect as the above line, 
+        # but using astropy function. I checked they are the same,
+        # but you can use the below code if you have more faith in a tested library function (:
+        cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om)
+        dang_lens = cosmo.angular_diameter_distance(z_lens).value
+        comoving_lens = cosmo.comoving_transverse_distance(z_lens).value
 
         ######################################################
 
@@ -434,6 +433,22 @@ def main():
             df.to_csv(filename, index=False, header=False, mode='a')
 
     print("Time taken: {}".format(time.time() - start))
+    return df
+
+def main_multiple_omk():
+    current = None
+    filename = "curvedpyoutput_fixedr_withk.csv"
+    # omks = np.linspace(0., 0.001, 10)
+    omks = [0, 0.001, 0.002, 0.003, 0.005, 0.008, 0.01, 0.05]
+    for om_k in omks:
+        df = main(om_k=om_k, to_file=False)
+        df['om_k'] = om_k
+        if current is None:
+            df.to_csv(filename, index=False)
+        else:
+            df.to_csv(filename, index=False, header=False, mode='a')
+        current = df
 
 
-main()
+# main()
+main_multiple_omk()
