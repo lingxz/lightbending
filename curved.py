@@ -21,7 +21,6 @@ tols = {
 
 H_0 = 70*1000/(3.086e22)/299792458 * length_scale # 70km/s/Mpc
 M = 1474e13 / length_scale
-print("M: ", M)
 
 def frw(eta, w, p):
     L, Omega_k, Omega_Lambda, Omega_m, H_0 = p
@@ -97,201 +96,206 @@ def kottler(eta, w, p):
         phidot,
     ]
 
+class SwissCheese:
+    # class to encapsulate the solution for light propagation in a swiss cheese model.
+    def __init__(self, M, Omega_Lambda, Omega_m, comoving_lens, angle_to_horizontal):
+        self.Omega_Lambda = Omega_Lambda
+        self.Omega_m = Omega_m
+        self.Omega_k = 1 - Omega_Lambda - Omega_m
+        self.Lambda = 3*Omega_Lambda*H_0**2
+        self.comoving_lens = comoving_lens # r coordinate of the lens
+        self.angle_to_horizontal = angle_to_horizontal
+        self.k = omk2k(self.Omega_k, H_0)
+        
+        initial_a = 1
+        rho_0 = Omega_m*3*H_0**2/(8*np.pi) # critical density
+        self.M = M # mass of the hole
+        self.r_h = 1/initial_a*(3*M/(4*np.pi*rho_0))**(1./ 3) # r coordinate of the hole, based on the mass
+        self.chi_h = r2chi(self.k, self.r_h)
 
-def solve(angle_to_horizontal, comoving_lens=None, verbose=True, Omega_Lambda=None, Omega_m=None):
-    a0 = 1
-    initial_a = a0
-    # initial_r = 10e17
-    initial_r = comoving_lens
-    initial_phi = np.pi
-    initial_t = 0.
-    Omega_k = 1 - Omega_m - Omega_Lambda
-    k = omk2k(Omega_k, H_0)
-
-
-    ######################### frw1 initial conditions ##################################
-    initial_rdot = -initial_r
-    if verbose:
-        print("om_k", Omega_k, k)
-        print("1-kr^2", np.sqrt(1-k*initial_r**2))
-    initial_phidot = np.tan(angle_to_horizontal)*initial_rdot/initial_r/np.sqrt(1-k*initial_r**2)
-    # initial_phidot = np.tan(angle_to_horizontal) * initial_rdot / initial_r
-    initial_tdot = -np.sqrt(initial_a**2*initial_rdot**2/(1-k*initial_r**2) + initial_a**2*initial_r**2*initial_phidot**2)
-
-    if verbose:
-        print("initial velocities:", initial_rdot, initial_phidot, initial_tdot)
-
-    rho = Omega_m*3*H_0**2/(8*np.pi)
-    r_h = 1/initial_a*(3*M/(4*np.pi*rho))**(1./3)
-    if verbose:
-        print('r_h:', r_h, "\n")
-    chi_h = r2chi(k, r_h)
-
-    Lambda = 3*Omega_Lambda*H_0**2
-    L_frw = (initial_a*initial_r)**2*initial_phidot
-
-    p_frw = [L_frw, Omega_k, Omega_Lambda, Omega_m, H_0]
-    initial = [initial_a, initial_r, initial_rdot, initial_t, initial_phi]
-
-    ######################### end frw1 initial conditions ##################################
-
-
-    ######################### frw1 integration ##################################
-    def reach_hole(t, y): return r2chi(k, y[1]) - chi_h
-    reach_hole.terminal = True
-    reach_hole.direction = -1
-
-    sol = spi.solve_ivp(lambda t, y: frw(t, y, p_frw), [0, 10], initial, events=reach_hole, **tols)
-    last = sol.y[:,-1]
-
-    ######################### end frw1 integration ##################################
-
-    frw_angle_before_entering = get_angle_frw_curved(last[1], last[4], last[2], L_frw/(last[0]*last[1])**2, k)
-
-    if verbose:
-        print("Angle in FRW::")
-        print(frw_angle_before_entering)
-        print(last)
-        print("\n")
-
-
-    ######################### conversion to kottler ##################################
-    # a, r, rdot, t, phi = w
-    r_out = last[0] * last[1]
-    exit_rh = r_out
-    tdot_out = -np.sqrt(last[0]**2*last[2]**2+last[0]**2*last[1]**2*L_frw/(last[0]*last[1])**2)
-    initial_t = 0
-    initial_r = r_out
-    initial_phi = last[4]
-    initial_rh = initial_r
-    f = 1 - 2*M/r_out - Lambda/3*r_out**2
-    etadot = tdot_out / last[0] # conformal time
-
-    # a, r, rdot, t, phi
-    frw_r = last[1]
-    frw_a = last[0]
-
-    jacobian = np.matrix([[1/f*np.sqrt(1-k*frw_r**2), frw_a/f/np.sqrt(1-k*frw_r**2)*np.sqrt(1-f-k*frw_r**2)], [np.sqrt(1-f-k*frw_r**2), frw_a]])
-    vels = np.matmul(jacobian, np.array([tdot_out, last[2]]))
-    initial_rdot, initial_tdot = vels[0, 1], vels[0, 0]
-
-    initial_phidot = L_frw / (last[0]*last[1])**2
-    L_kottler = initial_phidot *initial_r**2
-
-    initial_kottler = [initial_rh, initial_t, initial_r, initial_rdot, initial_phi]
-    E = f*initial_tdot
-    p_kottler = [E, L_kottler, M, Omega_Lambda, Omega_m, H_0, k, r_h]
-
-    if verbose:
-        print("kottler initial:")
-        print("initial_rh, initial_t, initial_r, initial_rdot, initial_phi")
-        print(initial_kottler)
-        print("p_kottler")
-        print(p_kottler)
-
-    angle_before_entering = get_angle(initial_r, initial_phi, initial_rdot, initial_phidot)
-    if verbose:
-        print("light ray angle before entering kottler hole: ", angle_before_entering)
-        print("initial conditions on entering kottler hole: ", initial_kottler)
-        print("initial params on entering kottler hole: ", p_kottler)
+        # params that will be set during the run
+        self.frw_parameters = None
+        self.frw_initial = None
+        self.frw_final = None
+        self.kottler_parameters = None
+        self.kottler_initial = None
+        self.kottler_final = None
+        self.frw_initial_right = None  # for the FRW integration to the right of the hole.
+        self.frw_final_right = None
     
+    def run(self):
+        self.frw_initial_conditions_and_parameters()
+        self.integrate_frw()
+        self.convert_frw_to_kottler_coordinates()
+        self.integrate_kottler()
+        self.convert_kottler_to_frw_coordinates()
+        self.integrate_frw_right()
 
-
-    ######################### kottler integration ##################################
     
-    # this is so that it doesn't hit the boundary condition initially
-    initial_kottler[2] -= 1e-10
+    def frw_initial_conditions_and_parameters(self):
+        ## Initial conditions to start the integration
+        initial_r = self.comoving_lens
+        initial_rdot = -initial_r
+        initial_phi = np.pi
+        initial_t = 0.
+        initial_a = 1
+        initial_phidot = np.tan(self.angle_to_horizontal)*initial_rdot/initial_r/np.sqrt(1-self.k*initial_r**2)
+        initial_tdot = -np.sqrt(initial_a**2*initial_rdot**2/(1-self.k*initial_r**2) + initial_a**2*initial_r**2*initial_phidot**2)
+        initial = [initial_a, initial_r, initial_rdot, initial_t, initial_phi]
 
-    def exit_hole(t, y): return y[2] - y[0]
-    def turning_point(t, y): return y[4] - np.pi/2 
-    exit_hole.terminal = True
-    exit_hole.direction = 1
-    turning_point.terminal = False
-    turning_point.direction = -1
-    sol_kottler = spi.solve_ivp(lambda t, y: kottler(t, y, p_kottler), [0, 10], initial_kottler, dense_output=True, events=[turning_point, exit_hole], **tols)
-    last = sol_kottler.y[:,-1]
-    if verbose:
-        print("sol kottler", sol_kottler.t_events)
-        print("turning point in kottler", sol_kottler.sol(sol_kottler.t_events[0])[2])
+        ## Parameters needed for FRW integration
+        L = (initial_a*initial_r)**2*initial_phidot
+        parameters = [L, self.Omega_k, self.Omega_Lambda, self.Omega_m, H_0]
+        self.frw_initial = initial
+        self.frw_parameters = parameters
+        return initial, parameters
+    
+    def integrate_frw(self):
+        initial = self.frw_initial
+        parameters = self.frw_parameters
+        def reach_hole(t, y): return r2chi(self.k, y[1]) - self.chi_h
+        reach_hole.terminal = True
+        reach_hole.direction = -1
+        sol = spi.solve_ivp(lambda t, y: frw(t, y, parameters), [0, 10], initial, events=reach_hole, **tols)
+        self.frw_final = sol.y_events[0][0]
+
+    def convert_frw_to_kottler_coordinates(self):
+        a, r, rdot, t, phi = self.frw_final
+        L_frw = self.frw_parameters[0]
+        R_out = a * r
+        exit_Rh = R_out
+        Tdot_out = -np.sqrt(a**2*rdot**2+a**2*r**2*L_frw/(a*r)**2)
+        initial_T = 0
+        initial_R = R_out
+        initial_phi = phi
+        initial_Rh = initial_R
+        f = 1 - 2*self.M/R_out - self.Lambda/3*R_out**2
+        etadot = Tdot_out / a # conformal time
+
+        jacobian = np.matrix([[1/f*np.sqrt(1-self.k*r**2), a/f/np.sqrt(1-self.k*r**2)*np.sqrt(1-f-self.k*r**2)], [np.sqrt(1-f-self.k*r**2), a]])
+        vels = np.matmul(jacobian, np.array([Tdot_out, rdot]))
+        initial_Rdot, initial_Tdot = vels[0, 1], vels[0, 0]
+
+        initial_phidot = L_frw / (a*r)**2
+        L_kottler = initial_phidot *initial_R**2
+
+        self.kottler_initial = [initial_Rh, initial_T, initial_R, initial_Rdot, initial_phi]
+        E = f*initial_Tdot
+        self.kottler_parameters = [E, L_kottler, self.M, self.Omega_Lambda, self.Omega_m, H_0, self.k, self.r_h]
+
+    def integrate_kottler(self):
+        # this is so that it doesn't hit the boundary condition initially
+        initial = self.kottler_initial[:]
+        parameters = self.kottler_parameters
+        initial[2] -= 1e-10
+
+        def exit_hole(t, y): return y[2] - y[0]
+        def turning_point(t, y): return y[4] - np.pi/2 
+        exit_hole.terminal = True
+        exit_hole.direction = 1  # when value goes from negative to positive
+        turning_point.terminal = False
+        turning_point.direction = -1
+        sol_kottler = spi.solve_ivp(lambda t, y: kottler(t, y, parameters), [0, 10], initial, dense_output=True, events=[turning_point, exit_hole], **tols)
+        self.kottler_final = sol_kottler.y_events[1][0]
+    
+    def convert_kottler_to_frw_coordinates(self):
+        # r_h, t, r, rdot, phi = w
+        Rh, T, R, Rdot, phi = self.kottler_final
+        L_kottler = self.kottler_parameters[1]
+        E_kottler = self.kottler_parameters[0]
+        initial_phi = phi
+        initial_r = self.r_h
+        initial_a = R / self.r_h
+
+        initial_phidot = L_kottler / R**2
+        f = 1-2*M/R-self.Lambda/3*R**2
+        Tdot = E_kottler/f
+
+        # a, r, rdot, t, phi
+        frw_r = self.r_h
+        frw_a = initial_a
+        jacobian = np.matrix([[1/f*np.sqrt(1-self.k*frw_r**2), frw_a/f/np.sqrt(1-self.k*frw_r**2)*np.sqrt(1-f-self.k*frw_r**2)], [np.sqrt(1-self.k*frw_r**2-f), frw_a]])
+        inv_jac = np.linalg.inv(jacobian)
+        vels = np.matmul(inv_jac, np.array([Tdot, Rdot]))
+        initial_rdot, initial_tdot = vels[0, 1], vels[0, 0]
+
+        # change the L_frw, I don't think it is needed, but doing it just in case
+        self.frw_parameters[0] = initial_a**2 * initial_r**2*initial_phidot
+
+        initial_t = 0
+        # a, t, r, rdot, phi 
+
+        # check if it is going to cross the axis, inform if otherwise
+        # doesn't throw an error if it isn't
+        initial_ydot = initial_rdot*np.sin(initial_phi) + initial_r*np.cos(initial_phi)*initial_phidot
+        if initial_ydot > 0:
+            print("light ray is not going to cross the axis, decrease angle_to_horizontal")
+            # print("initial angle to horizontal: ", angle_to_horizontal)
+            print("----")
+
+        if initial_r*np.sin(initial_phi) < 0:
+            print("light ray is bent too much by the hole, increase angle_to_horizontal")
+            # print("initial angle to horizontal: ", angle_to_horizontal)
+            print("----")
+
+        self.frw_initial_right = [initial_a, initial_r, initial_rdot, initial_t, initial_phi]
+
+        # enter_phi = initial_phi
+        # alpha = frw_angle_before_entering + frw_angle_after_exiting
+    
+    def integrate_frw_right(self):
+        ######################### FRW integration ##################################
+        def reach_axis(t, y): return y[4] - 0
+        reach_axis.terminal = True
+        reach_axis.direction = -1
+        sol = spi.solve_ivp(lambda t, y: frw(t, y, self.frw_parameters), [0, 10], self.frw_initial_right, events=reach_axis, **tols)
+        self.frw_final_right = sol.y_events[0][0]
+    
+    def debug_logs(self):
+        print("===== Initial parameters =====")
+        self._print_with_names([self.k, self.Omega_k, self.r_h, self.angle_to_horizontal, self.comoving_lens], ["k", "Omega_k", "r_h", "angle_to_horizontal", "comoving_lens"])
+        print("===== Initial FRW coordinates =====")
+        self._print_with_names(self.frw_initial, ["a", "r", "rdot", "t", "phi"])
+        self._print_with_names(self.frw_parameters, ["L", "Omega_k", "Omega_Lambda", "Omega_m", "H_0"])
+
+        print("===== Final FRW coordinates =====")
+        self._print_with_names(self.frw_final, ["a", "r", "rdot", "t", "phi"])
+        # TODO clean this up
+        frw_angle_before_entering_hole = get_angle_frw_curved(self.frw_final[1], self.frw_final[4], self.frw_final[2], self.frw_parameters[0]/(self.frw_final[0]*self.frw_final[1])**2, self.k)
+        print("FRW angle before entering hole:", frw_angle_before_entering_hole)
         print()
 
-
-    if verbose:
-        print("last in Kottler", last)
-    angle_after_exiting = get_angle(last[2], last[4], last[3], L_kottler/last[2]**2)
-
-
-
-    ######################### conversion back to FRW ##################################
-    # r_h, t, r, rdot, phi = w
-    initial_phi = last[4]
-    initial_r = r_h
-    initial_a = last[2] / r_h
-
-    if verbose:
-        print("scale factor on exit:", initial_a)
-    initial_phidot = L_kottler / last[2]**2
-    f = 1-2*M/last[2]-Lambda/3*last[2]**2
-    last_tdot = E/f
-
-    # a, r, rdot, t, phi
-    frw_r = r_h
-    frw_a = initial_a
-    jacobian = np.matrix([[1/f*np.sqrt(1-k*frw_r**2), frw_a/f/np.sqrt(1-k*frw_r**2)*np.sqrt(1-f-k*frw_r**2)], [np.sqrt(1-k*frw_r**2-f), frw_a]])
-    inv_jac = np.linalg.inv(jacobian)
-    vels = np.matmul(inv_jac, np.array([last_tdot, last[3]]))
-    initial_rdot, initial_tdot = vels[0, 1], vels[0, 0]
-
-    # change the L_frw, I don't think it is needed, but doing it just in case
-    p_frw[0] = initial_a**2 * initial_r**2*initial_phidot
-
-    initial_t = 0
-    # a, t, r, rdot, phi 
-
-    # this angle is not used for results, just to get a feel of what it is when debugging
-    frw_angle_after_exiting = get_angle_frw_curved(initial_r, initial_phi, initial_rdot, initial_phidot, k)
-
-    if verbose:
-        print("Angle after exiting FRW:", frw_angle_after_exiting)
-        print("bending angle in FRW: ", frw_angle_before_entering + frw_angle_after_exiting)
-        print("\n")
-
-    # check if it is going to cross the axis, inform if otherwise
-    # doesn't throw an error if it isn't
-    initial_ydot = initial_rdot*np.sin(initial_phi) + initial_r*np.cos(initial_phi)*initial_phidot
-    if initial_ydot > 0:
-        print("light ray is not going to cross the axis, decrease angle_to_horizontal")
-        print("initial angle to horizontal: ", angle_to_horizontal)
-        print("----")
-
-    if initial_r*np.sin(initial_phi) < 0:
-        print("light ray is bent too much by the hole, increase angle_to_horizontal")
-        print("initial angle to horizontal: ", angle_to_horizontal)
-        print("----")
-
-    initial_frw2 = [initial_a, initial_r, initial_rdot, initial_t, initial_phi]
-    if verbose:
-        print("FRW2 initial: ", initial_frw2)
-
-    enter_phi = initial_phi
-    alpha = frw_angle_before_entering + frw_angle_after_exiting
+        print("===== Initial Kottler coordinates =====")
+        self._print_with_names(self.kottler_initial, ["R_h", "T", "R", "Rdot", "phi"])
+        self._print_with_names(self.kottler_parameters, ["E", "L", "M", "Omega_Lambda", "Omega_m", "H_0", "k", "r_h"])
+        
+        print("===== Final Kottler coordinates =====")
+        self._print_with_names(self.kottler_final, ["R_h", "T", "R", "Rdot", "phi"])
+        
+        print("===== Initial FRW coordinates (right) =====")
+        self._print_with_names(self.frw_initial_right, ["a", "r", "rdot", "t", "phi"])
+        print()
+        
+        print("===== Final FRW coordinates (right) =====")
+        self._print_with_names(self.frw_final_right, ["a", "r", "rdot", "t", "phi"])
 
 
-    ######################### FRW integration ##################################
-    def reach_axis(t, y): return y[4] - 0
-    reach_axis.terminal = True
-    reach_axis.direction = -1
-    sol2 = spi.solve_ivp(lambda t, y: frw(t, y, p_frw), [0, 10], initial_frw2, events=reach_axis, **tols)
-    last = sol2.y[:,-1]
+    @staticmethod    
+    def _print_with_names(values, names):
+        for name, value in zip(names, values):
+            print("{}: {}".format(name, value))
 
-    if verbose:
-        print("last one frw", last)
 
-    ######################### end FRW integration, return everything ##################################
-    # alpha is not used, I also dunno why I'm returning it
-    alpha  = get_angle_frw_curved(last[1], last[4], last[2], p_frw[0]/(last[0]*last[1])**2, k) + angle_to_horizontal
-    return alpha, exit_rh, enter_phi, last[1], last[0]
-
+class NoHoleFRWIntegration(SwissCheese):
+    def integrate_frw(self):
+        initial = self.frw_initial
+        parameters = self.frw_parameters
+        def reach_hole(t, y): return y[4] - np.pi/2
+        reach_hole.terminal = True
+        reach_hole.direction = -1
+        sol = spi.solve_ivp(lambda t, y: frw(t, y, parameters), [0, 10], initial, events=reach_hole, **tols)
+        self.frw_final = sol.y_events[0][0]
+    
 
 def get_distances(z, Omega_Lambda=None, Omega_m=None):
     Omega_k = 1 - Omega_Lambda - Omega_m
@@ -320,20 +324,19 @@ def binary_search(start, end, answer, Omega_m, Omega_Lambda):
 
 from tqdm import tqdm
 
-def main(om_k = 0., to_file=True):
+def main(om_k = 0., filename=None):
     start = time.time()
 
     # change this to edit the number of data points you want
-    # om_lambdas = np.linspace(0., 0.8, 50)
-    om_lambdas = [0]
+    om_lambdas = np.linspace(0., 0.99, 50)
+    # om_lambdas = [0]
 
     # z of the lens
     z_lens_initial = 0.5
 
     one_arcsec = 1/3600/180*np.pi
     # start_thetas = np.array([1/3600/180*np.pi]*50) # 1 arcsec
-    filename = 'data/curvedpyoutput_k{}.csv'.format(om_k)
-    first = True
+    # filename = 'data/curvedpyoutput_k{}.csv'.format(om_k)
     print(filename)
 
     ## block A, see below
@@ -351,7 +354,6 @@ def main(om_k = 0., to_file=True):
     com_lens = []
     exit_rhs = []
     enter_phis = []
-    alphas = []
     om_ks = []
     raw_rs = []
     for om in tqdm(om_lambdas):
@@ -360,14 +362,23 @@ def main(om_k = 0., to_file=True):
         k = omk2k(om_k, H_0)
         ms.append(M)
 
+
         # comoving_lens, dang_lens = get_distances(z_lens, Omega_Lambda=om, Omega_m=om_m)
-        
-        ## the block below achieves the same effect as the above line, 
-        ## but using astropy function. I checked they are the same,
-        ## but you can use the below code if you have more faith in a tested library function (:
+
+        # astropy function to do the same thing
         cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om)
         dang_lens = cosmo.angular_diameter_distance(z_lens).value
         comoving_lens = cosmo.comoving_transverse_distance(z_lens).value
+
+
+        # numerical
+        solution = SwissCheese(
+            M = M,
+            Omega_Lambda = om,
+            Omega_m = om_m,
+            comoving_lens = comoving_lens,
+            angle_to_horizontal = theta)
+        solution.run()
 
         ######################################################
 
@@ -381,10 +392,12 @@ def main(om_k = 0., to_file=True):
         dl.append(dang_lens)
         com_lens.append(comoving_lens)
         thetas.append(theta)
-        alpha, exit_rh, enter_phi, raw_r, source_a = solve(theta, verbose=False, comoving_lens=comoving_lens, Omega_Lambda=om, Omega_m=om_m)
+
+        exit_rh, enter_phi, raw_r, source_a = solution.kottler_initial[2], solution.frw_initial_right[4], solution.frw_final_right[1], solution.frw_final_right[0]
+
+        # exit_rh, enter_phi, raw_r, source_a = solve(theta, verbose=False, comoving_lens=comoving_lens, Omega_Lambda=om, Omega_m=om_m)
         exit_rhs.append(exit_rh)
         enter_phis.append(enter_phi)
-        alphas.append(alpha)
         om_ks.append(om_k)
         raw_rs.append(raw_r)
 
@@ -394,7 +407,6 @@ def main(om_k = 0., to_file=True):
     com_lens = np.array(com_lens)
     exit_rhs = np.array(exit_rhs)
     enter_phis = np.array(enter_phis)
-    alphas = np.array(alphas)
     om_ks = np.array(om_ks)
     raw_rs = np.array(raw_rs)
 
@@ -406,13 +418,11 @@ def main(om_k = 0., to_file=True):
         'comoving_lens': com_lens,
         'exit_rhs': exit_rhs,    # for calculating Rindler & Ishak predictions
         'enter_phis': enter_phis,  # for calculating kantowski's predictions
-        # 'alphas': alphas,
         'om_ks': om_ks,
         'raw_rs': raw_rs,
     })
-    if to_file:
-        # this conditional is not really needed,
-        # was left over from a time when I had another outer loop
+    first = True
+    if filename is not None:
         if first:
             df.to_csv(filename, index=False)
             first = False
@@ -430,7 +440,7 @@ def main_multiple_omk():
     # omks = [0, 0.001, 0.002, 0.003, 0.005, 0.008, 0.01, 0.05]
     omks = [0.1, 0.3, 0.5, 0.8, 0.9]
     for om_k in omks:
-        df = main(om_k=om_k, to_file=False)
+        df = main(om_k=om_k, filename=None)
         df['om_k'] = om_k
         if current is None:
             df.to_csv(filename, index=False)
@@ -444,64 +454,29 @@ def compare_with_analytical():
     z_lens = 0.5
     one_arcsec = 1/3600/180*np.pi
     theta = one_arcsec
-    om_m = 0.1
+    om_m = 0.3
     om_lambda = 0.7
     cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om_lambda)
     dang_lens = cosmo.angular_diameter_distance(z_lens).value
     comoving_lens = cosmo.comoving_transverse_distance(z_lens).value
 
     # numerical
-    # convert variable names
-    Omega_Lambda = om_lambda
-    Omega_m = om_m
-    angle_to_horizontal = theta
+    solution = NoHoleFRWIntegration(
+        M = M,
+        Omega_Lambda = om_lambda,
+        Omega_m = om_m,
+        comoving_lens = comoving_lens,
+        angle_to_horizontal = theta)
+    solution.frw_initial_conditions_and_parameters()
+    solution.integrate_frw()
 
-    a0 = 1
-    initial_a = a0
-    # initial_r = 10e17
-    initial_r = comoving_lens
-    initial_phi = np.pi
-    initial_t = 0.
-    Omega_k = 1 - Omega_m - Omega_Lambda
-    k = omk2k(Omega_k, H_0)
-
-
-    ######################### frw1 initial conditions ##################################
-    print("initial_r", initial_r)
-    initial_rdot = -initial_r
-    initial_phidot = np.tan(angle_to_horizontal)*initial_rdot/initial_r/np.sqrt(1-k*initial_r**2)
-    # initial_phidot = np.tan(angle_to_horizontal) * initial_rdot / initial_r
-    initial_tdot = -np.sqrt(initial_a**2*initial_rdot**2/(1-k*initial_r**2) + initial_a**2*initial_r**2*initial_phidot**2)
-
-    rho = Omega_m*3*H_0**2/(8*np.pi)
-    r_h = 1/initial_a*(3*M/(4*np.pi*rho))**(1./3)
-    chi_h = r2chi(k, r_h)
-
-    Lambda = 3*Omega_Lambda*H_0**2
-    L_frw = (initial_a*initial_r)**2*initial_phidot
-
-    p_frw = [L_frw, Omega_k, Omega_Lambda, Omega_m, H_0]
-    initial = [initial_a, initial_r, initial_rdot, initial_t, initial_phi]
-
-    ######################### end frw1 initial conditions ##################################
-
-
-    ######################### frw1 integration ##################################
-    def reach_hole(t, y): return y[4] - np.pi/2 # needs to be positive to negative
-    # def reach_hole(t, y): return r2chi(k, y[1]) - chi_h
-    reach_hole.terminal = True
-    reach_hole.direction = -1
-
-    sol = spi.solve_ivp(lambda t, y: frw(t, y, p_frw), [0, 10], initial, events=reach_hole, **tols)
-    print("events", sol.y_events[0])
-    last = sol.y[:,-1]
-    r_final = last[1]
-
-    print(comoving_lens, chi_h, last[1], last[4])
-    print("numerical", last[0] * last[1] / theta) # a*r / theta
+    # compare
+    print("numerical", solution.frw_final[0] *solution.frw_final[1] / theta)
     print("dang_lens", dang_lens)
 
+
 if __name__ == '__main__':
-    # main()
+    # main(filename="data/curvedpyoutput_new.csv")
+    main()
     # main_multiple_omk()
-    compare_with_analytical()
+    # compare_with_analytical()

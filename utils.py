@@ -162,7 +162,7 @@ def calculate_frw():
         print(A_frw, numerical, numerical/A_frw - 1)
     # return theta
 
-calculate_frw()    
+# calculate_frw()
 
 def plot_rs(filename, plot_ishak=True, plot_kantowski=True, latex=False, filenames=None):
     set_typography(latex)
