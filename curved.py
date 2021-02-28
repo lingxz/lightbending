@@ -77,23 +77,75 @@ def omk2k(om_k, H0):
 
 def kottler(eta, w, p):
     E, L, M, Omega_Lambda, Omega_m, H_0, k, rh = p
-    r_h, t, r, rdot, phi = w
+    R_h, T, R, Rdot, phi = w
 
     Lambda = 3*Omega_Lambda*H_0**2
-    f = 1 - 2*M/r - Lambda/3*r**2
-    rddot = L**2 * (r - 3*M) / r**4
-    tdot = E / f
-    phidot = L/r**2
+    f = 1 - 2*M/R - Lambda/3*R**2
+    Rddot = L**2 * (R - 3*M) / R**4
+    Tdot = E / f
+    phidot = L/R**2
 
-    Ah = 1 - 2*M/r_h - Lambda/3*r_h**2
-    r_h_t = Ah*np.sqrt(1-Ah/(1-k*rh**2))
+    fh = 1 - 2*M/R_h - Lambda/3*R_h**2
+    R_h_t = fh*np.sqrt(1-fh/(1-k*rh**2))
 
     return [
-        r_h_t*tdot,
-        tdot,
+        R_h_t*Tdot,
+        Tdot,
+        Rdot,
+        Rddot,
+        phidot,
+    ]
+
+def frw(eta, w, p):
+    L, Omega_k, Omega_Lambda, Omega_m, H_0 = p
+
+    a, r, rdot, t, phi = w
+
+    k = omk2k(Omega_k, H_0)
+    a_t = a * H_0 * np.sqrt(Omega_m/a**3 + Omega_Lambda + Omega_k/a**2)
+    phidot = L / (a*r)**2
+    tdot = -np.sqrt(a**2*rdot**2/(1-k*r**2)+a**2*r**2*phidot**2)
+    rddot = (1-k*r**2)*r*phidot**2 - k*r*rdot**2/(1-k*r**2) - 2*a_t/a*rdot*tdot
+    return [
+        a_t*tdot,
         rdot,
         rddot,
+        tdot,
         phidot,
+    ]
+
+def kottler_with_frw(eta, w, p):
+    E, L, M, Omega_Lambda, Omega_m, H_0, k, rh, L_frw, Omega_k = p
+    R_h, T, R, Rdot, phi, a, r, rdot, t, phi_frw = w
+
+    Lambda = 3*Omega_Lambda*H_0**2
+    f = 1 - 2*M/R - Lambda/3*R**2
+    Rddot = L**2 * (R - 3*M) / R**4
+    Tdot = E / f
+    phidot = L/R**2
+
+    fh = 1 - 2*M/R_h - Lambda/3*R_h**2
+    R_h_t = fh*np.sqrt(1-fh/(1-k*rh**2))
+
+    # frw
+    a_t = a * H_0 * np.sqrt(Omega_m/a**3 + Omega_Lambda + Omega_k/a**2)
+    phidot_frw = L_frw / (a*r)**2
+    tdot = -np.sqrt(a**2*rdot**2/(1-k*r**2)+a**2*r**2*phidot_frw**2)
+    rddot = (1-k*r**2)*r*phidot_frw**2 - k*r*rdot**2/(1-k*r**2) - 2*a_t/a*rdot*tdot
+
+    return [
+        R_h_t*Tdot,
+        Tdot,
+        Rdot,
+        Rddot,
+        phidot,
+        
+        # frw
+        a_t*tdot,
+        rdot,
+        rddot,
+        tdot,
+        phidot_frw,
     ]
 
 class SwissCheese:
@@ -278,6 +330,23 @@ class SwissCheese:
         
         print("===== Final FRW coordinates (right) =====")
         self._print_with_names(self.frw_final_right, ["a", "r", "rdot", "t", "phi"])
+    
+    def get(self, attribute, param):
+        arr = getattr(self, attribute)
+        frw_coords_to_index = ["a", "r", "rdot", "t", "phi"]
+        frw_params_to_index = ["L", "Omega_k", "Omega_Lambda", "Omega_m", "H_0"]
+        kottler_coords_to_index = ["R_h", "T", "R", "Rdot", "phi"]
+        kottler_params_to_index = ["E", "L", "M", "Omega_Lambda", "Omega_m", "H_0", "k", "r_h"]
+        
+        if attribute in ["frw_initial", "frw_initial_right", "frw_final", "frw_final_right"]:
+            index = frw_coords_to_index.index(param)
+        elif attribute in ["kottler_initial", "kottler_final"]:
+            index = kottler_coords_to_index.index(param)
+        elif attribute in ["frw_parameters"]:
+            index = frw_params_to_index.index(param)
+        elif attribute in ["kottler_parameters"]:
+            index = kottler_params_to_index.index(param)
+        return arr[index]
 
 
     @staticmethod    
@@ -295,7 +364,27 @@ class NoHoleFRWIntegration(SwissCheese):
         reach_hole.direction = -1
         sol = spi.solve_ivp(lambda t, y: frw(t, y, parameters), [0, 10], initial, events=reach_hole, **tols)
         self.frw_final = sol.y_events[0][0]
-    
+
+
+class SwissCheeseKottlerModification(SwissCheese):
+    def integrate_kottler(self):
+        initial = self.kottler_initial[:]
+        initial = list(initial) + list(self.frw_final)
+        parameters = self.kottler_parameters
+        parameters = list(parameters) + [self.get("frw_parameters", "L"), self.Omega_k]
+        def exit_hole(t, y): return y[2] - y[0]
+        exit_hole.terminal = False
+        exit_hole.direction = 0 # when value goes from negative to positive
+        
+        # integrate past the hole before terminating so that the other boundary change of exiting hole is captured
+        def way_past_hole(t, y): return y[2] - y[0] - initial[2]/ 2
+        way_past_hole.terminal = True
+        way_past_hole.direction = 1
+
+        sol_kottler = spi.solve_ivp(lambda t, y: kottler_with_frw(t, y, parameters), [0, 10], initial, dense_output=True, events=[exit_hole, way_past_hole], **tols)
+        self.integrated_a = sol_kottler.y_events[0][-1][5]
+        self.kottler_final = list(sol_kottler.y_events[0][-1])[:5]
+
 
 def get_distances(z, Omega_Lambda=None, Omega_m=None):
     Omega_k = 1 - Omega_Lambda - Omega_m
@@ -324,11 +413,14 @@ def binary_search(start, end, answer, Omega_m, Omega_Lambda):
 
 from tqdm import tqdm
 
-def main(om_k = 0., filename=None):
+def main(om_k = 0., filename=None, model=None):
+    if model is None:
+        model = SwissCheese
     start = time.time()
 
     # change this to edit the number of data points you want
-    om_lambdas = np.linspace(0., 0.99, 50)
+    # om_lambdas = np.linspace(0., 0.99, 50)
+    om_lambdas = np.linspace(0., 0.49, 50)
     # om_lambdas = [0]
 
     # z of the lens
@@ -359,6 +451,7 @@ def main(om_k = 0., filename=None):
     for om in tqdm(om_lambdas):
         om_m = 1 - om - om_k
         assert om_m > 0
+        assert om_m <= 1
         k = omk2k(om_k, H_0)
         ms.append(M)
 
@@ -372,7 +465,7 @@ def main(om_k = 0., filename=None):
 
 
         # numerical
-        solution = SwissCheese(
+        solution = model(
             M = M,
             Omega_Lambda = om,
             Omega_m = om_m,
@@ -433,14 +526,14 @@ def main(om_k = 0., filename=None):
     return df
 
 
-def main_multiple_omk():
+def main_multiple_omk(filename, model=None):
     current = None
-    filename = "curvedpyoutput_withk3.csv"
     # omks = np.linspace(0., 0.001, 10)
     # omks = [0, 0.001, 0.002, 0.003, 0.005, 0.008, 0.01, 0.05]
     omks = [0.1, 0.3, 0.5, 0.8, 0.9]
+    omks = np.linspace(0., 0.5, 10)
     for om_k in omks:
-        df = main(om_k=om_k, filename=None)
+        df = main(om_k=om_k, filename=None, model=model)
         df['om_k'] = om_k
         if current is None:
             df.to_csv(filename, index=False)
@@ -454,8 +547,8 @@ def compare_with_analytical():
     z_lens = 0.5
     one_arcsec = 1/3600/180*np.pi
     theta = one_arcsec
-    om_m = 0.3
-    om_lambda = 0.7
+    om_m = 0.1
+    om_lambda = 0.5
     cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om_lambda)
     dang_lens = cosmo.angular_diameter_distance(z_lens).value
     comoving_lens = cosmo.comoving_transverse_distance(z_lens).value
@@ -471,12 +564,39 @@ def compare_with_analytical():
     solution.integrate_frw()
 
     # compare
-    print("numerical", solution.frw_final[0] *solution.frw_final[1] / theta)
+    # print("numerical", solution.frw_final[0] *solution.frw_final[1] / theta)  # a * r / theta
+    print("numerical", solution.get("frw_final", "a") * solution.get("frw_final", "r") / theta)
     print("dang_lens", dang_lens)
 
 
+def compare_kottler_hole_size_with_frw_size():
+    # analytical
+    z_lens = 0.5
+    one_arcsec = 1/3600/180*np.pi
+    theta = one_arcsec
+    om_m = 0.1
+    om_lambda = 0.1
+    cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om_lambda)
+    dang_lens = cosmo.angular_diameter_distance(z_lens).value
+    comoving_lens = cosmo.comoving_transverse_distance(z_lens).value
+
+    # numerical
+    solution = SwissCheeseKottlerModification(
+        M = M,
+        Omega_Lambda = om_lambda,
+        Omega_m = om_m,
+        comoving_lens = comoving_lens,
+        angle_to_horizontal = theta)
+    solution.run()
+
+    print(solution.integrated_a * solution.r_h, solution.get("kottler_final", "R_h"), solution.integrated_a, solution.get("frw_initial_right", "a"), (1 - solution.integrated_a/solution.get("frw_initial_right", "a")) * 100)
+    # print(solution.integrated_a, solution.get("kottler_final", "R_h"), solution.get("kottler_parameters", "r_h"), solution.r_h)
+    
+
 if __name__ == '__main__':
     # main(filename="data/curvedpyoutput_new.csv")
-    main()
-    # main_multiple_omk()
     # compare_with_analytical()
+    compare_kottler_hole_size_with_frw_size()
+    # main_multiple_omk(filename = "data/curvedpyoutput_withk4.csv", model=SwissCheeseKottlerModification)
+    # main_multiple_omk(filename = "data/curvedpyoutput_withk5.csv", model=SwissCheese) # normal
+    
