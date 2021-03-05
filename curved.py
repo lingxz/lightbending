@@ -248,8 +248,12 @@ class SwissCheese:
         turning_point.terminal = False
         turning_point.direction = -1
         sol_kottler = spi.solve_ivp(lambda t, y: kottler(t, y, parameters), [0, 10], initial, dense_output=True, events=[turning_point, exit_hole], **tols)
-        self.kottler_final = sol_kottler.y_events[1][0]
-    
+        self.kottler_final = sol_kottler.y_events[1][-1]
+        
+        # extra
+        self.kottler_turning_point = sol_kottler.y_events[0][-1]
+        self.kottler_closest_approach = self.kottler_turning_point[2]
+
     def convert_kottler_to_frw_coordinates(self):
         # r_h, t, r, rdot, phi = w
         Rh, T, R, Rdot, phi = self.kottler_final
@@ -591,12 +595,66 @@ def compare_kottler_hole_size_with_frw_size():
 
     print(solution.integrated_a * solution.r_h, solution.get("kottler_final", "R_h"), solution.integrated_a, solution.get("frw_initial_right", "a"), (1 - solution.integrated_a/solution.get("frw_initial_right", "a")) * 100)
     # print(solution.integrated_a, solution.get("kottler_final", "R_h"), solution.get("kottler_parameters", "r_h"), solution.r_h)
+
+
+def compare_with_kantowski():
+    # analytical
+    z_lens = 0.5
+    one_arcsec = 1/3600/180*np.pi
+    theta = one_arcsec
+    om_m = 0.1
+    om_lambda = 0.1
+    cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om_lambda)
+    dang_lens = cosmo.angular_diameter_distance(z_lens).value
+    comoving_lens = cosmo.comoving_transverse_distance(z_lens).value
+
+    # numerical
+    solution = SwissCheese(
+        M = M,
+        Omega_Lambda = om_lambda,
+        Omega_m = om_m,
+        comoving_lens = comoving_lens,
+        angle_to_horizontal = theta)
+    solution.run()
+
+    # initial
+    parameter = "kottler_initial"
     
+    # check distance of closest approach
+    R = theta * dang_lens
+    r0 = 1/(1/R + M/R**2 + 3/16*M**2/R**3)
+    print(solution.kottler_closest_approach, r0)
+
+    numerical = solution.get(parameter, "R") / solution.kottler_closest_approach
+    kantowski, kantowski_error = kantowski_11(solution.get(parameter, "phi"), solution.kottler_closest_approach)
+    print(numerical, kantowski, kantowski_error)
+
+    parameter = "kottler_final"
+    numerical = solution.get(parameter, "R") / solution.kottler_closest_approach
+    kantowski, kantowski_error = kantowski_11(solution.get(parameter, "phi"), solution.kottler_closest_approach)
+    print(numerical, kantowski, kantowski_error)
+    print("=====", solution.get(parameter, "R"), solution.kottler_closest_approach)
+
+
+    
+
+def cosec(phi):
+    return 1./np.cos(phi)
+
+def kantowski_11(phi, r0):
+    rs = 2*M
+    rsr0 = rs/2/r0
+    print("cosec", np.sin(np.pi - phi), rs/r0)
+    result = cosec(phi) * (1 - rsr0*(-1 + 2*cosec(phi) - np.sin(phi)) + rsr0**2 * (-17./4 + 15./4*(phi - np.pi/2)/np.tan(phi) + 4*(cosec(phi))**2 + 1./4 * (np.sin(phi))**2))
+    error = rsr0**3
+    return result, error
+
 
 if __name__ == '__main__':
     # main(filename="data/curvedpyoutput_new.csv")
     # compare_with_analytical()
     compare_kottler_hole_size_with_frw_size()
+    # compare_with_kantowski()
     # main_multiple_omk(filename = "data/curvedpyoutput_withk4.csv", model=SwissCheeseKottlerModification)
     # main_multiple_omk(filename = "data/curvedpyoutput_withk5.csv", model=SwissCheese) # normal
     
