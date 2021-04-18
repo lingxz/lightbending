@@ -584,6 +584,7 @@ def compare_kottler_hole_size_with_frw_size():
     dang_lens = cosmo.angular_diameter_distance(z_lens).value
     comoving_lens = cosmo.comoving_transverse_distance(z_lens).value
 
+    print("comoving!!!", comoving_lens)
     # numerical
     solution = SwissCheeseKottlerModification(
         M = M,

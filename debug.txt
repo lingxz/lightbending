@@ -1,0 +1,49 @@
+Lambda = 0
+
+===== Initial parameters =====
+Omega_m: 1.0
+Omega_Lambda: 0.0
+start_r: 1782
+angle_to_horizontal: 4.84813681109536e-06
+===== Initial Kottler coordinates =====
+R: 1782
+Rdot: -1782
+phi: 3.141592653589793
+L: -15.395374807290445
+M: 4.776409591704472e-07
+===== Final Kottler coordinates =====
+R: 39.9354089409157
+Rdot: 1781.99995832193
+phi: 2.8597949881673315e-19
+Closest approach: 0.008638902121393472
+===== Angles =====
+angle_to_horizontal: 4.84813681109536e-06
+final_angle: -0.00021633382233493157
+deflection_angle: 0.00022118195914602693
+Schwarzschild deflection: 0.00022118196201766159
+-1.2983132346988668e-06
+
+Omega_Lambda = 0.0, Omega_m = 0.1
+
+===== Initial parameters =====
+Omega_m: 0.1
+Omega_Lambda: 0.9
+start_r: 1782
+angle_to_horizontal: 4.84813681109536e-06
+===== Initial Kottler coordinates =====
+R: 1782
+Rdot: -1782
+phi: 3.141592653589793
+L: -15.395374799037402
+M: 4.776409591704472e-07
+===== Final Kottler coordinates =====
+R: 39.93540889565973
+Rdot: 1781.9999583219264
+phi: -2.6570364764183334e-19
+Closest approach: 0.008638902116762135
+===== Angles =====
+angle_to_horizontal: 4.84813681109536e-06
+final_angle: -0.0002163168932079947
+deflection_angle: 0.00022116503001909005
+Schwarzschild deflection: 0.00022118196213625054
+-0.0076558745109922555
