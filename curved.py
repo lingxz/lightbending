@@ -9,6 +9,8 @@ import scipy.integrate as spi
 import matplotlib.pyplot as plt
 import time
 import pandas as pd
+import utils
+from utils import plot_rs_multiple_ks, r2chi, chi2r
 from astropy.cosmology import LambdaCDM
 
 length_scale = 3.086e22 # 1 mega parsec
@@ -19,8 +21,11 @@ tols = {
     'method': 'RK45',
 }
 
+# mass of sun in kg * G / c**2 / length_scale (for convenience)
+M_sun = 1.98847e30 * (6.67408e-11) / 299792458**2 / length_scale
+one_arcsec = 1/3600/180*np.pi
 H_0 = 70*1000/(3.086e22)/299792458 * length_scale # 70km/s/Mpc
-M = 1474e13 / length_scale
+M = M_sun * 1e13
 
 def frw(eta, w, p):
     L, Omega_k, Omega_Lambda, Omega_m, H_0 = p
@@ -181,7 +186,10 @@ class SwissCheese:
         self.convert_frw_to_kottler_coordinates()
         self.integrate_kottler()
         self.convert_kottler_to_frw_coordinates()
-        self.integrate_frw_right()
+        try:
+            self.integrate_frw_right()
+        except Exception as e:
+            print("Did not run last FRW integration")
 
     
     def frw_initial_conditions_and_parameters(self):
@@ -205,6 +213,7 @@ class SwissCheese:
     def integrate_frw(self):
         initial = self.frw_initial
         parameters = self.frw_parameters
+        # def reach_hole(t, y): return y[1] - self.r_h
         def reach_hole(t, y): return r2chi(self.k, y[1]) - self.chi_h
         reach_hole.terminal = True
         reach_hole.direction = -1
@@ -264,7 +273,7 @@ class SwissCheese:
         initial_a = R / self.r_h
 
         initial_phidot = L_kottler / R**2
-        f = 1-2*M/R-self.Lambda/3*R**2
+        f = 1-2*self.M/R-self.Lambda/3*R**2
         Tdot = E_kottler/f
 
         # a, r, rdot, t, phi
@@ -281,6 +290,8 @@ class SwissCheese:
         initial_t = 0
         # a, t, r, rdot, phi 
 
+        self.frw_initial_right = [initial_a, initial_r, initial_rdot, initial_t, initial_phi]
+
         # check if it is going to cross the axis, inform if otherwise
         # doesn't throw an error if it isn't
         initial_ydot = initial_rdot*np.sin(initial_phi) + initial_r*np.cos(initial_phi)*initial_phidot
@@ -294,7 +305,6 @@ class SwissCheese:
             # print("initial angle to horizontal: ", angle_to_horizontal)
             print("----")
 
-        self.frw_initial_right = [initial_a, initial_r, initial_rdot, initial_t, initial_phi]
 
         # enter_phi = initial_phi
         # alpha = frw_angle_before_entering + frw_angle_after_exiting
@@ -492,6 +502,14 @@ def main(om_k = 0., filename=None, model=None):
 
         exit_rh, enter_phi, raw_r, source_a = solution.kottler_initial[2], solution.frw_initial_right[4], solution.frw_final_right[1], solution.frw_final_right[0]
 
+        rs = chi2r(k, r2chi(k, raw_r) + r2chi(k, solution.comoving_lens))
+        R = theta * dang_lens
+        alpha_numerical = theta * rs / raw_r
+        alpha_schwarzschild = 4*solution.M/R + 15*np.pi*solution.M**2/4/R**2 + 401/12*solution.M**3/R**3
+        print("====")
+        print(1 - alpha_numerical / alpha_schwarzschild)
+        print(theta, comoving_lens, raw_r)
+
         # exit_rh, enter_phi, raw_r, source_a = solve(theta, verbose=False, comoving_lens=comoving_lens, Omega_Lambda=om, Omega_m=om_m)
         exit_rhs.append(exit_rh)
         enter_phis.append(enter_phi)
@@ -598,46 +616,120 @@ def compare_kottler_hole_size_with_frw_size():
     # print(solution.integrated_a, solution.get("kottler_final", "R_h"), solution.get("kottler_parameters", "r_h"), solution.r_h)
 
 
-def compare_with_kantowski():
+def swiss_chess_single_run(om_lambda, mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec):
     # analytical
-    z_lens = 0.5
-    one_arcsec = 1/3600/180*np.pi
-    theta = one_arcsec
-    om_m = 0.1
-    om_lambda = 0.1
+    om_m = 1 - om_lambda
     cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om_lambda)
     dang_lens = cosmo.angular_diameter_distance(z_lens).value
     comoving_lens = cosmo.comoving_transverse_distance(z_lens).value
 
     # numerical
     solution = SwissCheese(
-        M = M,
+        M = mass,
         Omega_Lambda = om_lambda,
         Omega_m = om_m,
         comoving_lens = comoving_lens,
         angle_to_horizontal = theta)
     solution.run()
 
-    # initial
-    parameter = "kottler_initial"
-    
+    print("kantowski rb:", solution.get("kottler_initial", "R"))
+
     # check distance of closest approach
     R = theta * dang_lens
-    r0 = 1/(1/R + M/R**2 + 3/16*M**2/R**3)
-    print(solution.kottler_closest_approach, r0)
-
-    numerical = solution.get(parameter, "R") / solution.kottler_closest_approach
-    kantowski, kantowski_error = kantowski_11(solution.get(parameter, "phi"), solution.kottler_closest_approach)
-    print(numerical, kantowski, kantowski_error)
-
-    parameter = "kottler_final"
-    numerical = solution.get(parameter, "R") / solution.kottler_closest_approach
-    kantowski, kantowski_error = kantowski_11(solution.get(parameter, "phi"), solution.kottler_closest_approach)
-    print(numerical, kantowski, kantowski_error)
-    print("=====", solution.get(parameter, "R"), solution.kottler_closest_approach)
-
-
+    r0 = 1/(1/R + solution.M/R**2 + 3/16*solution.M**2/R**3)
+    # print(solution.kottler_closest_approach, r0)
     
+    phi_tilda = solution.get("kottler_final", "phi")
+    print("phi_tilda in degrees", phi_tilda *  180/np.pi)
+    kantowski, kantowski_error = kantowski_alpha(r0, solution.M, phi_tilda, solution.Lambda)
+    kantowski = np.abs(kantowski)
+    # alpha_numerical = solution.angle_to_horizontal * (solution.get("frw_final_right", "r") + solution.comoving_lens) / solution.get("frw_final_right", "r")
+    alpha_schwarzschild = 4*solution.M/R + 15*np.pi*solution.M**2/4/R**2 + 401/12*solution.M**3/R**3
+    # print(alpha_numerical, kantowski, alpha_schwarzschild)
+    return {
+        # "fractional_deviation": np.abs(1 - kantowski / alpha_numerical),
+        # "higher_order_kantowski": kantowski_error / alpha_numerical,
+        # "numerical_fractional_deviation_from_schwarzschild": np.abs(1 - alpha_numerical / alpha_schwarzschild),
+        "kantowski_fractional_deviation_from_schwarzschild": np.abs(1 - kantowski / alpha_schwarzschild)
+    }
+
+def swiss_chess_curved_single_run(om_k, om_lambda, mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec):
+    k = omk2k(om_k, H_0)
+    om_m = 1 - om_lambda - om_k
+    cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om_lambda)
+    dang_lens = cosmo.angular_diameter_distance(z_lens).value
+    # this is NOT chi, this is r, which is the comoving coordinate distance, or comoving transverse distance.
+    comoving_coordinate_lens = cosmo.comoving_transverse_distance(z_lens).value
+    # this is chi for clarity (but it's not needed)
+    chi = cosmo.comoving_distance(z_lens).value
+    # print("om_m:", om_m)
+    # print("om_lambda:", om_lambda)
+    # print("om_k:", om_k, k)
+
+    # numerical
+    solution = SwissCheese(
+        M = mass,
+        Omega_Lambda = om_lambda,
+        Omega_m = om_m,
+        comoving_lens = comoving_coordinate_lens,
+        angle_to_horizontal = theta)
+    solution.run()
+
+    # check distance of closest approach
+    R = theta * dang_lens    
+    r0 = 1/(1/R + solution.M/R**2 + 3/16*solution.M**2/R**3)
+    phi_tilda = solution.get("kottler_final", "phi")
+    # print("phi_tilda in degrees", phi_tilda *  180/np.pi)
+
+    rs = chi2r(k, r2chi(k, solution.get("frw_final_right", "r")) + r2chi(k, solution.comoving_lens))
+    alpha_numerical = solution.angle_to_horizontal * rs / solution.get("frw_final_right", "r")
+    alpha_schwarzschild = 4*solution.M/R + 15*np.pi*solution.M**2/4/R**2 + 401/12*solution.M**3/R**3
+    kantowski, kantowski_error = kantowski_alpha(r0, solution.M, phi_tilda, solution.Lambda)
+    kantowski = np.abs(kantowski)
+    return {
+        "numerical_fractional_deviation_from_kantowski": kantowski / alpha_numerical - 1,
+        "higher_order_kantowski": kantowski_error / alpha_numerical,
+        "numerical_fractional_deviation_from_schwarzschild": alpha_numerical / alpha_schwarzschild - 1,
+    }
+
+def swiss_chess_curved_multi_run(mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec):
+    import matplotlib.pyplot as plt
+    results = []
+    om_ks = [-0.5, -0.4, -0.3, -0.2, -0.1, 0., 0.1, 0.2, 0.3, 0.4]
+    for om_k in om_ks:
+        results = []
+        om_lambdas = np.linspace(0., 1 - om_k - 0.1, 30)
+        for om_lambda in om_lambdas:
+            result = swiss_chess_curved_single_run(om_k, om_lambda, mass, z_lens, theta)
+            results.append(result)
+    
+        fractional_deviations = [r["numerical_fractional_deviation_from_schwarzschild"] for r in results]
+        plt.plot(om_lambdas, fractional_deviations, label='Numerical results (Omega_k = {})'.format(om_k))
+
+        plt.xlabel("omega_lambda")
+        plt.legend()
+
+def swiss_chess_curved_multi_run_kantowski(mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec):
+    import matplotlib.pyplot as plt
+    results = []
+    om_ks = [-0.5, -0.4, -0.3, -0.2, -0.1, 0., 0.1, 0.2, 0.3, 0.4]
+    om_ks = [-0.5, 0., 0.5]
+    ax = plt.gca()
+    for om_k in om_ks:
+        results = []
+        om_lambdas = np.linspace(0., 1 - om_k - 0.1, 30)
+        for om_lambda in om_lambdas:
+            result = swiss_chess_curved_single_run(om_k, om_lambda, mass, z_lens, theta)
+            results.append(result)
+
+        fractional_deviations = [r["numerical_fractional_deviation_from_kantowski"] for r in results]
+        kantowski_higher_order = [r["higher_order_kantowski"] for r in results]
+        color = next(ax._get_lines.prop_cycler)['color']
+        plt.plot(om_lambdas, fractional_deviations, color=color, label='Numerical deviation (Omega_k = {})'.format(om_k))
+        plt.plot(om_lambdas, kantowski_higher_order, "+", color=color, label='Higher order term(Omega_k = {})'.format(om_k))
+
+        plt.xlabel("omega_lambda")
+        plt.legend()
 
 def cosec(phi):
     return 1./np.cos(phi)
@@ -650,12 +742,42 @@ def kantowski_11(phi, r0):
     error = rsr0**3
     return result, error
 
+def kantowski_alpha(r0, M, phi, Lambda):
+    rs = 2*M
+    first_term = (rs/2/r0)*np.cos(phi)*(-4*(np.cos(phi))**2 - 12*np.cos(phi)*np.sin(phi)*np.sqrt(Lambda*r0**2/3+rs/r0*(np.sin(phi))**3) + Lambda*r0**2*(8/3-20/3*(np.sin(phi))**2))
+    second_term = (rs/2/r0)**2*(15/4*(2*phi-np.pi) + np.cos(phi)*(4+33/2*np.sin(phi)-4*(np.sin(phi))**2+19*(np.sin(phi))**3-64*(np.sin(phi))**5) - 12*np.log(np.tan(phi/2))*(np.sin(phi))**3)
+    error = (rs / r0 + Lambda * r0**2)**(5./2)
+    return first_term + second_term, error
+
 
 if __name__ == '__main__':
     # main(filename="data/curvedpyoutput_new.csv")
     # compare_with_analytical()
-    compare_kottler_hole_size_with_frw_size()
-    # compare_with_kantowski()
+    # compare_kottler_hole_size_with_frw_size()
     # main_multiple_omk(filename = "data/curvedpyoutput_withk4.csv", model=SwissCheeseKottlerModification)
     # main_multiple_omk(filename = "data/curvedpyoutput_withk5.csv", model=SwissCheese) # normal
+
+    # print(swiss_chess_single_run(0.9))
+
+    # A1689 strong
+    # print(swiss_chess_single_run(0.7, mass=M_sun*8e13, z_lens=0.18, theta=45*one_arcsec))
     
+    # A1689 weak
+    # print(swiss_chess_single_run(0.7, mass=M_sun*1e15, z_lens=0.18, theta=600*one_arcsec))
+
+    # RDCS1252-2927
+    # print(swiss_chess_single_run(0.7, mass=M_sun*1e15, z_lens=1.24, theta=180*one_arcsec))
+
+    # Elliptical galaxy strong
+    # print(swiss_chess_single_run(0.7, mass=M_sun*3e11, z_lens=0.5, theta=2*one_arcsec))
+
+    # Elliptical galaxy weak
+    # print(swiss_chess_single_run(0.7, mass=M_sun*1e13, z_lens=0.5, theta=70*one_arcsec))
+
+    # curved
+    print(swiss_chess_curved_single_run(0.5, 0., mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec))
+    print(swiss_chess_curved_single_run(0., 0.5, mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec))
+    swiss_chess_curved_multi_run()
+    # swiss_chess_curved_multi_run_kantowski()
+    plt.savefig("data/20210518_curved1.png")
+    plt.show()

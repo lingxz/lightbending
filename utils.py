@@ -70,7 +70,7 @@ def chi2r(k, chi):
         return np.sinh(chi/np.sqrt(-k))/np.sqrt(-k)
 
 def omk2k(om_k, H0):
-    return H0**2*om_k
+    return -H0**2*om_k
 
 
 def plot_rs_multiple_ks(filename, latex=False, filenames=None):

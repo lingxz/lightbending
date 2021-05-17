@@ -124,8 +124,9 @@ class ButcherBackward(KottlerBase):
         # theta_stat = np.arccos((np.cos(self.angle_to_horizontal) + v) / (1 + v * np.cos(self.angle_to_horizontal)))
         theta_stat = np.sqrt((1 - v)/(1 + v)) * self.angle_to_horizontal
         initial_phidot = np.tan(theta_stat) * initial_Rdot / initial_R / np.sqrt(f)
+        self.theta_stat = theta_stat
 
-        # eq 20        
+        # eq 20
         # initial_phidot = np.sqrt((1-v) / (1 + v)) * initial_Rdot / initial_R / np.sqrt(f) * self.angle_to_horizontal
         
         L = initial_R**2 * initial_phidot
@@ -155,7 +156,7 @@ class ButcherBackward(KottlerBase):
         # vO = np.sqrt(1-fO)
         # self.deflection_angle = 2 * np.sqrt(self.M * D_S / D_L/D_LS) + 15 * np.pi * self.M * D_S / 32 / D_L/D_LS  # Eq 38
 
-
+# something wrong with this
 class ButcherForward(KottlerBase):
     def generate_kottler_initial(self):
         # L, M, Omega_Lambda, Omega_m = p
@@ -165,9 +166,8 @@ class ButcherForward(KottlerBase):
         initial_phi = np.pi
         initial_Rdot = -initial_R
 
-        theta_stat = self.angle_to_horizontal
-        f = 1 - 2*self.M/initial_R - self.Lambda * initial_R **2 / 3
-        initial_phidot = np.tan(theta_stat) * initial_Rdot / initial_R / np.sqrt(f)
+        # In the forward propagation case, the angle_to_horizontal is the theta_coord of sending the light ray from the source, instead of the observed angle.
+        initial_phidot = np.tan(self.angle_to_horizontal) * initial_Rdot / initial_R
         
         L = initial_R**2 * initial_phidot
 
@@ -181,22 +181,16 @@ class ButcherForward(KottlerBase):
         L = self.get("kottler_parameters", "L")
         phidot = L / R**2
 
-        theta_stat = np.arctan(R * phidot / Rdot * np.sqrt(f))
         v = np.sqrt(1 - f)
-        
-        # butcher
-        # theta_obs = np.arctan(np.sin(theta_stat) * np.sqrt(1 - v**2) / (np.cos(theta_stat) - v))
-        # theta_rindler = np.arccos(abs(Rdot/phidot) / np.sqrt(Rdot**2/phidot**2 + f * R**2))
 
         # butcher
         rs = self.start_r
         rO = R
         D_LS = rs
         D_S = (rO + rs) / (1 + rO*np.sqrt(self.Lambda/3))
-        theta_obs = np.sqrt((1 + v)/(1-v))* theta_stat  # eq 19
-        self.deflection_angle = abs(theta_obs) * D_S / D_LS
-    
         D_L = rO / (1 + rO * np.sqrt(self.Lambda/3))
+        theta_obs = np.abs(np.sqrt((1 + v)/ (1-v)) * R * phidot / Rdot * np.sqrt(f)) # eq 20
+        self.deflection_angle = abs(theta_obs) * D_S / D_LS
         self.impact_parameter = D_L * theta_obs
         self.theta_obs = theta_obs
 
@@ -223,7 +217,7 @@ class SchwarzschildForward(KottlerBase):
         phidot = L / R**2
         angle_now = np.abs(np.arctan(R * phidot / Rdot))
         self.deflection_angle = angle_now + self.angle_to_horizontal
-        
+        self.impact_parameter = angle_now * R
 
 # Note: Seems like not working yet
 class RindlerIshakForward(SchwarzschildForward):
@@ -241,8 +235,11 @@ def single_run(om_lambda):
     om_m = 1 - om_lambda
     start_r = 1782
     one_arcsec = 1/3600/180*np.pi
-    theta = one_arcsec
+    theta = 5 * one_arcsec
 
+    a1 = 2*M/start_r
+    a2 = 3*om_lambda*H_0**2 *  start_r**2/3
+    print("======", a1, a2)
     solution = ButcherBackward(M, start_r, om_m, om_lambda, theta)
 
     solution.run()
@@ -250,8 +247,43 @@ def single_run(om_lambda):
     # schwarzschild_deflection = np.abs(4 * M / solution.closest_approach + (-4 + 15*np.pi/4) * (M/solution.closest_approach)**2 + (122/3 -15*np.pi/2) * M**3 / solution.closest_approach**3)
     schwarzschild_deflection = np.abs(4 * M / solution.impact_parameter + (15*np.pi/4) * (M/solution.impact_parameter)**2)
     print("third term ratio", 401 /12 * (M/solution.impact_parameter)**3 / schwarzschild_deflection)
+    print("second term ratio",  (15*np.pi/4) * (M/solution.impact_parameter)**2 / schwarzschild_deflection)
+
     if solution.Lambda > 0 and solution.theta_obs is not None:
-        # higher_order_butcher = solution.theta_obs **2 / solution.Lambda/solution.start_r**2
+        higher_order_butcher = solution.M **3 / solution.impact_parameter**3 / solution.Lambda/solution.start_r **2
+    else:
+        higher_order_butcher = 0
+    print("HIGHERORDER", higher_order_butcher / solution.deflection_angle)
+    print("HIGHERORDER", higher_order_butcher)
+    print("deflection::::", schwarzschild_deflection)
+    print((1 - schwarzschild_deflection / solution.deflection_angle))
+    return {
+        "fractional_deviation": 1 - schwarzschild_deflection / solution.deflection_angle,
+        "higher_order_butcher": higher_order_butcher / solution.deflection_angle
+    }
+
+def single_run_butcher_forward(om_lambda):
+    M = 1474e13 / length_scale
+    om_m = 1 - om_lambda
+    start_r = 1782
+    one_arcsec = 1/3600/180*np.pi
+    theta = 5 * one_arcsec
+    solution_backward = ButcherBackward(M, start_r, om_m, om_lambda, theta)
+    solution_backward.run()
+    theta_coord_source = np.abs(solution_backward.get("kottler_parameters", "L") / solution_backward.get("kottler_final", "Rdot") / solution_backward.get("kottler_final", "R"))
+    
+    # Use values in ButcherBackward to run Butcher forward.
+    solution = ButcherForward(M, solution_backward.get("kottler_final", "R"), om_m, om_lambda, theta_coord_source)
+    solution.run()
+    print("Compare forward and backward:")
+    print("Compare r:::", solution_backward.get("kottler_initial", "R") / solution.get("kottler_final", "R")-1)
+    print("Compare theta_obs:::", solution_backward.angle_to_horizontal / solution.theta_obs - 1)
+    print("===")
+
+    schwarzschild_deflection = np.abs(4 * M / solution.impact_parameter + (15*np.pi/4) * (M/solution.impact_parameter)**2)
+    # print("second erm", (15*np.pi/4) * (M/solution.impact_parameter)**2) / schwarzschild_deflection)
+    print("third term ratio", 401 /12 * (M/solution.impact_parameter)**3 / schwarzschild_deflection)
+    if solution.Lambda > 0 and solution.theta_obs is not None:
         higher_order_butcher = solution.M **3 / solution.impact_parameter**3 / solution.Lambda/solution.start_r **2
     else:
         higher_order_butcher = 0
@@ -272,14 +304,16 @@ def multi_run():
     fractional_deviations = [r["fractional_deviation"] for r in results]
     higher_order_butcher = [r["higher_order_butcher"] for r in results]
     import matplotlib.pyplot as plt
-    plt.plot(om_lambdas, higher_order_butcher, "r+", label="Butcher higher order terms (eq 41)")
-    plt.plot(om_lambdas, fractional_deviations, "b+", label="Fractional deviations from predictions")
+    plt.plot(om_lambdas, np.abs(higher_order_butcher), "r+", label="Butcher higher order terms (eq 41)")
+    plt.plot(om_lambdas, np.abs(fractional_deviations), "b+", label="Fractional deviations from predictions")
     plt.xlabel("omega_lambda")
     plt.legend()
     plt.title("Butcher backward propagation")
-    plt.savefig("butcher_backward.png")
+    plt.savefig("butcher_backward_5arcsec.png")
 
 
-multi_run()
+# single_run_butcher_forward(0.9)
+single_run(1e-10)
+# multi_run()
 
 
