@@ -9,8 +9,7 @@ import scipy.integrate as spi
 import matplotlib.pyplot as plt
 import time
 import pandas as pd
-import utils
-from utils import plot_rs_multiple_ks, r2chi, chi2r
+from utils import r2chi, chi2r, binary_search
 from astropy.cosmology import LambdaCDM
 
 length_scale = 3.086e22 # 1 mega parsec
@@ -191,7 +190,6 @@ class SwissCheese:
         except Exception as e:
             print("Did not run last FRW integration")
 
-    
     def frw_initial_conditions_and_parameters(self):
         ## Initial conditions to start the integration
         initial_r = self.comoving_lens
@@ -244,6 +242,7 @@ class SwissCheese:
         E = f*initial_Tdot
         self.kottler_parameters = [E, L_kottler, self.M, self.Omega_Lambda, self.Omega_m, H_0, self.k, self.r_h]
 
+
     def integrate_kottler(self):
         # this is so that it doesn't hit the boundary condition initially
         initial = self.kottler_initial[:]
@@ -295,6 +294,9 @@ class SwissCheese:
         # check if it is going to cross the axis, inform if otherwise
         # doesn't throw an error if it isn't
         initial_ydot = initial_rdot*np.sin(initial_phi) + initial_r*np.cos(initial_phi)*initial_phidot
+        initial_xdot = initial_rdot*np.cos(initial_phi) - initial_r*np.sin(initial_phi)*initial_phidot
+        self.frw_right_initial_ydot = initial_ydot
+        self.frw_right_initial_xdot = initial_xdot
         if initial_ydot > 0:
             print("light ray is not going to cross the axis, decrease angle_to_horizontal")
             # print("initial angle to horizontal: ", angle_to_horizontal)
@@ -413,16 +415,16 @@ def get_distances(z, Omega_Lambda=None, Omega_m=None):
     return comoving, dang
 
 
-def binary_search(start, end, answer, Omega_m, Omega_Lambda):
-    mid = (end+start)/2
-    res = get_distances(mid, Omega_Lambda, Omega_m)[1]
-    # print(mid, res, answer)
-    if np.isclose(res, answer, rtol=1e-14, atol=1e-14):
-        return mid
-    if res < answer:
-        return binary_search(mid, end, answer, Omega_m, Omega_Lambda)
-    else:
-        return binary_search(start, mid, answer, Omega_m, Omega_Lambda)
+# def binary_search(start, end, answer, Omega_m, Omega_Lambda):
+#     mid = (end+start)/2
+#     res = get_distances(mid, Omega_Lambda, Omega_m)[1]
+#     # print(mid, res, answer)
+#     if np.isclose(res, answer, rtol=1e-14, atol=1e-14):
+#         return mid
+#     if res < answer:
+#         return binary_search(mid, end, answer, Omega_m, Omega_Lambda)
+#     else:
+#         return binary_search(start, mid, answer, Omega_m, Omega_Lambda)
 
 
 from tqdm import tqdm
@@ -616,6 +618,64 @@ def compare_kottler_hole_size_with_frw_size():
     # print(solution.integrated_a, solution.get("kottler_final", "R_h"), solution.get("kottler_parameters", "r_h"), solution.r_h)
 
 
+# only for schucker
+def double_frw(eta, w, p):
+    L1, L2, Omega_k, Omega_Lambda, Omega_m, H_0 = p
+
+    a, r, rdot, t, phi, a2, r2, rdot2, t2, phi2 = w
+    result1 = frw(eta, [a, r, rdot, t, phi], [L1, Omega_k, Omega_Lambda, Omega_m, H_0])
+    result2 = frw(eta, [a2, r2, rdot2, t2, phi2], [L2, Omega_k, Omega_Lambda, Omega_m, H_0])
+    return result1 + result2
+
+# schucker case is flat, integrate two lines, see where they meet
+# repro of table 4 of Schucker 2009
+def schucker(alpha, alpha_prime, z_lens, om_lambda=0.77, mass=M_sun*1e13):
+    om_m = 1 - om_lambda
+    cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om_lambda)
+    dang_lens = cosmo.angular_diameter_distance(z_lens).value
+    comoving_lens = cosmo.comoving_transverse_distance(z_lens).value
+
+    # lower ray
+    solution1 = SwissCheese(
+        M = mass,
+        Omega_Lambda = om_lambda,
+        Omega_m = om_m,
+        comoving_lens=comoving_lens,
+        angle_to_horizontal = alpha
+    )
+
+    # upper ray
+    solution2 = SwissCheese(
+        M = mass,
+        Omega_Lambda = om_lambda,
+        Omega_m = om_m,
+        comoving_lens=comoving_lens,
+        angle_to_horizontal = alpha_prime
+    )
+    solution1.run()
+    solution2.run()
+
+
+    # find intersection between the two lines
+    from sympy import Point, Line
+    # upper ray
+    p1 = Point(solution2.get("frw_initial_right", "r") * np.cos(solution2.get("frw_initial_right", "phi")), solution2.get("frw_initial_right", "r") * np.sin(solution2.get("frw_initial_right", "phi")))
+    p2 = Point(solution2.get("frw_final_right", "r") * np.cos(solution2.get("frw_final_right", "phi")), solution2.get("frw_final_right", "r") * np.sin(solution2.get("frw_final_right", "phi")))
+    upper_line = Line(p1, p2)
+    # lower ray
+    x1 = solution1.get("frw_initial_right", "r") * np.cos(solution1.get("frw_initial_right", "phi"))
+    y1 = solution1.get("frw_initial_right", "r") * np.sin(solution1.get("frw_initial_right", "phi"))
+    m = solution1.frw_right_initial_ydot / solution2.frw_right_initial_xdot
+    x2 = solution2.get("frw_final_right", "r")
+    y2 = m * (x2 - x1) + y1
+    lower_line = Line(Point(x1, -y1), Point(x2, -y2))
+
+    intersect = tuple(upper_line.intersection(lower_line)[0].evalf())
+    phi = np.arctan(float(intersect[1]) / float(intersect[0]))
+    phi_in_arcsec = abs(phi) * 180 / np.pi * 3600
+    bending = 4 * mass / (alpha_prime * dang_lens)
+    print("============", phi_in_arcsec, solution1.r_h, intersect, solution2.get("frw_final", "phi"), comoving_lens, dang_lens)
+
 def swiss_chess_single_run(om_lambda, mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec):
     # analytical
     om_m = 1 - om_lambda
@@ -653,18 +713,22 @@ def swiss_chess_single_run(om_lambda, mass=M_sun*1e13, z_lens=0.5, theta=one_arc
         "kantowski_fractional_deviation_from_schwarzschild": np.abs(1 - kantowski / alpha_schwarzschild)
     }
 
-def swiss_chess_curved_single_run(om_k, om_lambda, mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec):
+def swiss_chess_curved_single_run(om_k, om_lambda, mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec, const_dl=True):
     k = omk2k(om_k, H_0)
     om_m = 1 - om_lambda - om_k
+
     cosmo = LambdaCDM(H0=70, Om0=om_m, Ode0=om_lambda)
     dang_lens = cosmo.angular_diameter_distance(z_lens).value
     # this is NOT chi, this is r, which is the comoving coordinate distance, or comoving transverse distance.
     comoving_coordinate_lens = cosmo.comoving_transverse_distance(z_lens).value
     # this is chi for clarity (but it's not needed)
     chi = cosmo.comoving_distance(z_lens).value
-    # print("om_m:", om_m)
-    # print("om_lambda:", om_lambda)
-    # print("om_k:", om_k, k)
+
+    #### testing out keeping dang_lens constant instead of z_lens
+    if const_dl:
+        dang_lens = 1130
+        z_lens = binary_search(cosmo, 0, 2., dang_lens)
+        comoving_coordinate_lens = cosmo.comoving_transverse_distance(z_lens).value
 
     # numerical
     solution = SwissCheese(
@@ -686,15 +750,20 @@ def swiss_chess_curved_single_run(om_k, om_lambda, mass=M_sun*1e13, z_lens=0.5, 
     alpha_schwarzschild = 4*solution.M/R + 15*np.pi*solution.M**2/4/R**2 + 401/12*solution.M**3/R**3
     kantowski, kantowski_error = kantowski_alpha(r0, solution.M, phi_tilda, solution.Lambda)
     kantowski = np.abs(kantowski)
+    
+    # adot = H_0 * np.sqrt(om_m/0.9**3 + om_lambda + om_k / 0.9**2)
+    # print("fake adot", om_lambda, adot)
+
     return {
         "numerical_fractional_deviation_from_kantowski": kantowski / alpha_numerical - 1,
         "higher_order_kantowski": kantowski_error / alpha_numerical,
         "numerical_fractional_deviation_from_schwarzschild": alpha_numerical / alpha_schwarzschild - 1,
+        "phi_tilda": phi_tilda,
+        "Rh_enter": solution.get("kottler_final", "R_h"),
+        "Rh_exit": solution.get("kottler_initial", "R_h")
     }
 
 def swiss_chess_curved_multi_run(mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec):
-    import matplotlib.pyplot as plt
-    results = []
     om_ks = [-0.5, -0.4, -0.3, -0.2, -0.1, 0., 0.1, 0.2, 0.3, 0.4]
     for om_k in om_ks:
         results = []
@@ -709,11 +778,62 @@ def swiss_chess_curved_multi_run(mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec):
         plt.xlabel("omega_lambda")
         plt.legend()
 
-def swiss_chess_curved_multi_run_kantowski(mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec):
-    import matplotlib.pyplot as plt
+def swiss_chess_multi_run_rh(om_m=0.5, mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec):
+    results = []
+    # om_k = 0
+    om_lambdas = np.linspace(0., 0.5, 10)
+    for om_lambda in om_lambdas:
+        om_k = 1 - om_m - om_lambda
+        # om_m = 1 - om_lambda - om_k
+        result = swiss_chess_curved_single_run(om_k, om_lambda, mass, z_lens, theta)
+        results.append(result)
+
+    # plot enter and exit Rhs
+    enter_rhs = [r["Rh_enter"] for r in results]
+    plt.plot(om_lambdas, enter_rhs, label="enter_rhs")
+    exit_rhs = [r["Rh_exit"] for r in results]
+    plt.plot(om_lambdas, exit_rhs, label="exit_rhs")
+
+    plt.xlabel("omega_lambda")
+    plt.legend()
+
+# constant omega_m, omega_k used to compensate for change in omega_m
+def swiss_chess_curved_multi_run_schwarzschild_const_omega_m(om_m=0.5, mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec):
+    results = []
+    om_lambdas = np.linspace(0., 1., 30)
+    for om_lambda in om_lambdas:
+        om_k = 1 - om_m - om_lambda
+        result = swiss_chess_curved_single_run(om_k, om_lambda, mass, z_lens, theta)
+        results.append(result)
+
+    #### plot normal fractional deviation
+    fractional_deviations = [r["numerical_fractional_deviation_from_schwarzschild"] for r in results]
+    plt.plot(om_lambdas, fractional_deviations, label="om_m = constant = {}".format(om_m))
+
+    plt.xlabel("omega_lambda")
+    plt.legend()
+
+# constant omega_m, omega_k used to compensate for change in omega_m
+# same as swiss_chess_curved_multi_run_schwarzschild_const_omega_m but plotted against kantowski
+def swiss_chess_curved_multi_run_kantowski_const_omega_m(om_m=0.5, mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec):
+    results = []
+    om_lambdas = np.linspace(0., 1., 30)
+    for om_lambda in om_lambdas:
+        om_k = 1 - om_m - om_lambda
+        result = swiss_chess_curved_single_run(om_k, om_lambda, mass, z_lens, theta)
+        results.append(result)
+
+    fractional_deviations = [r["numerical_fractional_deviation_from_kantowski"] for r in results]
+    plt.plot(om_lambdas, fractional_deviations, label="om_m = constant = {}".format(om_m))
+
+    plt.xlabel("omega_lambda")
+    plt.legend()
+
+
+def swiss_chess_curved_multi_run_kantowski(mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec, plot_errors=True):
     results = []
     om_ks = [-0.5, -0.4, -0.3, -0.2, -0.1, 0., 0.1, 0.2, 0.3, 0.4]
-    om_ks = [-0.5, 0., 0.5]
+    # om_ks = [-0.5, 0., 0.5]
     ax = plt.gca()
     for om_k in om_ks:
         results = []
@@ -726,7 +846,12 @@ def swiss_chess_curved_multi_run_kantowski(mass=M_sun*1e13, z_lens=0.5, theta=on
         kantowski_higher_order = [r["higher_order_kantowski"] for r in results]
         color = next(ax._get_lines.prop_cycler)['color']
         plt.plot(om_lambdas, fractional_deviations, color=color, label='Numerical deviation (Omega_k = {})'.format(om_k))
-        plt.plot(om_lambdas, kantowski_higher_order, "+", color=color, label='Higher order term(Omega_k = {})'.format(om_k))
+        if plot_errors:
+            plt.plot(om_lambdas, kantowski_higher_order, "+", color=color, label='Higher order term(Omega_k = {})'.format(om_k))
+
+        ##### plotting phi_tilda
+        # phi_tildas = [r["phi_tilda"] for r in results]
+        # plt.plot(om_lambdas, phi_tildas, label='phi_tilda (Omega_k = {})'.format(om_k))
 
         plt.xlabel("omega_lambda")
         plt.legend()
@@ -775,9 +900,40 @@ if __name__ == '__main__':
     # print(swiss_chess_single_run(0.7, mass=M_sun*1e13, z_lens=0.5, theta=70*one_arcsec))
 
     # curved
-    print(swiss_chess_curved_single_run(0.5, 0., mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec))
-    print(swiss_chess_curved_single_run(0., 0.5, mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec))
-    swiss_chess_curved_multi_run()
+    # print(swiss_chess_curved_single_run(0., 0.5, mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec))
+    # print(swiss_chess_curved_single_run(0.5, 0., mass=M_sun*1e13*0.858, z_lens=0.5, theta=one_arcsec))
+    # print(swiss_chess_curved_single_run(0., 0.5, mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec))
+    # swiss_chess_curved_multi_run()
     # swiss_chess_curved_multi_run_kantowski()
-    plt.savefig("data/20210518_curved1.png")
-    plt.show()
+
+    # print(swiss_chess_curved_single_run(0., 0.5, mass=4*M_sun*1e13, z_lens=0.5, theta=one_arcsec))
+
+    # # to get these two curves on the same graph
+    # swiss_chess_curved_multi_run_schwarzschild_const_omega_m(om_m=0.5)
+    # swiss_chess_curved_multi_run_schwarzschild_const_omega_m(om_m=0.2)
+    # swiss_chess_curved_multi_run_schwarzschild_const_omega_m(om_m=0.8)
+    
+    # swiss_chess_curved_multi_run()
+
+    # # Same as above, but compared against kantowski
+    # swiss_chess_curved_multi_run_kantowski_const_omega_m(om_m=0.2)
+    # swiss_chess_curved_multi_run_kantowski_const_omega_m(om_m=0.5)
+    # swiss_chess_curved_multi_run_kantowski_const_omega_m(om_m=0.8)
+    
+    # swiss_chess_curved_multi_run_kantowski(plot_errors=False)
+    # plt.ylabel("Deviation from Kantowski prediction")
+    
+    # swiss_chess_multi_run_rh()
+    # plt.show()
+
+
+    # swiss_chess_curved_single_run(0., 0.5)
+
+
+    # ######## Schucker 2009 table 4
+    # ## col 1
+    # schucker(10*one_arcsec, 5*one_arcsec, 0.68, om_lambda=0.77, mass=1.8*M_sun*1e13)
+    # ## col 2
+    # schucker(10*one_arcsec, 5*one_arcsec, 0.68, om_lambda=0.92, mass=1.8*M_sun*1e13)
+    # ## col 3
+    # schucker(10*one_arcsec, 5*one_arcsec, 0.68, om_lambda=0.61, mass=1.8*M_sun*1e13)

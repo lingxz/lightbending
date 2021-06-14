@@ -508,3 +508,15 @@ def ltb_graphs():
     plt.xlabel(r'$R/ R_{h0}$')
     plt.ylabel(r'$P / \rho_m$')
     plt.savefig('report/images/ltb-pressure.png', dpi=400, transparent=True)
+
+from astropy.cosmology import LambdaCDM
+
+def binary_search(cosmo, start, end, answer):
+    mid = (end+start)/2
+    res = cosmo.angular_diameter_distance(mid).value
+    if np.isclose(res, answer, rtol=1e-14, atol=1e-14):
+        return mid
+    if res < answer:
+        return binary_search(cosmo, mid, end, answer)
+    else:
+        return binary_search(cosmo, start, mid, answer)
