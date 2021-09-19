@@ -12,16 +12,22 @@ H_0 = 70*1000/(3.086e22)/299792458 * length_scale # 70km/s/Mpc
 
 def set_typography(latex=False):
     # pass
-    from matplotlib import rc
+    from matplotlib import rc, rcParams
     font = {'family' : 'sans-serif',
-        'weight' : 'bold',
-        'size'   : 16}
-    rc('font', **font)
+        # "serif": "Computer Modern",
+        # "serif": "cm",
+        # 'weight' : 'bold',
+        'size'   : 18
+    }
+    # rc('font', **font)
     rc('figure', autolayout=True)
-    if latex:
-        rc('text', usetex=True)
-    else:
-        rc('text', usetex=False)
+    # rcParams['mathtext.fontset'] = 'cm'
+
+
+    # if latex:
+    #     rc('text', usetex=True)
+    # else:
+    #     rc('text', usetex=False)
 
 def omega_lambda2lambda(Omega_Lambda):
     return 3*Omega_Lambda*H_0**2
