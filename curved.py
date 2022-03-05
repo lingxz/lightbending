@@ -258,7 +258,16 @@ class SwissCheese:
         turning_point.direction = -1
         sol_kottler = spi.solve_ivp(lambda t, y: kottler(t, y, parameters), [0, 10], initial, dense_output=True, events=[turning_point, exit_hole], **tols)
         self.kottler_final = sol_kottler.y_events[1][-1]
-        
+
+        # ###### distance travelled calculation
+        # rs = sol_kottler.y[2]
+        # phis = sol_kottler.y[4]
+        # dr = np.diff(rs)
+        # dphi = np.diff(phis)
+        # rs = rs[:-1]
+        # distance_travelled = np.sum(np.sqrt(dr**2 + (rs*dphi)**2))
+        # print("Distance travelled in Kottler hole:", distance_travelled)
+
         # extra
         self.kottler_turning_point = sol_kottler.y_events[0][-1]
         self.kottler_closest_approach = self.kottler_turning_point[2]
@@ -790,6 +799,8 @@ def swiss_chess_curved_single_run(om_k, om_lambda, mass=M_sun*1e13, z_lens=0.5, 
         "Rh_exit": solution.get("kottler_initial", "R_h")
     }
 
+# this produces figure 4
+# Plots fractional deviation from schwarzschild for various om_k, om_lambda
 def swiss_chess_curved_multi_run(mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec):
     om_ks = [-0.5, -0.4, -0.3, -0.2, -0.1, 0., 0.1, 0.2, 0.3, 0.4]
     for om_k in om_ks:
@@ -806,6 +817,7 @@ def swiss_chess_curved_multi_run(mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec):
         plt.ylabel(r'Fractional deviation of $\alpha$ / $10^{-5}$')
         plt.legend()
 
+# plots Fig 6, but need to comment out the enter and exit Rhs.
 def swiss_chess_multi_run_rh(om_m=0.5, mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec):
     results = []
     # om_k = 0
@@ -817,10 +829,10 @@ def swiss_chess_multi_run_rh(om_m=0.5, mass=M_sun*1e13, z_lens=0.5, theta=one_ar
         results.append(result)
 
     # plot enter and exit Rhs
-    enter_rhs = [r["Rh_enter"] for r in results]
-    plt.plot(om_lambdas, enter_rhs, label="enter_rhs")
-    exit_rhs = [r["Rh_exit"] for r in results]
-    plt.plot(om_lambdas, exit_rhs, label="exit_rhs")
+    # enter_rhs = [r["Rh_enter"] for r in results]
+    # plt.plot(om_lambdas, enter_rhs, label="enter_rhs")
+    # exit_rhs = [r["Rh_exit"] for r in results]
+    # plt.plot(om_lambdas, exit_rhs, label="exit_rhs")
 
     plt.xlabel("omega_lambda")
     plt.legend()
@@ -864,7 +876,7 @@ def swiss_chess_rindler(mass=M_sun*1e13, z_lens=0.5, theta=one_arcsec):
     kantowski_fractional_deviations = [r["kantowski_fractional_deviation_from_schwarzschild"] for r in results]
     plt.plot(om_lambdas, np.array(kantowski_fractional_deviations)*10**5, label="Kantowski deviations".format(om_m))
 
-    plt.ylabel(r"Fractional deviation of $\alpha$ / $10^{-5}$")
+    # plt.ylabel(r"Fractional deviation of $\alpha$ / $10^{-5}$")
     plt.xlabel(r"$\Omega_{\Lambda}$")
     plt.legend()
 
@@ -934,6 +946,10 @@ def kantowski_alpha(r0, M, phi, Lambda):
 if __name__ == '__main__':
     from utils import set_typography
     set_typography(latex=True)
+    import matplotlib
+    matplotlib.rcParams.update({'font.size': 13})
+    # plt.rc('legend', fontsize=12)
+    plt.figure(figsize=(6*1.2, 5*1.2))
     # main(filename="data/curvedpyoutput_new.csv")
     # compare_with_analytical()
     # compare_kottler_hole_size_with_frw_size()
@@ -964,6 +980,47 @@ if __name__ == '__main__':
     # swiss_chess_curved_multi_run()
     # swiss_chess_curved_multi_run_kantowski()
 
+    # bigger masses
+    # print(swiss_chess_curved_single_run(0., 0.5, mass=M_sun*1e14, z_lens=0.5, theta=60*one_arcsec))
+    ### figure 4
+    # swiss_chess_curved_multi_run(mass=M_sun*1e14, theta=10*one_arcsec)
+    ##### 1e18 numbers
+    # m1 = M_sun*1e18
+    # theta1 = 20*60*one_arcsec
+    # z1 = 2.
+    m1 = M_sun*1e19
+    theta1 = 60*60*one_arcsec
+
+    m1 = M_sun*1e15
+    theta1 = 60*one_arcsec
+    # import pprint
+    # swiss_chess_curved_single_run(0, 0.5)
+    # swiss_chess_curved_multi_run_schwarzschild_const_omega_m(mass=m1, theta=theta1)
+    # swiss_chess_curved_multi_run(mass=m1, theta=theta1)
+    # swiss_chess_curved_multi_run_kantowski_const_omega_m(mass=m1, theta=theta1)
+    # swiss_chess_curved_multi_run_kantowski(mass=m1, theta=theta1, plot_errors=False)
+    # swiss_chess_curved_single_run(0, 0.5, mass=m1, theta=theta1)
+    # pprint.pprint(swiss_chess_curved_single_run(0, 0.5, mass=m1, z_lens=z1, theta=theta1))
+    # swiss_chess_curved_multi_run_kantowski_const_omega_m(om_m=0.5, mass=m1, theta=theta1, z_lens=z1)
+    # swiss_chess_curved_multi_run_kantowski(mass=m1, theta=theta1, plot_errors=False, z_lens=z1)
+    # swiss_chess_curved_multi_run_schwarzschild_const_omega_m(om_m=0.5, mass=M_sun*1e14, theta=10*one_arcsec)
+
+    # swiss_chess_curved_multi_run_schwarzschild_const_omega_m(mass=m1, theta=theta1)
+    # swiss_chess_curved_multi_run(mass=m1, theta=theta1)
+
+    # swiss_chess_curved_multi_run_kantowski_const_omega_m(om_m=0.5, mass=m1, theta=theta1)
+    # swiss_chess_curved_multi_run_kantowski(mass=m1, theta=theta1, plot_errors=False)
+    plt.tight_layout()
+
+
+    # Fig 6
+    swiss_chess_multi_run_rh(mass=m1, theta=theta1)
+    swiss_chess_rindler(mass=m1, theta=theta1)
+
+    # swiss_chess_multi_run_rh()
+    # swiss_chess_rindler()
+    plt.show()
+
     # to get these two curves on the same graph
     # swiss_chess_curved_multi_run_schwarzschild_const_omega_m(om_m=0.5)
     # swiss_chess_curved_multi_run_schwarzschild_const_omega_m(om_m=0.2)
@@ -992,6 +1049,6 @@ if __name__ == '__main__':
     # # ## col 1
     # schucker(10*one_arcsec, 5*one_arcsec, 0.68, om_lambda=0.77, mass=1.8*M_sun*1e13)
     # # ## col 2
-    schucker(10*one_arcsec, 5*one_arcsec, 0.68, om_lambda=0.92, mass=1.8*M_sun*1e13)
+    # schucker(10*one_arcsec, 5*one_arcsec, 0.68, om_lambda=0.92, mass=1.8*M_sun*1e13)
     # # ## col 3
     # schucker(10*one_arcsec, 5*one_arcsec, 0.68, om_lambda=0.61, mass=1.8*M_sun*1e13)
